@@ -1,4 +1,4 @@
-# 🌿 CozyStay (Backend)
+# 🏡 CozyStay (Backend)
 
 > **숙소 검색/예약/리뷰/호스트 관리**
 > Java & Spring 기반
