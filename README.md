@@ -41,11 +41,11 @@ cozystay-backend/
 ├─ docker-compose.yml              # (선택) MySQL/Redis 로컬 실행
 ├─ src
 │  ├─ main
-│  │  ├─ java/com/cozystay
+│  │  ├─ com/project/cozystay
 │  │  │  ├─ CozyStayApplication.java
+│  │  │  ├─ auth/                 # 인증·인가(JWT, OAuth2)
 │  │  │  ├─ common/               # 공통(예외, 응답 래퍼, AOP, 유틸)
 │  │  │  ├─ config/               # Security/JPA/Swagger/Redis/Storage
-│  │  │  ├─ auth/                 # 인증·인가(JWT, OAuth2)
 │  │  │  ├─ user/                 # 사용자/호스트/관리자
 │  │  │  ├─ properties/              # 숙소, 사진, 편의시설, 정책
 │  │  │  ├─ search/               # 검색/필터/정렬
