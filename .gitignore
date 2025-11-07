@@ -37,6 +37,7 @@ out/
 .vscode/
 
 # Spring 설정
+.env
 application.yml
 application-*.yml
 application-*.properties
