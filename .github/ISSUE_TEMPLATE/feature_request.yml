@@ -1,0 +1,20 @@
+name: feat 기능 제안
+description: 새로운 기능을 제안하고 싶을 때 사용하세요
+title: '제목'
+labels: ['enhancement']
+assignees: []
+body:
+  - type: textarea
+    attributes:
+      label: 개요
+      description: 이슈 개요
+
+  - type: textarea
+    attributes:
+      label: 작업 상세 내용
+      description: 작업 상세 내용
+
+  - type: input
+    attributes:
+      label: 예상 기간
+      description: 예상 기간
