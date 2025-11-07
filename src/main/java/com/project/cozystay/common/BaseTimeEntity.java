@@ -15,10 +15,10 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseTimeEntity {
 
-    @CreatedDate // ⭐️ 생성 시 시간 자동 저장
+    @CreatedDate // 생성 시 시간 자동 저장
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
-    @LastModifiedDate // ⭐️ 수정 시 시간 자동 저장
+    @LastModifiedDate // 수정 시 시간 자동 저장
     private LocalDateTime updatedAt;
 }

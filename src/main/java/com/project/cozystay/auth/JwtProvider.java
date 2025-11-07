@@ -23,14 +23,12 @@ public class JwtProvider {
     @Value("${jwt.expiration}") // 액세스 토큰 만료 시간 (초)
     private Long accessTokenExpirationSeconds;
 
-    // (선택) 리프레시 토큰 만료 시간 (예: 7일)
     private final Long REFRESH_TOKEN_EXPIRATION_SECONDS = 60L * 60 * 24 * 7;
 
     private SecretKey secretKey;
 
     @PostConstruct
     protected void init() {
-        // yml의 secretString을 SecretKey 객체로 변환
         this.secretKey = Keys.hmacShaKeyFor(secretString.getBytes(StandardCharsets.UTF_8));
     }
 
@@ -58,14 +56,13 @@ public class JwtProvider {
         Date validity = new Date(now.getTime() + REFRESH_TOKEN_EXPIRATION_SECONDS * 1000);
 
         return Jwts.builder()
-                .subject(String.valueOf(userId)) // Access Token과 마찬가지로 유저 ID
+                .subject(String.valueOf(userId))
                 .issuedAt(now)
                 .expiration(validity)
                 .signWith(secretKey)
                 .compact();
     }
 
-    // --- (다음 단계) JWT 필터에서 사용할 메서드들 ---
 
     /**
      * 토큰에서 Claims(정보) 추출

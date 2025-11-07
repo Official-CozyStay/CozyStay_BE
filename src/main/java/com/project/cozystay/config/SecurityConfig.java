@@ -32,7 +32,7 @@ public class SecurityConfig {
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
 
-                // 2. URL별 권한 설정 (이게 바로 카카오 창이 안 뜨게 하는 부분)
+                // 2. URL별 권한 설정
                 .authorizeHttpRequests(authz -> authz
                         // Swagger UI, H2 콘솔 등 개발 편의 기능 모두 허용
                         .requestMatchers("/swagger-ui.html", "/v3/api-docs/**", "/h2-console/**").permitAll()
@@ -44,7 +44,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
 
-                // 3. ✨ OAuth2 로그인 설정 ✨
+                // 3. OAuth2 로그인 설정
                 .oauth2Login(oauth2 -> oauth2
 
                         // .../oauth2/authorization/{...}로 오는 요청들 처리
@@ -53,11 +53,9 @@ public class SecurityConfig {
                                         new HttpSessionOAuth2AuthorizationRequestRepository()
                                 )
                         )
-                        // (중요) 카카오가 정보 줬을 때(7단계) 실행할 서비스 등록
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService)
                         )
-                        // (중요) 로그인 최종 성공 시(8단계) 실행할 핸들러 등록
                         .successHandler(oAuth2LoginSuccessHandler)
                 );
 
