@@ -31,7 +31,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        // 이 목록은 SecurityConfig의 permitAll()과 일치.
+
         List<String> excludePath = List.of(
                 "/",
                 "/auth/success",
@@ -40,16 +40,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
 
-        // 정확히 일치하는 경로가 있으면 필터링 안 함
         if (excludePath.contains(path)) {
             return true;
         }
 
-        // /swagger-ui, /v3/api-docs, /h2-console 등 하위 경로를 모두 열어야 할 때
         if (path.startsWith("/swagger-ui") ||
                 path.startsWith("/v3/api-docs") ||
                 path.startsWith("/h2-console") ||
-                path.startsWith("/login/oauth2")) { // /login/oauth2/code/kakao
+                path.startsWith("/login/oauth2") ||
+                path.startsWith("/oauth2/authorization")) {
             return true;
         }
 
