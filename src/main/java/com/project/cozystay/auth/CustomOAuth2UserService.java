@@ -80,6 +80,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         Optional<User> userOptional = userRepository.findByKakaoId(kakaoId);
 
         User user;
+        // TODO: JPA 더티 체킹 활용
         if (userOptional.isPresent()) {
             // [기존 회원]
             user = userOptional.get();

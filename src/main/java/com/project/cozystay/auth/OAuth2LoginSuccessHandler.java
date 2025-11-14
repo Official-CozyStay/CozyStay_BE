@@ -43,6 +43,9 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         String refreshToken = jwtProvider.createRefreshToken(user.getId());
         // TODO: refreshToken은 DB나 Redis에 저장하는 로직 추가
 
+        // TODO: URL에 JWT 토큰 넘기는 방식 변경
+        // TODO: 같은 도메인이라면 HttpOnly 쿠키 사용
+        // TODO: 다른 도메인이라면 짧은 인증 코드(UUID) 방식
         String targetUrl = UriComponentsBuilder.fromUriString(frontendUrl + "/auth/success") // 프론트의 콜백 페이지
                 .queryParam("accessToken", accessToken)
                 .queryParam("refreshToken", refreshToken)
