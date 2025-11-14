@@ -37,8 +37,8 @@ public class SecurityConfig {
                         // Swagger UI, H2 콘솔 등 개발 편의 기능 모두 허용
                         .requestMatchers("/swagger-ui.html", "/v3/api-docs/**", "/h2-console/**").permitAll()
 
-                        // ⭐️ "/" (정문), "/api/auth/**", "/login/oauth2/**" (로그인 관련 경로)는 모두 허용
-                        .requestMatchers("/", "/auth/success", "/login/**", "/oauth2/**").permitAll()
+                        // "/", "/api/auth/**", "/login/oauth2/**" (로그인 관련 경로)는 모두 허용
+                        .requestMatchers("/", "/auth/success", "/login/**", "/oauth2/**", "/api/auth/**").permitAll()
 
                         // 그 외 모든 요청은 인증 필요
                         .anyRequest().authenticated()
