@@ -56,11 +56,26 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         Long kakaoId = (Long) attributes.get("id");
 
         Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
-        String email = (String) kakaoAccount.get("email");
-        Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
-        String nickname = (String) profile.get("nickname");
+        if (kakaoAccount == null) {
+            throw new OAuth2AuthenticationException("카카오 계정 정보가 없습니다.");
+        }
 
-        String profileImageUrl = (String) profile.get("profile_image_url");
+        String email = (String) kakaoAccount.get("email");
+
+        Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
+
+        String nickname = null;
+        String profileImageUrl = null;
+
+        if (profile != null) {
+            nickname = (String) profile.get("nickname");
+            profileImageUrl = (String) profile.get("profile_image_url");
+        }
+
+        // email/nickname 여기서 한 번 더 검증
+        if (email == null || nickname == null) {
+            throw new OAuth2AuthenticationException("카카오에서 필수 사용자 정보(email 또는 nickname)를 제공하지 않았습니다.");
+        }
 
         Optional<User> userOptional = userRepository.findByKakaoId(kakaoId);
 
@@ -68,7 +83,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         if (userOptional.isPresent()) {
             // [기존 회원]
             user = userOptional.get();
-            user = user.updateNicknameAndProfile(nickname, profileImageUrl) // 예시
+            user = user.updateNicknameAndProfile(nickname, profileImageUrl)
                     .updateKakaoTokens(kakaoAccessToken, kakaoTokenExpiresAt);
             userRepository.save(user);
         } else {
