@@ -70,7 +70,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 Long userId = jwtProvider.getUserId(token);
 
                 User user = userRepository.findById(userId)
-                        .orElseThrow(() -> new RuntimeException("해당 ID의 회원을 찾을 수 없습니다.")); // TODO: 커스텀 예외
+                        // TODO: 커스텀 예외
+                        .orElseThrow(() -> new RuntimeException("해당 ID의 회원을 찾을 수 없습니다."));
 
                 Authentication authentication = new UsernamePasswordAuthenticationToken(
                         user, // Principal (인증된 주체, 여기서는 User 객체 자체를 넣음)
@@ -81,10 +82,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 log.debug("Security Context에 '{}' 인증 정보를 저장했습니다, uri: {}", user.getId(), request.getRequestURI());
 
+            } catch (io.jsonwebtoken.ExpiredJwtException e) {
+                log.warn("만료된 JWT 토큰입니다. token={}, message={}", token, e.getMessage());
+            } catch (io.jsonwebtoken.MalformedJwtException e) {
+                log.warn("형식이 잘못된 JWT 토큰입니다. token={}, message={}", token, e.getMessage());
+            } catch (io.jsonwebtoken.JwtException e) {
+                log.warn("JWT 관련 예외가 발생했습니다. token={}, message={}", token, e.getMessage());
             } catch (Exception e) {
                 log.warn("토큰에서 인증 정보를 가져오는 데 실패했습니다.", e);
             }
-        } else {
+        }
+        else {
             log.trace("유효한 JWT 토큰이 없습니다, uri: {}", request.getRequestURI());
         }
 
