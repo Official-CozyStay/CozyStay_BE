@@ -74,6 +74,9 @@ public class JwtProvider {
                     .build()
                     .parseSignedClaims(token)
                     .getPayload();
+        } catch (io.jsonwebtoken.ExpiredJwtException e) {
+            log.warn("만료된 JWT 토큰입니다: {}", e.getMessage());
+            throw e; // 그대로 던져서 필터/컨트롤러에서 "만료"라고 구분해서 처리
         } catch (Exception e) {
             log.warn("유효하지 않은 토큰입니다. {}", e.getMessage());
             throw new IllegalArgumentException("Invalid token", e); // 예외 처리 필요
