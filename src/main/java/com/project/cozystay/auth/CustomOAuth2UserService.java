@@ -43,11 +43,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         User user = saveOrUpdate(attributes, kakaoAccessToken, kakaoRefreshToken, kakaoTokenExpiresAt);
 
-        return new DefaultOAuth2User(
-                Collections.singleton(user.getUserRole()),
-                attributes,
-                "id"
-        );
+        return new CustomOAuth2User(user, attributes);
     }
 
     private User saveOrUpdate(Map<String, Object> attributes,
