@@ -16,7 +16,7 @@ public class CustomOAuth2User implements OAuth2User {
 
     public CustomOAuth2User(User user, Map<String, Object> attributes) {
         this.user = user;
-        this.attributes = attributes;
+        this.attributes = Map.copyOf(attributes);
     }
 
     public Long getId() {
