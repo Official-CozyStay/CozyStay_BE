@@ -34,8 +34,7 @@ public class CustomOAuth2User implements OAuth2User {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // 간단히 ROLE_USER 하나만 준다고 가정
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        return List.of(user.getUserRole());
     }
 
     @Override
