@@ -49,7 +49,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private User saveOrUpdate(Map<String, Object> attributes,
                               String kakaoAccessToken, String kakaoRefreshToken, LocalDateTime kakaoTokenExpiresAt) {
 
-        Long kakaoId = (Long) attributes.get("id");
+        Long providerId = (Long) attributes.get("id");
 
         Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
         if (kakaoAccount == null) {
@@ -73,7 +73,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             throw new OAuth2AuthenticationException("카카오에서 필수 사용자 정보(email 또는 nickname)를 제공하지 않았습니다.");
         }
 
-        Optional<User> userOptional = userRepository.findByKakaoId(kakaoId);
+        Optional<User> userOptional = userRepository.findByProviderId(providerId.toString());
 
         User user;
         // TODO: JPA 더티 체킹 활용
@@ -81,16 +81,16 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             // [기존 회원]
             user = userOptional.get();
             user = user.updateNicknameAndProfile(nickname, profileImageUrl)
-                    .updateKakaoTokens(kakaoAccessToken, kakaoTokenExpiresAt);
+                    .updateOauthTokens(kakaoAccessToken, kakaoTokenExpiresAt);
             userRepository.save(user);
         } else {
             // [신규 회원]
             user = User.builder()
-                    .kakaoId(kakaoId)
+                    .providerId(providerId.toString())
                     .email(email)
                     .nickName(nickname)
                     .profileImageUrl(profileImageUrl)
-                    .kakaoAccessToken(kakaoAccessToken)
+                    .oauthAccessToken(kakaoAccessToken)
                     .tokenExpiresAt(kakaoTokenExpiresAt)
                     .userRole(Role.USER)
                     .build();
