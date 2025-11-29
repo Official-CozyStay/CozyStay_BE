@@ -40,6 +40,6 @@ public class CustomOAuth2User implements OAuth2User {
     @Override
     public String getName() {
         // Security가 내부에서 사용하는 "이름"
-        return user.getKakaoId().toString();
+        return user.getProviderId();
     }
 }
