@@ -32,12 +32,12 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
 
-        Long kakaoId = oAuth2User.getAttribute("id");
+        Long providerId = oAuth2User.getAttribute("id");
 
-        log.info("카카오 로그인 성공. Kakao ID: {}", kakaoId);
+        log.info("카카오 로그인 성공. Kakao ID: {}", providerId);
 
-        User user = userRepository.findByKakaoId(kakaoId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다. Kakao ID: " + kakaoId));
+        User user = userRepository.findByProviderId(providerId.toString())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다. Provider ID: " + providerId));
 
         String accessToken = jwtProvider.createAccessToken(user.getId(), user.getUserRole());
         String refreshToken = jwtProvider.createRefreshToken(user.getId());
