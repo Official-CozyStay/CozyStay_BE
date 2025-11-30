@@ -24,7 +24,7 @@ public class AccommodationResponseDTO {
         return new AccommodationResponseDTO(
                 entity.getAccommodationId(),
                 entity.getTitle(),
-                entity.getImage().stream()
+                entity.getImages().stream()
                         .map(AccommodationImage::getImageUrl)
                         .toList(),
                 entity.getPricePerNight()

@@ -88,7 +88,7 @@ public class AccommodationFullResponseDTO {
                 )
 
                 .images(
-                        entity.getImage().stream()
+                        entity.getImages().stream()
                                 .map(i -> AccommodationImageDTO.builder()
                                         .imageId(i.getImageId())
                                         .imageUrl(i.getImageUrl())
@@ -98,7 +98,7 @@ public class AccommodationFullResponseDTO {
                                 ).toList()
                 )
                 .amenities(
-                        entity.getAmenity().stream()
+                        entity.getAmenities().stream()
                                 .map(a -> AmenityDTO.builder()
                                         .amenityId(a.getAmenity().getAmenityId())
                                         .name(a.getAmenity().getName())
