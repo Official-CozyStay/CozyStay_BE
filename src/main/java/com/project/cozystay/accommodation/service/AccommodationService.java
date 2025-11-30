@@ -80,26 +80,24 @@ public class AccommodationService {
         Accommodation accommodation = accommodationRepository.findById(accommodationId)
                 .orElseThrow(() -> new IllegalArgumentException("ID에 해당하는 숙소가 없습니다"));
 
-        List<Long>Id = new ArrayList<>();
+        List<AccommodationImage> newImages = new ArrayList<>();
 
         for (AccommodationImageRequestDTO dto : request) {
-
             AccommodationImage image = dto.toEntity();
-
-            image.assignAccommodation(accommodation);
-
-            accommodationImageRepository.save(image);
-
-            Id.add(image.getImageId());
+            accommodation.addImage(image);
+            newImages.add(image);
         }
 
-
         accommodationRepository.save(accommodation);
+
+        List<Long> imageIds = newImages.stream()
+                .map(AccommodationImage::getImageId)
+                .toList();
 
         return AccommodationImageResponseDTO.builder()
                 .message("이미지 등록 완료")
                 .accommodationId(accommodationId)
-                .imageId(Id)
+                .imageId(imageIds)
                 .build();
     }
 
@@ -108,30 +106,23 @@ public class AccommodationService {
         Accommodation accommodation = accommodationRepository.findById(accommodationId)
                 .orElseThrow(() -> new IllegalArgumentException("ID에 해당하는 숙소가 없습니다"));
 
-        int count = 0;
-
         for (AccommodationAmenityRequestDTO dto : request) {
-
-            Amenity amenity = amenityRepository.save(
-                    Amenity.builder()
-                            .name(dto.getName())
-                            .icon(dto.getIcon())
-                            .category(dto.getCategory())
-                            .build()
-            );
+            Amenity amenity = amenityRepository.findByName(dto.getName())
+                    .orElseGet(() -> amenityRepository.save(dto.toEntity()));
 
             AccommodationAmenity joinEntity = AccommodationAmenity.builder()
                     .accommodation(accommodation)
                     .amenity(amenity)
                     .build();
 
-            accommodationAmenityRepository.save(joinEntity);
-
-            count++;
+            accommodation.addAmenity(joinEntity);
         }
+
+        accommodationRepository.save(accommodation);
+
         return AccommodationAmenityResponseDTO.builder()
                 .accommodationId(accommodationId)
-                .count(count)
+                .count(request.size())
                 .message("편의시설 등록 완료")
                 .build();
     }
