@@ -14,15 +14,15 @@ public interface AccommodationRepository extends JpaRepository<Accommodation, Lo
     @Query("""
     SELECT DISTINCT a
     FROM Accommodation a
-    LEFT JOIN FETCH a.image
+    LEFT JOIN FETCH a.images
 """)
     List<Accommodation> findAllAccommodations();
 
     @Query("""
 SELECT DISTINCT a FROM Accommodation a
 LEFT JOIN FETCH a.detail
-LEFT JOIN FETCH a.image
-LEFT JOIN FETCH a.amenity am
+LEFT JOIN FETCH a.images
+LEFT JOIN FETCH a.amenities am
 LEFT JOIN FETCH am.amenity
 WHERE a.accommodationId = :id
 """)
