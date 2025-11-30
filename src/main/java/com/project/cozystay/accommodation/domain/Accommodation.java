@@ -103,11 +103,11 @@ public class Accommodation {
 
     @OneToMany(mappedBy = "accommodation", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private Set<AccommodationImage> image = new HashSet<>();
+    private Set<AccommodationImage> images = new HashSet<>();
 
     @OneToMany(mappedBy = "accommodation", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private Set<AccommodationAmenity> amenity = new HashSet<>();
+    private Set<AccommodationAmenity> amenities = new HashSet<>();
 
     public void addDetail(AccommodationDetail detail) {
         this.detail = detail;
@@ -115,12 +115,12 @@ public class Accommodation {
     }
 
     public void addImage(AccommodationImage image){
-        this.image.add(image);
+        this.images.add(image);
         image.assignAccommodation(this);
     }
 
     public void addAmenity(AccommodationAmenity amenity){
-        this.amenity.add(amenity);
+        this.amenities.add(amenity);
         amenity.assignAccommodation(this);
     }
 
@@ -132,10 +132,10 @@ public class Accommodation {
         if (this.detail == null)
             throw new IllegalStateException("상세 정보가 없습니다.");
 
-        if (this.image.isEmpty())
+        if (this.images.isEmpty())
             throw new IllegalStateException("이미지가 없습니다.");
 
-        if (this.amenity.isEmpty())
+        if (this.amenities.isEmpty())
             throw new IllegalStateException("편의시설 정보가 없습니다.");
 
         this.status = AccommodationStatus.ACTIVE;
