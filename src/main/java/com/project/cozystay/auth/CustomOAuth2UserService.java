@@ -1,7 +1,9 @@
 package com.project.cozystay.auth;
 
+import com.project.cozystay.user.domain.AuthProvider;
 import com.project.cozystay.user.domain.Role;
 import com.project.cozystay.user.domain.User;
+import com.project.cozystay.user.domain.UserGrade;
 import com.project.cozystay.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -34,22 +36,43 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         Map<String, Object> attributes = oAuth2User.getAttributes();
 
         OAuth2AccessToken accessToken = userRequest.getAccessToken();
-        String kakaoAccessToken = accessToken.getTokenValue();
+        String oauthAccessToken = accessToken.getTokenValue();
         Instant expiresAtInstant = accessToken.getExpiresAt();
-        LocalDateTime kakaoTokenExpiresAt = (expiresAtInstant != null) ?
+        LocalDateTime tokenExpiresAt = (expiresAtInstant != null) ?
                 LocalDateTime.ofInstant(expiresAtInstant, ZoneId.systemDefault()) : null;
 
-        String kakaoRefreshToken = null;
+        //String oauthRefreshToken = null;
+        String registrationId = userRequest.getClientRegistration().getRegistrationId();
+        AuthProvider provider = convertToProvider(registrationId);
 
-        User user = saveOrUpdate(attributes, kakaoAccessToken, kakaoRefreshToken, kakaoTokenExpiresAt);
+        User user = saveOrUpdate(attributes, oauthAccessToken, tokenExpiresAt, provider);
+
 
         return new CustomOAuth2User(user, attributes);
     }
 
-    private User saveOrUpdate(Map<String, Object> attributes,
-                              String kakaoAccessToken, String kakaoRefreshToken, LocalDateTime kakaoTokenExpiresAt) {
+    private AuthProvider convertToProvider(String registrationId) {
 
-        Long kakaoId = (Long) attributes.get("id");
+        // 휴대폰 번호 패턴이면 LOCAL
+        if (registrationId != null && registrationId.matches("^01[0-9]{8,9}$")) {
+            return AuthProvider.LOCAL;
+        }
+
+        // 그 외는 소셜 로그인
+        return switch (registrationId.toLowerCase()) {
+            case "kakao" -> AuthProvider.KAKAO;
+            case "naver" -> AuthProvider.NAVER;
+            case "google" -> AuthProvider.GOOGLE;
+            default -> throw new IllegalArgumentException("지원하지 않는 provider: " + registrationId);
+        };
+    }
+
+    private User saveOrUpdate(Map<String, Object> attributes,
+                              String oauthAccessToken,
+                              LocalDateTime kakaoTokenExpiresAt,
+                              AuthProvider provider) {
+
+        Long providerId = (Long) attributes.get("id");
 
         Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
         if (kakaoAccount == null) {
@@ -73,26 +96,30 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             throw new OAuth2AuthenticationException("카카오에서 필수 사용자 정보(email 또는 nickname)를 제공하지 않았습니다.");
         }
 
-        Optional<User> userOptional = userRepository.findByKakaoId(kakaoId);
+        Optional<User> userOptional = userRepository.findByProviderIdAndProvider(providerId.toString(), provider);
 
         User user;
         // TODO: JPA 더티 체킹 활용
         if (userOptional.isPresent()) {
-            // [기존 회원]
+            // 기존 회원
             user = userOptional.get();
             user = user.updateNicknameAndProfile(nickname, profileImageUrl)
-                    .updateKakaoTokens(kakaoAccessToken, kakaoTokenExpiresAt);
-            userRepository.save(user);
+                    .updateOauthTokens(oauthAccessToken, kakaoTokenExpiresAt);
         } else {
-            // [신규 회원]
+            // 신규 회원
             user = User.builder()
-                    .kakaoId(kakaoId)
-                    .email(email)
                     .nickName(nickname)
+                    .email(email)
                     .profileImageUrl(profileImageUrl)
-                    .kakaoAccessToken(kakaoAccessToken)
-                    .tokenExpiresAt(kakaoTokenExpiresAt)
+                    .provider(provider)
+                    .providerId(providerId.toString())
                     .userRole(Role.USER)
+                    .userGrade(UserGrade.BRONZE)
+                    .totalCompletedBookings(0)
+                    .totalStayedNights(0)
+                    .reviewCount(0)
+                    .oauthAccessToken(oauthAccessToken)
+                    .tokenExpiresAt(kakaoTokenExpiresAt)
                     .build();
             userRepository.save(user);
         }
