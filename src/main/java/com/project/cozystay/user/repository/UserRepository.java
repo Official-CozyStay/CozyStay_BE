@@ -11,9 +11,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // 카카오 ID로 회원 조회
     Optional<User> findByProviderId(String providerId);
 
-    // DB PK ID로 회원 조회
-    Optional<User> findUserById(Long userId);
-
     Optional<User> findByEmail(String email);
 
     Optional<User> findByProviderAndProviderId(AuthProvider provider, String providerId);
