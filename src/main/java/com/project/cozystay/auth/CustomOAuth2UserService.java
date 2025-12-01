@@ -96,7 +96,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             throw new OAuth2AuthenticationException("카카오에서 필수 사용자 정보(email 또는 nickname)를 제공하지 않았습니다.");
         }
 
-        Optional<User> userOptional = userRepository.findByProviderId(providerId.toString());
+        Optional<User> userOptional = userRepository.findByProviderIdAndProvider(providerId.toString(), provider);
 
         User user;
         // TODO: JPA 더티 체킹 활용

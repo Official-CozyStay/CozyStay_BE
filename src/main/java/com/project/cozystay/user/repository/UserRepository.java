@@ -8,10 +8,11 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    // 카카오 ID로 회원 조회
+    // Provider ID로 회원 조회
     Optional<User> findByProviderId(String providerId);
 
-    Optional<User> findByEmail(String email);
+    // Provider ID와 Provider 로 회원 조회
+    Optional<User> findByProviderIdAndProvider(String providerId, AuthProvider provider);
 
     Optional<User> findByProviderAndProviderId(AuthProvider provider, String providerId);
 }
