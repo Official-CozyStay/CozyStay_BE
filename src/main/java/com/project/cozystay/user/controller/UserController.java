@@ -1,6 +1,7 @@
 package com.project.cozystay.user.controller;
 
 import com.project.cozystay.auth.CustomOAuth2User;
+import com.project.cozystay.user.domain.User;
 import com.project.cozystay.user.dto.*;
 import com.project.cozystay.user.service.UserService;
 import jakarta.validation.Valid;
@@ -24,8 +25,8 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserProfileResponse>> getMyProfile(
             @AuthenticationPrincipal CustomOAuth2User principal
     ) {
-        Long userId = principal.getId();
-        UserProfileResponse response = userService.getMyProfile(userId);
+        User user = principal.getUser();
+        UserProfileResponse response = userService.getMyProfile(user);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
@@ -37,7 +38,7 @@ public class UserController {
             @AuthenticationPrincipal CustomOAuth2User principal,
             @RequestBody @Valid UserProfileUpdateRequest request
     ) {
-        Long userId = principal.getId();
+        Long userId = principal.getUser().getId();
         UserProfileResponse response = userService.updateMyProfile(userId, request);
         return ResponseEntity.ok(ApiResponse.success("프로필이 수정되었습니다.", response));
     }
@@ -49,7 +50,7 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserGradeResponse>> getMyGrade(
             @AuthenticationPrincipal CustomOAuth2User principal
     ) {
-        Long userId = principal.getId();
+        Long userId = principal.getUser().getId();
         UserGradeResponse response = userService.getMyGrade(userId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
@@ -61,7 +62,7 @@ public class UserController {
     public ResponseEntity<ApiResponse<Void>> becomeHost(
             @AuthenticationPrincipal CustomOAuth2User principal
     ) {
-        Long userId = principal.getId();
+        Long userId = principal.getUser().getId();
         userService.becomeHost(userId);
         return ResponseEntity
                 .status(HttpStatus.OK)
