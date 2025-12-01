@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Component
@@ -73,8 +74,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         // TODO: 커스텀 예외
                         .orElseThrow(() -> new RuntimeException("해당 ID의 회원을 찾을 수 없습니다."));
 
+                CustomOAuth2User customUser = new CustomOAuth2User(user, Map.of());
+
                 Authentication authentication = new UsernamePasswordAuthenticationToken(
-                        user, // Principal (인증된 주체, 여기서는 User 객체 자체를 넣음)
+                        customUser, // Principal (인증된 주체, 여기서는 User 객체 자체를 넣음)
                         null, // Credentials (자격 증명, JWT 방식에선 불필요)
                         Collections.singleton(new SimpleGrantedAuthority(user.getUserRole().getKey())) // 권한
                 );
