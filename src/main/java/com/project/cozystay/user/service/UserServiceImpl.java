@@ -95,31 +95,18 @@ public class UserServiceImpl implements UserService{
      */
     private GradeInfo calculateNextGradeInfo(User user) {
         UserGrade currentGrade = user.getUserGrade();
-        int bookings = user.getTotalCompletedBookings();
-        int nights = user.getTotalStayedNights();
+        UserGrade nextGrade = currentGrade.getNextGrade();
 
-        // 이미 최고 등급이면 "다음 등급 없음"
-        if (currentGrade == UserGrade.PLATINUM) {
-            return new GradeInfo("NONE", 0, 0);
+        // 최고 등급인 경우 (다음 등급이 없음)
+        if (nextGrade == null) {
+            return new GradeInfo("PLATINUM", 0, 0);
         }
 
-        // 다음 등급 기준
-        if (currentGrade == UserGrade.BRONZE) {
-            int remainingBookings = Math.max(0, SILVER_BOOKING_THRESHOLD - bookings);
-            int remainingNights = Math.max(0, SILVER_NIGHTS_THRESHOLD - nights);
-            return new GradeInfo(UserGrade.SILVER.name(), remainingBookings, remainingNights);
-        }
+        // 다음 등급까지 남은 실적 계산
+        int remainingBookings = nextGrade.calculateRemainingBookings(user.getTotalCompletedBookings());
+        int remainingNights = nextGrade.calculateRemainingNights(user.getTotalStayedNights());
 
-        if (currentGrade == UserGrade.SILVER) {
-            int remainingBookings = Math.max(0, GOLD_BOOKING_THRESHOLD - bookings);
-            int remainingNights = Math.max(0, GOLD_NIGHTS_THRESHOLD - nights);
-            return new GradeInfo(UserGrade.GOLD.name(), remainingBookings, remainingNights);
-        }
-
-        // currentGrade == GOLD 인 경우
-        int remainingBookings = Math.max(0, PLATINUM_BOOKING_THRESHOLD - bookings);
-        int remainingNights = Math.max(0, PLATINUM_NIGHTS_THRESHOLD - nights);
-        return new GradeInfo(UserGrade.PLATINUM.name(), remainingBookings, remainingNights);
+        return new GradeInfo(nextGrade.name(), remainingBookings, remainingNights);
     }
 
     /**
