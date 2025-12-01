@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -28,16 +29,17 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     private String frontendUrl;
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+    public void onAuthenticationSuccess(HttpServletRequest request,
+                                        HttpServletResponse response,
+                                        Authentication authentication) throws IOException, ServletException {
 
-        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+        CustomOAuth2User principal = (CustomOAuth2User) authentication.getPrincipal();
 
-        Long providerId = oAuth2User.getAttribute("id");
+        Long providerId = principal.getAttribute("id");
+        User user = Optional.ofNullable(principal.getUser())
+                .orElseThrow(() -> new IllegalArgumentException("사용자 정보를 찾을 수 없습니다."));
 
         log.info("카카오 로그인 성공. Kakao ID: {}", providerId);
-
-        User user = userRepository.findByProviderId(providerId.toString())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다. Provider ID: " + providerId));
 
         String accessToken = jwtProvider.createAccessToken(user.getId(), user.getUserRole());
         String refreshToken = jwtProvider.createRefreshToken(user.getId());
