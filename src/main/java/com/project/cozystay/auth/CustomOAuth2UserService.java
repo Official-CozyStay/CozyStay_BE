@@ -1,7 +1,9 @@
 package com.project.cozystay.auth;
 
+import com.project.cozystay.user.domain.AuthProvider;
 import com.project.cozystay.user.domain.Role;
 import com.project.cozystay.user.domain.User;
+import com.project.cozystay.user.domain.UserGrade;
 import com.project.cozystay.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -34,20 +36,41 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         Map<String, Object> attributes = oAuth2User.getAttributes();
 
         OAuth2AccessToken accessToken = userRequest.getAccessToken();
-        String kakaoAccessToken = accessToken.getTokenValue();
+        String oauthAccessToken = accessToken.getTokenValue();
         Instant expiresAtInstant = accessToken.getExpiresAt();
-        LocalDateTime kakaoTokenExpiresAt = (expiresAtInstant != null) ?
+        LocalDateTime tokenExpiresAt = (expiresAtInstant != null) ?
                 LocalDateTime.ofInstant(expiresAtInstant, ZoneId.systemDefault()) : null;
 
-        String kakaoRefreshToken = null;
+        //String oauthRefreshToken = null;
+        String registrationId = userRequest.getClientRegistration().getRegistrationId();
+        AuthProvider provider = convertToProvider(registrationId);
 
-        User user = saveOrUpdate(attributes, kakaoAccessToken, kakaoRefreshToken, kakaoTokenExpiresAt);
+        User user = saveOrUpdate(attributes, oauthAccessToken, tokenExpiresAt, provider);
+
 
         return new CustomOAuth2User(user, attributes);
     }
 
+    private AuthProvider convertToProvider(String registrationId) {
+
+        // 휴대폰 번호 패턴이면 LOCAL
+        if (registrationId != null && registrationId.matches("^01[0-9]{8,9}$")) {
+            return AuthProvider.LOCAL;
+        }
+
+        // 그 외는 소셜 로그인
+        return switch (registrationId.toLowerCase()) {
+            case "kakao" -> AuthProvider.KAKAO;
+            case "naver" -> AuthProvider.NAVER;
+            case "google" -> AuthProvider.GOOGLE;
+            default -> throw new IllegalArgumentException("지원하지 않는 provider: " + registrationId);
+        };
+    }
+
     private User saveOrUpdate(Map<String, Object> attributes,
-                              String kakaoAccessToken, String kakaoRefreshToken, LocalDateTime kakaoTokenExpiresAt) {
+                              String oauthAccessToken,
+                              LocalDateTime kakaoTokenExpiresAt,
+                              AuthProvider provider) {
 
         Long providerId = (Long) attributes.get("id");
 
@@ -78,21 +101,25 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         User user;
         // TODO: JPA 더티 체킹 활용
         if (userOptional.isPresent()) {
-            // [기존 회원]
+            // 기존 회원
             user = userOptional.get();
             user = user.updateNicknameAndProfile(nickname, profileImageUrl)
-                    .updateOauthTokens(kakaoAccessToken, kakaoTokenExpiresAt);
-            userRepository.save(user);
+                    .updateOauthTokens(oauthAccessToken, kakaoTokenExpiresAt);
         } else {
-            // [신규 회원]
+            // 신규 회원
             user = User.builder()
-                    .providerId(providerId.toString())
-                    .email(email)
                     .nickName(nickname)
+                    .email(email)
                     .profileImageUrl(profileImageUrl)
-                    .oauthAccessToken(kakaoAccessToken)
-                    .tokenExpiresAt(kakaoTokenExpiresAt)
+                    .provider(provider)
+                    .providerId(providerId.toString())
                     .userRole(Role.USER)
+                    .userGrade(UserGrade.BRONZE)
+                    .totalCompletedBookings(0)
+                    .totalStayedNights(0)
+                    .reviewCount(0)
+                    .oauthAccessToken(oauthAccessToken)
+                    .tokenExpiresAt(kakaoTokenExpiresAt)
                     .build();
             userRepository.save(user);
         }
