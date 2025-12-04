@@ -4,7 +4,7 @@ import com.project.cozystay.accommodation.domain.Accommodation;
 import com.project.cozystay.accommodation.repository.AccommodationRepository;
 import com.project.cozystay.booking.domain.AvailabilityCalendar;
 import com.project.cozystay.booking.dto.AvailabilityResponse;
-import com.project.cozystay.booking.dto.AvailabiltiyDayResponse;
+import com.project.cozystay.booking.dto.AvailabilityDayResponse;
 import com.project.cozystay.booking.repository.AvailabilityCalendarRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -45,8 +45,8 @@ public class BookingAvailabilityService {
         );
 
         // 엔티티 -> DTO매핑
-        List<AvailabiltiyDayResponse> dayResponses = calenderList.stream()
-                .map(cal-> AvailabiltiyDayResponse.builder()
+        List<AvailabilityDayResponse> dayResponses = calenderList.stream()
+                .map(cal-> AvailabilityDayResponse.builder()
                         .date(cal.getDate())
                         .available(cal.isAvailable())
                         .pricePerNight(cal.getCustomPrice() != null ? cal.getCustomPrice() : defaultPricePerNight)

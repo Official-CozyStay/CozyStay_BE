@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @Data
 @Builder
 @AllArgsConstructor
-public class AvailabiltiyDayResponse {
+public class AvailabilityDayResponse {
     // 하루치 정보 DTO
     private LocalDate date;
     private boolean available;

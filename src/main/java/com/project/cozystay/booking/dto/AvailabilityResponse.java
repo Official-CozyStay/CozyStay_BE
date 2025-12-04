@@ -13,5 +13,5 @@ public class AvailabilityResponse {
     private Long accommodationId;
     private LocalDate from;
     private LocalDate to;
-    private List<AvailabiltiyDayResponse> days;
+    private List<AvailabilityDayResponse> days;
 }
