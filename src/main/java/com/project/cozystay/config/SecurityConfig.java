@@ -1,8 +1,11 @@
 package com.project.cozystay.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.cozystay.auth.CustomOAuth2UserService;
 import com.project.cozystay.auth.JwtAuthenticationFilter;
 import com.project.cozystay.auth.OAuth2LoginSuccessHandler;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,8 +13,16 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
@@ -26,13 +37,20 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
-                // 1. JWT 방식이므로 세션 STATELESS, CSRF/FormLogin/HttpBasic 비활성화
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+                // JWT 방식이므로 세션 STATELESS, CSRF/FormLogin/HttpBasic 비활성화
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(csrf -> csrf.disable())
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
 
-                // 2. URL별 권한 설정
+                // 예외 처리 - 리다이렉트 대신 JSON 401
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(restAuthenticationEntryPoint())
+                )
+
+                // URL별 권한 설정
                 .authorizeHttpRequests(authz -> authz
                         // Swagger UI, H2 콘솔 등 개발 편의 기능 모두 허용
                         .requestMatchers("/swagger-ui.html", "/v3/api-docs/**", "/h2-console/**").permitAll()
@@ -44,7 +62,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
 
-                // 3. OAuth2 로그인 설정
+                // OAuth2 로그인 설정
                 .oauth2Login(oauth2 -> oauth2
 
                         // .../oauth2/authorization/{...}로 오는 요청들 처리
@@ -62,5 +80,51 @@ public class SecurityConfig {
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+
+        // 1. 허용할 프론트엔드 Origin
+        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        // 배포 후에는 "https://cozystay-frontend.com" 이런 거 추가
+
+        // 2. 허용 메서드
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+
+        // 3. 허용 헤더 (Authorization 포함)
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin"));
+
+        // 4. 인증정보(쿠키/Authorization 헤더) 포함 허용
+        config.setAllowCredentials(true);
+
+        // 5. Preflight 캐시 시간(초)
+        config.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        // 모든 경로에 대해 이 CORS 설정을 적용
+        source.registerCorsConfiguration("/**", config);
+
+        return source;
+    }
+
+    @Bean
+    public AuthenticationEntryPoint restAuthenticationEntryPoint() {
+        return (HttpServletRequest request,
+                HttpServletResponse response,
+                org.springframework.security.core.AuthenticationException authException) -> {
+
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401
+            response.setContentType("application/json;charset=UTF-8");
+
+            Map<String, Object> body = new HashMap<>();
+            body.put("success", false);
+            body.put("message", "인증이 필요합니다.");
+            body.put("path", request.getRequestURI());
+
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.writeValue(response.getWriter(), body);
+        };
     }
 }
