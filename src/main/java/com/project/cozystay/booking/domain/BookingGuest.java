@@ -28,8 +28,8 @@ public class BookingGuest {
     @Column(name = "guest_name", length = 100)
     private String guestName;
 
-    @Column(name = "geust_email", length = 255)
-    private String geustEmail;
+    @Column(name = "guest_email", length = 255)
+    private String guestEmail;
 
     @Column(name = "guest_phone", length = 20)
     private String guestPhone;
