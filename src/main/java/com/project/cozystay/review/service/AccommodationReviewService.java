@@ -28,6 +28,7 @@ public class AccommodationReviewService {
     private final UserRepository userRepository;
 
     // 숙소 리뷰 생성
+    @Transactional
     public AccommodationReviewResponse createAccommodationReview(Long guestId, AccommodationReviewCreateRequest request) {
         User guest = userRepository.findById(guestId)
                 .orElseThrow(() -> new IllegalArgumentException("게스트가 존재하지 않습니다."));
@@ -42,6 +43,8 @@ public class AccommodationReviewService {
         AccommodationReview review = request.toEntity(accommodation, guest, ratingOverall);
 
         accommodationReviewRepository.save(review);
+
+        guest.increaseReviewCount(); // 리뷰 카운트 +1
 
         return AccommodationReviewResponse.from(review);
     }
@@ -65,6 +68,7 @@ public class AccommodationReviewService {
 
     // 숙소 리뷰 수정
     //TODO 사장님이 답글을 달기 전까지만 수정 가능하도록하는 로직 추가 필요
+    @Transactional
     public ReviewResponse updateAccommodationReview(Long guestId, AccommodationReviewCreateRequest request){
 
         AccommodationReview review = accommodationReviewRepository.findByGuestAndAccommodation(guestId, request.accommodationId())
@@ -78,6 +82,7 @@ public class AccommodationReviewService {
 
 
     // 숙소 리뷰 삭제
+    @Transactional
     public ReviewResponse deleteAccommodationReview(Long guestId, Long accId){
         AccommodationReview review = accommodationReviewRepository.findByGuestAndAccommodation(guestId, accId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 리뷰가 존재하지 않습니다."));

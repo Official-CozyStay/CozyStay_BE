@@ -22,6 +22,7 @@ public class UserReviewService {
     private final UserRepository userRepository;
 
     // 사용자 리뷰 생성
+    @Transactional
     public UserReviewResponse createUserReview(Long hostId, UserReviewCreateRequest request) {
 
         if(userReviewRepository.existsByTargetGuest_IdAndReviewerHost_Id(request.targetGuestId(), hostId)){
@@ -38,6 +39,8 @@ public class UserReviewService {
         UserReview review = request.toEntity(reviewerHost, targetGuest);
 
         userReviewRepository.save(review);
+
+        reviewerHost.increaseReviewCount(); // 리뷰 카운트 +1
 
         return UserReviewResponse.from(review);
     }
@@ -58,6 +61,7 @@ public class UserReviewService {
 
     // 사용자 리뷰 수정
     //TODO 사용자가 답글을 달기 전까지만 수정 가능하도록하는 로직 추가 필요
+    @Transactional
     public ReviewResponse updateUserReview(UserReviewCreateRequest request, Long reviewerId){
 
         UserReview userReview = userReviewRepository.findByTargetGuest_IdAndReviewerHost_Id(request.targetGuestId(), reviewerId)
@@ -69,6 +73,7 @@ public class UserReviewService {
     }
 
     // 사용자 리뷰 삭제
+    @Transactional
     public ReviewResponse deleteUserReview(Long targetGuestId, Long reviewerId){
 
         UserReview userReview = userReviewRepository.findByTargetGuest_IdAndReviewerHost_Id(targetGuestId, reviewerId)
