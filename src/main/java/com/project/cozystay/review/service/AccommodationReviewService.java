@@ -9,6 +9,7 @@ import com.project.cozystay.review.dto.ReviewResponse;
 import com.project.cozystay.review.repository.AccommodationReviewRepository;
 import com.project.cozystay.user.domain.User;
 import com.project.cozystay.user.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,10 +34,10 @@ public class AccommodationReviewService {
     @Transactional
     public AccommodationReviewResponse createAccommodationReview(Long guestId, AccommodationReviewCreateRequest request) {
         User guest = userRepository.findById(guestId)
-                .orElseThrow(() -> new IllegalArgumentException("게스트가 존재하지 않습니다."));
+                .orElseThrow(() -> new EntityNotFoundException("게스트가 존재하지 않습니다."));
 
         Accommodation accommodation = accommodationRepository.findById(request.accommodationId())
-                .orElseThrow(() -> new IllegalArgumentException("숙소가 존재하지 않습니다."));
+                .orElseThrow(() -> new EntityNotFoundException("숙소가 존재하지 않습니다."));
 
 
         //TODO 이 사용자가 해당 숙소를 실제로 이용했는지(예약 완료 여부) 검증 로직 추가
