@@ -9,7 +9,6 @@ import java.math.BigDecimal;
  * 숙소 -> 게스트/사용자
  * 리뷰 응답 DTO
  */
-@Builder
 public record UserReviewResponse (
 
     Long targetGuestId,
@@ -23,10 +22,10 @@ public record UserReviewResponse (
     // Entity -> DTO
     public static UserReviewResponse from(UserReview userReview){
 
-        return UserReviewResponse.builder()
-                .targetGuestId(userReview.getTargetGuest().getId())
-                .rating(userReview.getRating())
-                .comment(userReview.getComment())
-                .build();
+        return new UserReviewResponse(
+                userReview.getTargetGuest().getId(),
+                userReview.getRating(),
+                userReview.getComment()
+        );
     }
 }
