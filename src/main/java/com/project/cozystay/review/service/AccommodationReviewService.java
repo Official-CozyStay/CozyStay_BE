@@ -27,6 +27,8 @@ public class AccommodationReviewService {
     private final AccommodationRepository accommodationRepository;
     private final UserRepository userRepository;
 
+    private static final BigDecimal NUMBER_OF_RATING_CRITERIA = new BigDecimal("5");
+
     // 숙소 리뷰 생성
     @Transactional
     public AccommodationReviewResponse createAccommodationReview(Long guestId, AccommodationReviewCreateRequest request) {
@@ -105,6 +107,6 @@ public class AccommodationReviewService {
                 .add(request.ratingLocation())
                 .add(request.ratingCommunication());
 
-        return sum.divide(BigDecimal.valueOf(5), 1, RoundingMode.HALF_UP);
+        return sum.divide(NUMBER_OF_RATING_CRITERIA, 1, RoundingMode.HALF_UP);
     }
 }
