@@ -46,13 +46,12 @@ public class UserReviewController {
     /**
      * 게스트 리뷰 수정
      */
-    @PatchMapping()
+    @PatchMapping("/{reviewId}")
     public ResponseEntity<ReviewResponse> updateUserReview(
-            @RequestBody UserReviewCreateRequest request,
-            @AuthenticationPrincipal CustomOAuth2User custom) {
+            @PathVariable Long reviewId,
+            @RequestBody UserReviewCreateRequest request) {
 
-        Long reviewerId = custom.getId();
-        return ResponseEntity.ok(userReviewService.updateUserReview(request, reviewerId));
+        return ResponseEntity.ok(userReviewService.updateUserReview(reviewId, request));
     }
 
     /**

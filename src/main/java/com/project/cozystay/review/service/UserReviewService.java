@@ -62,9 +62,9 @@ public class UserReviewService {
     // 사용자 리뷰 수정
     //TODO 사용자가 답글을 달기 전까지만 수정 가능하도록하는 로직 추가 필요
     @Transactional
-    public ReviewResponse updateUserReview(UserReviewCreateRequest request, Long reviewerId){
+    public ReviewResponse updateUserReview(Long reviewId, UserReviewCreateRequest request){
 
-        UserReview userReview = userReviewRepository.findByTargetGuest_IdAndReviewerHost_Id(request.targetGuestId(), reviewerId)
+        UserReview userReview = userReviewRepository.findById(reviewId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 리뷰가 존재하지 않습니다."));
 
         userReview.update(request);
