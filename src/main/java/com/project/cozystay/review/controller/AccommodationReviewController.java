@@ -59,12 +59,10 @@ public class AccommodationReviewController {
     /**
      * 숙소 리뷰 삭제
      */
-    @DeleteMapping("/{accId}")
+    @DeleteMapping("/{reviewId}")
     public ResponseEntity<ReviewResponse> deleteAccommodationReview(
-            @PathVariable Long accId,
-            @AuthenticationPrincipal CustomOAuth2User custom
-    ) {
-        Long guestId = custom.getId();
-        return ResponseEntity.ok(accommodationReviewService.deleteAccommodationReview(accId, guestId));
+            @PathVariable Long reviewId) {
+
+        return ResponseEntity.ok(accommodationReviewService.deleteAccommodationReview(reviewId));
     }
 }

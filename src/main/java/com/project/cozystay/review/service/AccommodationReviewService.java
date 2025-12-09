@@ -83,8 +83,9 @@ public class AccommodationReviewService {
 
     // 숙소 리뷰 삭제
     @Transactional
-    public ReviewResponse deleteAccommodationReview(Long guestId, Long accId){
-        AccommodationReview review = accommodationReviewRepository.findByGuestAndAccommodation(guestId, accId)
+    public ReviewResponse deleteAccommodationReview(Long reviewId){
+
+        AccommodationReview review = accommodationReviewRepository.findById(reviewId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 리뷰가 존재하지 않습니다."));
 
         accommodationReviewRepository.delete(review);
