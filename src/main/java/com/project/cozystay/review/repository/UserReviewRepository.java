@@ -8,13 +8,13 @@ import java.util.Optional;
 
 public interface UserReviewRepository extends JpaRepository<UserReview, Long> {
 
-    List<UserReview> findByTargetGuest_Id(Long targetGuestId);
+    List<UserReview> findByTargetGuestId(Long targetGuestId);
 
     // 특정 호스트가 남긴 모든 리뷰
-    List<UserReview> findByReviewerHost_id(Long reviewerHostId);
+    List<UserReview> findByReviewerHostId(Long reviewerHostId);
 
-    Optional<UserReview> findByTargetGuest_IdAndReviewerHost_Id(Long targetGuestId, Long reviewerHostId);
+    Optional<UserReview> findByTargetGuestIdAndReviewerHostId(Long targetGuestId, Long reviewerHostId);
 
-    boolean existsByTargetGuest_IdAndReviewerHost_Id(Long targetGuestId, Long reviewerHostId);
+    boolean existsByTargetGuestIdAndReviewerHostId(Long targetGuestId, Long reviewerHostId);
 
 }

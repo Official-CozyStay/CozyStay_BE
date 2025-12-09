@@ -25,7 +25,7 @@ public class UserReviewService {
     @Transactional
     public UserReviewResponse createUserReview(Long hostId, UserReviewCreateRequest request) {
 
-        if(userReviewRepository.existsByTargetGuest_IdAndReviewerHost_Id(request.targetGuestId(), hostId)){
+        if(userReviewRepository.existsByTargetGuestIdAndReviewerHostId(request.targetGuestId(), hostId)){
             throw new IllegalArgumentException("이미 작성한 리뷰입니다.");
         }
 
@@ -52,7 +52,7 @@ public class UserReviewService {
             throw new IllegalArgumentException("존재하지 않는 사용자입니다. id=" + targetUserId);
         }
 
-        List<UserReview> userReviewList = userReviewRepository.findByTargetGuest_Id(targetUserId);
+        List<UserReview> userReviewList = userReviewRepository.findByTargetGuestId(targetUserId);
 
         return userReviewList.stream()
                 .map(UserReviewResponse::from)

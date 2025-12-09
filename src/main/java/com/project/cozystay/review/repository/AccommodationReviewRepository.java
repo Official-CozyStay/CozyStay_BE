@@ -14,7 +14,7 @@ public interface AccommodationReviewRepository extends JpaRepository<Accommodati
     List<AccommodationReview> findByAccommodation_AccommodationId(Long accId);
 
     // 특정 게스트가 작성한 리뷰들
-    List<AccommodationReview> findByGuest_Id(Long guestId);
+    List<AccommodationReview> findByGuestId(Long guestId);
 
     // 특정 게스트가 작성한 특정 숙소 리뷰
     @Query("""
