@@ -74,9 +74,9 @@ public class UserReviewService {
 
     // 사용자 리뷰 삭제
     @Transactional
-    public ReviewResponse deleteUserReview(Long targetGuestId, Long reviewerId){
+    public ReviewResponse deleteUserReview(Long reviewId){
 
-        UserReview userReview = userReviewRepository.findByTargetGuest_IdAndReviewerHost_Id(targetGuestId, reviewerId)
+        UserReview userReview = userReviewRepository.findById(reviewId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 리뷰가 존재하지 않습니다."));
 
         userReviewRepository.delete(userReview);

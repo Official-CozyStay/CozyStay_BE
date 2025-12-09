@@ -57,13 +57,11 @@ public class UserReviewController {
     /**
      * 게스트 리뷰 삭제
      */
-    @DeleteMapping("/{userId}")
+    @DeleteMapping("/{reviewId}")
     public ResponseEntity<ReviewResponse> deleteUserReview(
-            @PathVariable Long userId,
-            @AuthenticationPrincipal CustomOAuth2User custom) {
+            @PathVariable Long reviewId) {
 
-        Long reviewerId = custom.getId();
-        return ResponseEntity.ok(userReviewService.deleteUserReview(userId, reviewerId));
+        return ResponseEntity.ok(userReviewService.deleteUserReview(reviewId));
     }
 
 }
