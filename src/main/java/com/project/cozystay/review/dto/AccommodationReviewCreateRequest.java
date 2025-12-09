@@ -3,8 +3,6 @@ package com.project.cozystay.review.dto;
 import com.project.cozystay.accommodation.domain.Accommodation;
 import com.project.cozystay.review.domain.AccommodationReview;
 import com.project.cozystay.user.domain.User;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 

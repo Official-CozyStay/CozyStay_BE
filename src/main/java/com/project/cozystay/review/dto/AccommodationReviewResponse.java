@@ -1,7 +1,6 @@
 package com.project.cozystay.review.dto;
 
 import com.project.cozystay.review.domain.AccommodationReview;
-import lombok.*;
 
 import java.math.BigDecimal;
 
