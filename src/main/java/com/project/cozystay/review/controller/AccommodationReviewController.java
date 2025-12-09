@@ -47,13 +47,12 @@ public class AccommodationReviewController {
     /**
      * 숙소 리뷰 수정
      */
-    @PatchMapping()
+    @PatchMapping("/{reviewId}")
     public ResponseEntity<ReviewResponse> updateAccommodationReview(
-            @AuthenticationPrincipal CustomOAuth2User custom,
+            @RequestParam Long reviewId,
             @RequestBody AccommodationReviewCreateRequest request) {
 
-        Long guestId = custom.getId();
-        return ResponseEntity.ok(accommodationReviewService.updateAccommodationReview(guestId, request));
+        return ResponseEntity.ok(accommodationReviewService.updateAccommodationReview(reviewId, request));
     }
 
 

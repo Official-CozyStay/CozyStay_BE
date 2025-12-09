@@ -69,9 +69,9 @@ public class AccommodationReviewService {
     // 숙소 리뷰 수정
     //TODO 사장님이 답글을 달기 전까지만 수정 가능하도록하는 로직 추가 필요
     @Transactional
-    public ReviewResponse updateAccommodationReview(Long guestId, AccommodationReviewCreateRequest request){
+    public ReviewResponse updateAccommodationReview(Long reviewId, AccommodationReviewCreateRequest request){
 
-        AccommodationReview review = accommodationReviewRepository.findByGuestAndAccommodation(guestId, request.accommodationId())
+        AccommodationReview review = accommodationReviewRepository.findById(reviewId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 리뷰가 존재하지 않습니다."));
 
         BigDecimal ratingOverall = calculateRating(request);
