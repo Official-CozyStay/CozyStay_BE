@@ -11,14 +11,14 @@ import java.time.LocalDate;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/properties")
+@RequestMapping("/api/accommodations")
 public class BookingAvailabilityController {
 
     private final BookingAvailabilityService bookingAvailabilityService;
 
-    @GetMapping("/{propertyId}/availability")
+    @GetMapping("/{accommodationId}/availability")
     public ResponseEntity<AvailabilityResponse> getAvailability(
-            @PathVariable("propertyId") Long propertyId,
+            @PathVariable("accommodationId") Long accommodationId,
             @RequestParam("from")
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate from,
@@ -26,8 +26,7 @@ public class BookingAvailabilityController {
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate to
     ){
-        //propertyId = accommodationId
-        AvailabilityResponse response = bookingAvailabilityService.getAvailability(propertyId, from, to);
+        AvailabilityResponse response = bookingAvailabilityService.getAvailability(accommodationId, from, to);
         return ResponseEntity.ok(response);
     }
 }
