@@ -1,4 +1,5 @@
 package com.project.cozystay.accommodation.domain;
+import com.project.cozystay.accommodation.dto.AccommodationUpdateRequestDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,11 +19,9 @@ public class Accommodation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "accommodation_id")
-    private Long accommodationId;
+    private Long id;
 
     @Column(name = "host_id", nullable = false)
-    //ManyToOne(fetch = FetchType.LAZY)
-    //@JoinColumn(name = "host_id")
     private Long hostId;
 
     @Column(nullable = false, length = 200)
@@ -139,6 +138,42 @@ public class Accommodation {
             throw new IllegalStateException("편의시설 정보가 없습니다.");
 
         this.status = AccommodationStatus.ACTIVE;
+    }
+
+    public void update(AccommodationUpdateRequestDTO dto){
+        if (dto.getTitle() != null) this.title = dto.getTitle();
+
+        if (dto.getDescription() != null) this.description = dto.getDescription();
+
+        if (dto.getAccommodationType() != null) this.accommodationType = dto.getAccommodationType();
+
+        if (dto.getAddress() != null) this.address = dto.getAddress();
+
+        if (dto.getCity() != null) this.city = dto.getCity();
+
+        if (dto.getState() != null) this.state = dto.getState();
+
+        if (dto.getCountry() != null) this.country = dto.getCountry();
+
+        if (dto.getPostalCode() != null) this.postalCode = dto.getPostalCode();
+
+        if (dto.getLatitude() != null) this.latitude = dto.getLatitude();
+
+        if (dto.getLongitude() != null) this.longitude = dto.getLongitude();
+
+        if (dto.getMaxGuests() != null) this.maxGuests = dto.getMaxGuests();
+
+        if (dto.getPricePerNight() != null) this.pricePerNight = dto.getPricePerNight();
+
+        if (dto.getCleaningFee() != null) this.cleaningFee = dto.getCleaningFee();
+
+        if (dto.getServiceFeePercentage() != null) this.serviceFeePercentage = dto.getServiceFeePercentage();
+
+        if (dto.getInstantBooking() != null) this.instantBooking = dto.getInstantBooking();
+
+        if (dto.getCheckInTime() != null) this.checkInTime = dto.getCheckInTime();
+
+        if (dto.getCheckOutTime() != null) this.checkOutTime = dto.getCheckOutTime();
     }
 
 }
