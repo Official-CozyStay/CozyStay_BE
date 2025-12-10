@@ -75,13 +75,15 @@ public class Booking {
     @Column(name = "cancelled_at")
     private LocalDateTime cancelledAt;
 
+    private static final String DEFAULT_CURRENCY = "KRW";
+
     // 엔티티가 처음 DB에 저장될 때 자동으로 값 세팅
     @PrePersist
     public void onCreate(){
         this.createdAt = LocalDateTime.now();
         this.updatedAt = this.createdAt;
         if(this.currency == null){
-            this.currency = "KRW";
+            this.currency = DEFAULT_CURRENCY;
         }
         if(this.status==null){
             this.status = BookingStatus.PENDING;
