@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -44,16 +47,43 @@ public class BookingAvailabilityService {
                 accommodationId, from, endInclusive
         );
 
-        // 엔티티 -> DTO매핑
-        List<AvailabilityDayResponse> dayResponses = calenderList.stream()
-                .map(cal-> AvailabilityDayResponse.builder()
-                        .date(cal.getDate())
-                        .available(cal.isAvailable())
-                        .pricePerNight(cal.getCustomPrice() != null ? cal.getCustomPrice() : defaultPricePerNight)
-                        .minNights(cal.getMinNights())
-                        .build()
-                ).toList();
+        // 날짜 -> AvailabilityCalendar 매핑
+        Map<LocalDate, AvailabilityCalendar> calendarMap = calenderList.stream()
+                .collect(Collectors.toMap(
+                        AvailabilityCalendar::getDate,
+                        Function.identity()
+                ));
 
+        // from ~ to-1 까지의 모든 날짜에 대해 DTO 생성
+        List<AvailabilityDayResponse> dayResponses
+                = from.datesUntil(to)
+                .map(date->{
+                    AvailabilityCalendar cal = calendarMap.get(date);
+
+                    // DB에 설정 값이 있는 특별한 날 => 가격이 다른 날, 예약이 불가능한 날
+                    if(cal != null){
+                        BigDecimal price = cal.getCustomPrice() != null
+                                ? cal.getCustomPrice()
+                                : defaultPricePerNight;
+
+                        return AvailabilityDayResponse.builder()
+                                .date(cal.getDate())
+                                .available(cal.isAvailable())
+                                .pricePerNight(price)
+                                .minNights(cal.getMinNights())
+                                .build();
+                    }
+
+                    // DB에 설정이 없는 기본날
+                    return AvailabilityDayResponse.builder()
+                            .date(date)
+                            .available(true)
+                            .pricePerNight(defaultPricePerNight)
+                            .minNights(1)
+                            .build();
+                }).toList();
+
+        // 최종 응답 DTO
         return AvailabilityResponse.builder()
                 .accommodationId(accommodationId)
                 .from(from)
@@ -62,8 +92,6 @@ public class BookingAvailabilityService {
                 .build();
 
     }
-
-
 }
 
 
