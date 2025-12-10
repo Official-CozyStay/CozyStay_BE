@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
                 @Index(name = "idx_payments_status_created_at", columnList = "payment_status, created_at")
         }
 )
-@Getter @Setter
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
