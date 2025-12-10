@@ -22,7 +22,7 @@ public class AccommodationResponseDTO {
 
     public static AccommodationResponseDTO fromEntity(Accommodation entity) {
         return new AccommodationResponseDTO(
-                entity.getAccommodationId(),
+                entity.getId(),
                 entity.getTitle(),
                 entity.getImages().stream()
                         .map(AccommodationImage::getImageUrl)

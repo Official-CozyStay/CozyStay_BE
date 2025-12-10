@@ -15,7 +15,6 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AccommodationRequestDTO {
-    private Long hostId;
 
     private String title;
 
@@ -51,9 +50,9 @@ public class AccommodationRequestDTO {
 
     private LocalTime checkOutTime;
 
-    public Accommodation toEntity() {
+    public Accommodation toEntity(Long hostId) {
         return Accommodation.builder()
-                .hostId(this.hostId)
+                .hostId(hostId)
                 .title(this.title)
                 .description(this.description)
                 .accommodationType(this.accommodationType)
