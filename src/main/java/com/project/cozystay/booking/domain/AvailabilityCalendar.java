@@ -16,7 +16,7 @@ import java.time.LocalDate;
                 )
         }
 )
-@Getter @Setter
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
