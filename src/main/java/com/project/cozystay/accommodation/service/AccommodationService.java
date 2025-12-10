@@ -32,8 +32,8 @@ public class AccommodationService {
     }
 
     @Transactional
-    public AccommodationResponseDTO createAccommodation(AccommodationRequestDTO request) {
-        Accommodation accommodation = request.toEntity();
+    public AccommodationResponseDTO createAccommodation(AccommodationRequestDTO request, Long hostId) {
+        Accommodation accommodation = request.toEntity(hostId);
 
         accommodationRepository.save(accommodation);
 
@@ -41,11 +41,12 @@ public class AccommodationService {
     }
 
     @Transactional
-    public AccommodationDetailResponseDTO addAccommodationDetail(Long accommodationId, AccommodationDetailRequestDTO request) {
+    public AccommodationDetailResponseDTO addAccommodationDetail(Long accommodationId, Long hostId, AccommodationDetailRequestDTO request) {
 
-        // 숙소 ID 조회
         Accommodation accommodation = accommodationRepository.findById(accommodationId)
                 .orElseThrow(() -> new IllegalArgumentException("ID에 해당하는 숙소가 없습니다."));
+
+       accommodationHostCheck(accommodation, hostId);
 
         AccommodationDetail detail = request.toEntity();
 
@@ -68,17 +69,21 @@ public class AccommodationService {
     }
 
     @Transactional
-    public void publish(Long accommodationId){
+    public void publish(Long accommodationId, Long hostId){
         Accommodation accommodation = accommodationRepository.findDetailById(accommodationId)
                 .orElseThrow(() -> new IllegalArgumentException("ID에 해당하는 숙소가 없습니다."));
+
+        accommodationHostCheck(accommodation, hostId);
 
         accommodation.publish();
     }
 
     @Transactional
-    public AccommodationImageResponseDTO addImage(Long accommodationId, List<AccommodationImageRequestDTO> request) {
+    public AccommodationImageResponseDTO addImage(Long accommodationId, Long hostId, List<AccommodationImageRequestDTO> request) {
         Accommodation accommodation = accommodationRepository.findById(accommodationId)
                 .orElseThrow(() -> new IllegalArgumentException("ID에 해당하는 숙소가 없습니다"));
+
+        accommodationHostCheck(accommodation, hostId);
 
         List<AccommodationImage> newImages = new ArrayList<>();
 
@@ -91,7 +96,7 @@ public class AccommodationService {
         accommodationRepository.save(accommodation);
 
         List<Long> imageIds = newImages.stream()
-                .map(AccommodationImage::getImageId)
+                .map(AccommodationImage::getId)
                 .toList();
 
         return AccommodationImageResponseDTO.builder()
@@ -102,9 +107,11 @@ public class AccommodationService {
     }
 
     @Transactional
-    public AccommodationAmenityResponseDTO addAmenities(Long accommodationId, List<AccommodationAmenityRequestDTO> request){
+    public AccommodationAmenityResponseDTO addAmenities(Long accommodationId, Long hostId, List<AccommodationAmenityRequestDTO> request){
         Accommodation accommodation = accommodationRepository.findById(accommodationId)
                 .orElseThrow(() -> new IllegalArgumentException("ID에 해당하는 숙소가 없습니다"));
+
+        accommodationHostCheck(accommodation, hostId);
 
         for (AccommodationAmenityRequestDTO dto : request) {
             Amenity amenity = amenityRepository.findByName(dto.getName())
@@ -125,5 +132,99 @@ public class AccommodationService {
                 .count(request.size())
                 .message("편의시설 등록 완료")
                 .build();
+    }
+
+    //Cascade 설정에 의해 연관관계를 맺고 있는 테이블도 함께 삭제
+    @Transactional
+    public AccommodationDeleteResponseDTO deleteAccommodation(Long accommodationId, Long hostId){
+        Accommodation accommodation = accommodationRepository.findById(accommodationId)
+                .orElseThrow(() -> new IllegalArgumentException("ID에 해당하는 숙소가 없습니다"));
+
+        accommodationHostCheck(accommodation, hostId);
+
+        accommodationRepository.delete(accommodation);
+
+        return AccommodationDeleteResponseDTO.builder()
+                .accommodationId(accommodationId)
+                .message("숙소가 삭제되었습니다")
+                .build();
+    }
+
+    @Transactional
+    public AccommodationUpdateResponseDTO updateAccommodation(
+            Long accommodationId,
+            Long hostId,
+            AccommodationUpdateRequestDTO request
+    ){
+        Accommodation accommodation = accommodationRepository.findById(accommodationId)
+                .orElseThrow(() -> new IllegalArgumentException("ID에 해당하는 숙소가 없습니다."));
+
+        accommodationHostCheck(accommodation, hostId);
+
+        accommodation.update(request);
+
+        return AccommodationUpdateResponseDTO.builder()
+                .accommodationId(accommodation.getId())
+                .title(accommodation.getTitle())
+                .build();
+    }
+
+    @Transactional
+    public AccommodationDetailUpdateResponseDTO updateAccommodationDetail(
+            Long accommodationId,
+            Long hostId,
+            AccommodationDetailUpdateRequestDTO request
+    ){
+        Accommodation accommodation = accommodationRepository.findById(accommodationId)
+                .orElseThrow(()-> new IllegalArgumentException("ID에 해당하는 숙소가 없습니다."));
+
+        accommodationHostCheck(accommodation, hostId);
+
+        //AccommodationDetail 엔티티도 영속 상태로 진입
+        AccommodationDetail detail = accommodation.getDetail();
+        if(detail == null){
+            throw new IllegalStateException("상세 정보가 존재하지 않습니다.");
+        }
+
+        detail.update(request);
+
+        return AccommodationDetailUpdateResponseDTO.builder()
+                .accommodationId(accommodation.getId())
+                .message("숙소 상세정보 수정 완료")
+                .build();
+    }
+
+    @Transactional
+    public AccommodationImageDeleteResponseDTO deleteAccommodationImages(
+            Long accommodationId, Long hostId, AccommodationImageDeleteRequestDTO request
+    ){
+        Accommodation accommodation = accommodationRepository.findById(accommodationId)
+                .orElseThrow(() -> new IllegalArgumentException("ID에 해당하는 숙소가 없습니다."));
+
+        accommodationHostCheck(accommodation, hostId);
+
+        List<AccommodationImage> images = accommodationImageRepository.findAllById(request.getImageIds());
+
+        for (AccommodationImage img : images){
+            if(!img.getAccommodation().getId().equals(accommodationId)){
+                throw new IllegalArgumentException("이미지가 해당 숙소에 속하지 않습니다.");
+            }
+        }
+
+        accommodationImageRepository.deleteAll(images);
+
+        return AccommodationImageDeleteResponseDTO.builder()
+                .imageIds(request.getImageIds())
+                .message("이미지 삭제 완료")
+                .build();
+    }
+
+    /**
+     * 숙소의 주인과 요청한 사람이 맞는지 비교하는 공통 메서드
+     */
+    private void accommodationHostCheck(Accommodation accommodation, Long hostId){
+        if (!accommodation.getHostId().equals(hostId)){
+            throw new IllegalStateException("숙소의 소유자만 수정할 수 있습니다.");
+        }
     }
 }
