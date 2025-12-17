@@ -63,7 +63,7 @@ public class AccommodationReviewService {
         }
 
 
-        List<AccommodationReview> accommodationReviewList = accommodationReviewRepository.findByAccommodation_AccommodationId(accId);
+        List<AccommodationReview> accommodationReviewList = accommodationReviewRepository.findByAccommodation_Id(accId);
 
         return accommodationReviewList.stream()
                 .map(AccommodationReviewResponse::from)
