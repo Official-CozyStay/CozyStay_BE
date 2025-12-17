@@ -10,9 +10,10 @@ public interface UserReviewRepository extends JpaRepository<UserReview, Long> {
 
     List<UserReview> findByTargetGuestId(Long targetGuestId);
 
-    // 특정 호스트가 남긴 모든 리뷰
+    // 특정 호스트가 작성한 모든 게스트 리뷰
     List<UserReview> findByReviewerHostId(Long reviewerHostId);
 
+    // 특정 호스트가 작성한 특정 게스트에 대한 리뷰
     Optional<UserReview> findByTargetGuestIdAndReviewerHostId(Long targetGuestId, Long reviewerHostId);
 
     boolean existsByTargetGuestIdAndReviewerHostId(Long targetGuestId, Long reviewerHostId);

@@ -1,6 +1,8 @@
 package com.project.cozystay.review.service;
 
+import com.project.cozystay.review.domain.AccommodationReview;
 import com.project.cozystay.review.domain.UserReview;
+import com.project.cozystay.review.dto.AccommodationReviewResponse;
 import com.project.cozystay.review.dto.ReviewResponse;
 import com.project.cozystay.review.dto.UserReviewCreateRequest;
 import com.project.cozystay.review.dto.UserReviewResponse;
@@ -8,8 +10,10 @@ import com.project.cozystay.review.repository.UserReviewRepository;
 import com.project.cozystay.user.domain.User;
 import com.project.cozystay.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -21,7 +25,7 @@ public class UserReviewService {
     private final UserReviewRepository userReviewRepository;
     private final UserRepository userRepository;
 
-    // 사용자 리뷰 생성
+    // 게스트 리뷰 생성
     @Transactional
     public UserReviewResponse createUserReview(Long hostId, UserReviewCreateRequest request) {
 
@@ -45,7 +49,7 @@ public class UserReviewService {
         return UserReviewResponse.from(review);
     }
 
-    // 사용자 리뷰 조회
+    // 게스트 리뷰 조회
     public List<UserReviewResponse> getUserReviews(Long targetUserId){
 
         if (!userRepository.existsById(targetUserId)) {
@@ -59,7 +63,7 @@ public class UserReviewService {
                 .toList();
     }
 
-    // 사용자 리뷰 수정
+    // 게스트 리뷰 수정
     //TODO 사용자가 답글을 달기 전까지만 수정 가능하도록하는 로직 추가 필요
     @Transactional
     public ReviewResponse updateUserReview(Long reviewId, UserReviewCreateRequest request){
@@ -69,10 +73,11 @@ public class UserReviewService {
 
         userReview.update(request);
 
+        // TODO 응답 형식 변경 고려
         return new ReviewResponse("리뷰를 수정하였습니다");
     }
 
-    // 사용자 리뷰 삭제
+    // 게스트 리뷰 삭제
     @Transactional
     public ReviewResponse deleteUserReview(Long reviewId){
 
@@ -84,7 +89,26 @@ public class UserReviewService {
         return new ReviewResponse("리뷰를 삭제하였습니다");
     }
 
+    // 특정 호스트가 작성한 모든 게스트 리뷰 조회
+    public List<UserReviewResponse> getUserReviewListByHost(Long reviewerHostId){
 
-    // TODO 특정 호스트가 작성한 사용자 리뷰들 조회
-    // TODO 특정 호스트가 작성한 특정 사용자 리뷰 조회
+        List<UserReview> reviewList = userReviewRepository.findByReviewerHostId(reviewerHostId);
+
+        return reviewList.stream()
+                .map(UserReviewResponse::from)
+                .toList();
+    }
+
+
+
+    // 특정 호스트가 작성한 특정 게스트 리뷰 조회
+    public UserReviewResponse getUserReviewByHost(Long targetGuestId, Long reviewerHostId){
+
+        UserReview review = userReviewRepository.findByTargetGuestIdAndReviewerHostId(targetGuestId, reviewerHostId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "해당 사용자에 대해서 작성하신 리뷰를 찾을 수 없습니다. id=" + targetGuestId
+                ));
+
+        return UserReviewResponse.from(review);
+    }
 }

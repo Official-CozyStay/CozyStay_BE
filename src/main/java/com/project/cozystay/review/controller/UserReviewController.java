@@ -2,6 +2,7 @@ package com.project.cozystay.review.controller;
 
 
 import com.project.cozystay.auth.CustomOAuth2User;
+import com.project.cozystay.review.dto.AccommodationReviewResponse;
 import com.project.cozystay.review.dto.ReviewResponse;
 import com.project.cozystay.review.dto.UserReviewCreateRequest;
 import com.project.cozystay.review.dto.UserReviewResponse;
@@ -37,7 +38,8 @@ public class UserReviewController {
      */
     @GetMapping("/{userId}")
     public ResponseEntity<List<UserReviewResponse>> getUserReviews(
-            @PathVariable Long userId) {
+            @PathVariable Long userId
+    ) {
 
         return ResponseEntity.ok(userReviewService.getUserReviews(userId));
     }
@@ -49,7 +51,8 @@ public class UserReviewController {
     @PatchMapping("/{reviewId}")
     public ResponseEntity<ReviewResponse> updateUserReview(
             @PathVariable Long reviewId,
-            @RequestBody UserReviewCreateRequest request) {
+            @RequestBody UserReviewCreateRequest request
+    ) {
 
         return ResponseEntity.ok(userReviewService.updateUserReview(reviewId, request));
     }
@@ -59,9 +62,34 @@ public class UserReviewController {
      */
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<ReviewResponse> deleteUserReview(
-            @PathVariable Long reviewId) {
+            @PathVariable Long reviewId
+    ) {
 
         return ResponseEntity.ok(userReviewService.deleteUserReview(reviewId));
+    }
+
+    /**
+     * 특정 호스트가 작성한 모든 게스트 리뷰 조회
+     */
+    @GetMapping("/all")
+    public ResponseEntity<List<UserReviewResponse>> getUserReviewListByHost(
+            @AuthenticationPrincipal CustomOAuth2User custom
+    ) {
+        Long reviewerHostId = custom.getId();
+        return ResponseEntity.ok(userReviewService.getUserReviewListByHost(reviewerHostId));
+    }
+
+    /**
+     * 호스트가 작성한 특정 게스트에 대한 리뷰 조회
+     * 주로 게스트 상세페이지에서 '내가 작성한 리뷰'가 먼저 보일 수 있도록 하기 위해서
+     */
+    @GetMapping("/{targetGuestId}/me")
+    public ResponseEntity<UserReviewResponse> getUserReviewByHost(
+            @PathVariable Long targetGuestId,
+            @AuthenticationPrincipal CustomOAuth2User custom
+    ) {
+        Long reviewerHostId = custom.getId();
+        return ResponseEntity.ok(userReviewService.getUserReviewByHost(targetGuestId, reviewerHostId));
     }
 
 }
