@@ -196,25 +196,23 @@ public class AccommodationService {
 
     @Transactional
     public AccommodationImageDeleteResponseDTO deleteAccommodationImages(
-            Long accommodationId, Long hostId, AccommodationImageDeleteRequestDTO request
+            Long accommodationId, Long hostId, List<Long> imageIds
     ){
         Accommodation accommodation = accommodationRepository.findById(accommodationId)
                 .orElseThrow(() -> new IllegalArgumentException("ID에 해당하는 숙소가 없습니다."));
 
         accommodationHostCheck(accommodation, hostId);
 
-        List<AccommodationImage> images = accommodationImageRepository.findAllById(request.getImageIds());
+        List<AccommodationImage> images = accommodationImageRepository.findAllByIdInAndAccommodationId(imageIds, accommodationId);
 
-        for (AccommodationImage img : images){
-            if(!img.getAccommodation().getId().equals(accommodationId)){
-                throw new IllegalArgumentException("이미지가 해당 숙소에 속하지 않습니다.");
-            }
+        if (images.size() != imageIds.size()){
+            throw new IllegalArgumentException("일부 이미지가 존재하지 않거나 해당 숙소에 속하지 않습니다.");
         }
 
         accommodationImageRepository.deleteAll(images);
 
         return AccommodationImageDeleteResponseDTO.builder()
-                .imageIds(request.getImageIds())
+                .imageIds(imageIds)
                 .message("이미지 삭제 완료")
                 .build();
     }
