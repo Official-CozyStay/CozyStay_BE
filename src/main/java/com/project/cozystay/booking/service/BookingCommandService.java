@@ -40,12 +40,12 @@ public class BookingCommandService {
 
         // 숙소 정보 조회
         Accommodation accommodation = accommodationRepository.findById(request.getAccommodationId())
-                .orElseThrow(()-> new IllegalArgumentException("존재하지 않는 숙소입니다. id =" + request.getAccommodationId()));
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 숙소입니다. id =" + request.getAccommodationId()));
 
         // 인원 수 검증
         if(request.getNumberOfGuests() <= 0 ||
         request.getNumberOfGuests() > accommodation.getMaxGuests()){
-            throw new IllegalArgumentException("허용 인원 범위를 벗어났습니다.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "허용 인원 범위를 벗어났습니다.");
         }
 
         // 이미 예약된 건이 있는지 (날짜 겹침) 체크

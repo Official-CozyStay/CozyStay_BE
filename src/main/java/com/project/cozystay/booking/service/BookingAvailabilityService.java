@@ -7,7 +7,9 @@ import com.project.cozystay.booking.dto.AvailabilityResponse;
 import com.project.cozystay.booking.dto.AvailabilityDayResponse;
 import com.project.cozystay.booking.repository.AvailabilityCalendarRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -36,7 +38,7 @@ public class BookingAvailabilityService {
         // 숙소 기본 정보 가져오기 (기본 1박 가격 등)
         Accommodation accommodation = accommodationRepository
                 .findById(accommodationId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 숙소 입니다. id=" + accommodationId));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 숙소 입니다. id=" + accommodationId));
 
         BigDecimal defaultPricePerNight = accommodation.getPricePerNight();
 
