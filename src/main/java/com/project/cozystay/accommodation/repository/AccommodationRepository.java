@@ -24,7 +24,7 @@ LEFT JOIN FETCH a.detail
 LEFT JOIN FETCH a.images
 LEFT JOIN FETCH a.amenities am
 LEFT JOIN FETCH am.amenity
-WHERE a.accommodationId = :id
+WHERE a.id = :id
 """)
     Optional<Accommodation> findDetailById(Long id);
 }

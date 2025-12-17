@@ -30,8 +30,8 @@ public class AccommodationAmenity {
         this.accommodation = accommodation;
         this.amenity = amenity;
         this.id = new AccommodationAmenityId(
-                accommodation.getAccommodationId(),
-                amenity.getAmenityId()
+                accommodation.getId(),
+                amenity.getId()
         );
     }
 

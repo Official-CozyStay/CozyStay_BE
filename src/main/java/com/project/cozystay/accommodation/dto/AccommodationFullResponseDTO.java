@@ -62,7 +62,7 @@ public class AccommodationFullResponseDTO {
     public static AccommodationFullResponseDTO fromEntity(Accommodation entity) {
 
         return AccommodationFullResponseDTO.builder()
-                .accommodationId(entity.getAccommodationId())
+                .accommodationId(entity.getId())
                 .hostId(entity.getHostId())
                 .title(entity.getTitle())
                 .description(entity.getDescription())
@@ -90,7 +90,7 @@ public class AccommodationFullResponseDTO {
                 .images(
                         entity.getImages().stream()
                                 .map(i -> AccommodationImageDTO.builder()
-                                        .imageId(i.getImageId())
+                                        .imageId(i.getId())
                                         .imageUrl(i.getImageUrl())
                                         .displayOrder(i.getDisplayOrder())
                                         .isPrimary(i.isPrimary())
@@ -100,7 +100,7 @@ public class AccommodationFullResponseDTO {
                 .amenities(
                         entity.getAmenities().stream()
                                 .map(a -> AmenityDTO.builder()
-                                        .amenityId(a.getAmenity().getAmenityId())
+                                        .amenityId(a.getAmenity().getId())
                                         .name(a.getAmenity().getName())
                                         .icon(a.getAmenity().getIcon())
                                         .category(a.getAmenity().getCategory())
