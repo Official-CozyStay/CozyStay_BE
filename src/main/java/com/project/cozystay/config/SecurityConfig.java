@@ -23,7 +23,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+// 수정한 부분
+import org.springframework.http.HttpMethod;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -58,6 +59,10 @@ public class SecurityConfig {
                         // "/", "/api/auth/**", "/login/oauth2/**" (로그인 관련 경로)는 모두 허용
                         .requestMatchers("/", "/auth/success", "/login/**", "/oauth2/**", "/api/auth/**").permitAll()
 
+                        //추가한 부분
+                        .requestMatchers(HttpMethod.GET, "/api/accommodations/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/bookings/**").permitAll() // TODO: 임시적으로 열어둠
+                        .requestMatchers("/error").permitAll() // TODO: 원인 로그를 바로 볼 수 있게 임시적으로
                         // 그 외 모든 요청은 인증 필요
                         .anyRequest().authenticated()
                 )
