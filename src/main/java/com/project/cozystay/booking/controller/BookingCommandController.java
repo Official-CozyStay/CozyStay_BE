@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.net.URI;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/bookings")
@@ -21,6 +23,6 @@ public class BookingCommandController {
     public ResponseEntity<BookingResponse> createBooking(@RequestBody BookingCreateRequest request) {
         // TODO : 나중에 여기서 guestId는 JWT에서 꺼내서 세팅하도록 변경
         BookingResponse response = bookingCommandService.createBooking(request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.created(URI.create("/api/bookings/" + response.getBookingId())).body(response);
     }
 }
