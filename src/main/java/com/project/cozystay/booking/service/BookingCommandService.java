@@ -79,12 +79,12 @@ public class BookingCommandService {
         BigDecimal totalRoomPrice = BigDecimal.ZERO;
 
         // 하루씩 돌면서 예약 불가일이면 예외, 가격 계산
-        for (LocalDate date = checkIn; date.isBefore(checkOut); date = date = date.plusDays(1)) {
+        for (LocalDate date = checkIn; date.isBefore(checkOut); date = date.plusDays(1)) {
             AvailabilityCalendar cal = calendarMap.get(date);
 
             // AvailabilityCalendar에 있고, isAvailable == false 면 예약불가
             if(cal != null && !cal.isAvailable()){
-                throw new IllegalStateException("해당 날짜는 예약이 불가합니다: " + date);
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "해당 날짜는 예약이 불가합니다: " + date);
             }
 
             BigDecimal dayPrice = basePrice;
