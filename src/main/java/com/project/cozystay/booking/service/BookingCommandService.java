@@ -50,7 +50,7 @@ public class BookingCommandService {
 
         // 이미 예약된 건이 있는지 (날짜 겹침) 체크
         boolean hasOverlap = bookingRepository
-                .existsByAccommodationIdAndCheckInDateLessThanEqualAndCheckOutDateGreaterThanEqual(
+                .existsByAccommodationIdAndCheckInDateBeforeAndCheckOutDateAfter(
                         request.getAccommodationId(),
                         checkOut,
                         checkIn
