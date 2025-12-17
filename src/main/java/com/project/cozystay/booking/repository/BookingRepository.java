@@ -9,7 +9,7 @@ import java.util.List;
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     // 특정 숙소에 대해 날짜가 겹치는 예약이 존재하는지 체크
-    boolean existsByAccommodationIdAndCheckInDateLessThanEqualAndCheckOutDateGreaterThanEqual(
+    boolean existsByAccommodationIdAndCheckInDateBeforeAndCheckOutDateAfter(
             Long accommodationId,
             LocalDate checkOutDate,
             LocalDate checkInDate
