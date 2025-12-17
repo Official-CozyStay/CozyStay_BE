@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface AccommodationReviewRepository extends JpaRepository<AccommodationReview, Long> {
 
     // 숙소에 달린 리뷰
-    List<AccommodationReview> findByAccommodation_AccommodationId(Long accId);
+    List<AccommodationReview> findByAccommodation_Id(Long accId);
 
     // 특정 게스트가 작성한 리뷰들
     List<AccommodationReview> findByGuestId(Long guestId);
@@ -20,7 +20,7 @@ public interface AccommodationReviewRepository extends JpaRepository<Accommodati
     @Query("""
     SELECT DISTINCT ar FROM AccommodationReview ar
     WHERE ar.guest.id = :guestId
-    AND ar.accommodation.accommodationId = :accId
+    AND ar.accommodation.id = :accId
     """)
     Optional<AccommodationReview> findByGuestAndAccommodation(@Param("guestId") Long guestId, @Param("accId") Long accId);
 
