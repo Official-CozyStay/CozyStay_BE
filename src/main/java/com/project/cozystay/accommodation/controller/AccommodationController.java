@@ -155,11 +155,11 @@ public class AccommodationController {
     @DeleteMapping("/{accommodationId}/images")
     public ResponseEntity<AccommodationImageDeleteResponseDTO> deleteAccommodationImages(
             @PathVariable Long accommodationId,
-            @RequestBody AccommodationImageDeleteRequestDTO request,
+            @RequestParam List<Long> imageIds,
             @AuthenticationPrincipal CustomOAuth2User principal
     ){
         Long hostId = principal.getId();
-        AccommodationImageDeleteResponseDTO response = accommodationService.deleteAccommodationImages(accommodationId, hostId, request);
+        AccommodationImageDeleteResponseDTO response = accommodationService.deleteAccommodationImages(accommodationId, hostId, imageIds);
         return ResponseEntity.ok(response);
 
     }
