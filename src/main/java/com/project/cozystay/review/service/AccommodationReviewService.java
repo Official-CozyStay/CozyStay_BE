@@ -1,0 +1,138 @@
+package com.project.cozystay.review.service;
+
+import com.project.cozystay.accommodation.domain.Accommodation;
+import com.project.cozystay.accommodation.repository.AccommodationRepository;
+import com.project.cozystay.review.domain.AccommodationReview;
+import com.project.cozystay.review.dto.AccommodationReviewCreateRequest;
+import com.project.cozystay.review.dto.AccommodationReviewResponse;
+import com.project.cozystay.review.dto.ReviewResponse;
+import com.project.cozystay.review.repository.AccommodationReviewRepository;
+import com.project.cozystay.user.domain.User;
+import com.project.cozystay.user.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Service
+@Transactional
+@RequiredArgsConstructor
+public class AccommodationReviewService {
+
+    private final AccommodationReviewRepository accommodationReviewRepository;
+    private final AccommodationRepository accommodationRepository;
+    private final UserRepository userRepository;
+
+    private static final BigDecimal NUMBER_OF_RATING_CRITERIA = new BigDecimal("5");
+
+    // 숙소 리뷰 생성
+    @Transactional
+    public AccommodationReviewResponse createAccommodationReview(Long guestId, AccommodationReviewCreateRequest request) {
+        User guest = userRepository.findById(guestId)
+                .orElseThrow(() -> new EntityNotFoundException("게스트가 존재하지 않습니다."));
+
+        Accommodation accommodation = accommodationRepository.findById(request.accommodationId())
+                .orElseThrow(() -> new EntityNotFoundException("숙소가 존재하지 않습니다."));
+
+
+        //TODO 이 사용자가 해당 숙소를 실제로 이용했는지(예약 완료 여부) 검증 로직 추가
+        //TODO bookingId를 통해 중복 생성 방지 로직 추가
+        BigDecimal ratingOverall = calculateRating(request);
+        AccommodationReview review = request.toEntity(accommodation, guest, ratingOverall);
+
+        accommodationReviewRepository.save(review);
+
+        guest.increaseReviewCount(); // 리뷰 카운트 +1
+
+        return AccommodationReviewResponse.from(review);
+    }
+
+
+    // 숙소 리뷰 조회
+    public List<AccommodationReviewResponse> getAccommodationReviews(Long accId){
+
+        if (!accommodationRepository.existsById(accId)) {
+            throw new IllegalArgumentException("존재하지 않는 숙소입니다. id=" + accId);
+        }
+
+
+        List<AccommodationReview> accommodationReviewList = accommodationReviewRepository.findByAccommodation_AccommodationId(accId);
+
+        return accommodationReviewList.stream()
+                .map(AccommodationReviewResponse::from)
+                .toList();
+
+    }
+
+    // 숙소 리뷰 수정
+    //TODO 사장님이 답글을 달기 전까지만 수정 가능하도록하는 로직 추가 필요
+    @Transactional
+    public ReviewResponse updateAccommodationReview(Long reviewId, AccommodationReviewCreateRequest request){
+
+        AccommodationReview review = accommodationReviewRepository.findById(reviewId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 리뷰가 존재하지 않습니다."));
+
+        BigDecimal ratingOverall = calculateRating(request);
+        review.update(request, ratingOverall);
+
+        // TODO 응답 형식 변경 고려
+        return new ReviewResponse("리뷰를 수정하였습니다");
+    }
+
+
+    // 숙소 리뷰 삭제
+    @Transactional
+    public ReviewResponse deleteAccommodationReview(Long reviewId){
+
+        AccommodationReview review = accommodationReviewRepository.findById(reviewId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 리뷰가 존재하지 않습니다."));
+
+        accommodationReviewRepository.delete(review);
+
+        return new ReviewResponse("리뷰를 삭제하였습니다");
+    }
+
+
+    // 숙소 평점 계산 헬퍼 메서드
+    public BigDecimal calculateRating(AccommodationReviewCreateRequest request){
+
+        BigDecimal sum = request.ratingCleanliness()
+                .add(request.ratingAccuracy())
+                .add(request.ratingCheckin())
+                .add(request.ratingLocation())
+                .add(request.ratingCommunication());
+
+        return sum.divide(NUMBER_OF_RATING_CRITERIA, 1, RoundingMode.HALF_UP);
+    }
+
+
+    // 특정 사용자가 작성한 모든 숙소 리뷰들 조회
+    public List<AccommodationReviewResponse> getAccommodationReviewListByGuest(Long guestId){
+
+        List<AccommodationReview> reviewList = accommodationReviewRepository.findByGuestId(guestId);
+
+        return reviewList.stream()
+                .map(AccommodationReviewResponse::from)
+                .toList();
+    }
+
+
+
+    // 특정 사용자 + 특정 숙소 리뷰 조회
+    public AccommodationReviewResponse getAccommodationReviewByGuest(Long guestId, Long accId){
+
+        AccommodationReview review = accommodationReviewRepository.findByGuestAndAccommodation(guestId, accId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "작성하신 리뷰를 찾을 수 없습니다. id=" + accId
+                ));
+
+        return AccommodationReviewResponse.from(review);
+    }
+}
