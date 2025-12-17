@@ -49,8 +49,9 @@ public class AccommodationReviewController {
      */
     @PatchMapping("/{reviewId}")
     public ResponseEntity<ReviewResponse> updateAccommodationReview(
-            @RequestParam Long reviewId,
-            @RequestBody AccommodationReviewCreateRequest request) {
+            @PathVariable Long reviewId,
+            @RequestBody AccommodationReviewCreateRequest request
+    ) {
 
         return ResponseEntity.ok(accommodationReviewService.updateAccommodationReview(reviewId, request));
     }
@@ -61,8 +62,33 @@ public class AccommodationReviewController {
      */
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<ReviewResponse> deleteAccommodationReview(
-            @PathVariable Long reviewId) {
+            @PathVariable Long reviewId
+    ) {
 
         return ResponseEntity.ok(accommodationReviewService.deleteAccommodationReview(reviewId));
+    }
+
+    /**
+     * 게스트가 작성한 모든 숙소 리뷰 조회
+     */
+    @GetMapping("/all")
+    public ResponseEntity<List<AccommodationReviewResponse>> getAccommodationReviewListByGuest(
+            @AuthenticationPrincipal CustomOAuth2User custom
+    ) {
+        Long guestId = custom.getId();
+        return ResponseEntity.ok(accommodationReviewService.getAccommodationReviewListByGuest(guestId));
+    }
+
+    /**
+     * 게스트가 작성한 특정 숙소 리뷰 조회
+     * 주로 숙소 상세페이지에서 '내가 작성한 리뷰'가 먼저 보일 수 있도록 하기 위해서
+     */
+    @GetMapping("/{accId}/me")
+    public ResponseEntity<AccommodationReviewResponse> getAccommodationReviewByGuest(
+            @PathVariable Long accId,
+            @AuthenticationPrincipal CustomOAuth2User custom
+    ) {
+        Long guestId = custom.getId();
+        return ResponseEntity.ok(accommodationReviewService.getAccommodationReviewByGuest(guestId, accId));
     }
 }

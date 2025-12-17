@@ -11,8 +11,10 @@ import com.project.cozystay.user.domain.User;
 import com.project.cozystay.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -80,6 +82,7 @@ public class AccommodationReviewService {
         BigDecimal ratingOverall = calculateRating(request);
         review.update(request, ratingOverall);
 
+        // TODO 응답 형식 변경 고려
         return new ReviewResponse("리뷰를 수정하였습니다");
     }
 
@@ -96,8 +99,6 @@ public class AccommodationReviewService {
         return new ReviewResponse("리뷰를 삭제하였습니다");
     }
 
-    // TODO 특정 사용자가 작성한 숙소 리뷰들 조회
-    // TODO 특정 사용자 + 특정 숙소 리뷰 조회
 
     // 숙소 평점 계산 헬퍼 메서드
     public BigDecimal calculateRating(AccommodationReviewCreateRequest request){
@@ -109,5 +110,29 @@ public class AccommodationReviewService {
                 .add(request.ratingCommunication());
 
         return sum.divide(NUMBER_OF_RATING_CRITERIA, 1, RoundingMode.HALF_UP);
+    }
+
+
+    // 특정 사용자가 작성한 모든 숙소 리뷰들 조회
+    public List<AccommodationReviewResponse> getAccommodationReviewListByGuest(Long guestId){
+
+        List<AccommodationReview> reviewList = accommodationReviewRepository.findByGuestId(guestId);
+
+        return reviewList.stream()
+                .map(AccommodationReviewResponse::from)
+                .toList();
+    }
+
+
+
+    // 특정 사용자 + 특정 숙소 리뷰 조회
+    public AccommodationReviewResponse getAccommodationReviewByGuest(Long guestId, Long accId){
+
+        AccommodationReview review = accommodationReviewRepository.findByGuestAndAccommodation(guestId, accId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "작성하신 리뷰를 찾을 수 없습니다. id=" + accId
+                ));
+
+        return AccommodationReviewResponse.from(review);
     }
 }

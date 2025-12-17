@@ -23,4 +23,6 @@ public interface AccommodationReviewRepository extends JpaRepository<Accommodati
     AND ar.accommodation.accommodationId = :accId
     """)
     Optional<AccommodationReview> findByGuestAndAccommodation(@Param("guestId") Long guestId, @Param("accId") Long accId);
+
+
 }
