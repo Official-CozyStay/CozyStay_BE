@@ -62,6 +62,7 @@ public class SecurityConfig {
                         //추가한 부분
                         .requestMatchers(HttpMethod.GET, "/api/accommodations/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/bookings/**").permitAll() // TODO: 임시적으로 열어둠
+                        .requestMatchers(HttpMethod.GET, "/api/bookings/**").permitAll() // TODO : 임시적으로 열어둠
                         .requestMatchers("/error").permitAll() // TODO: 원인 로그를 바로 볼 수 있게 임시적으로
                         // 그 외 모든 요청은 인증 필요
                         .anyRequest().authenticated()
