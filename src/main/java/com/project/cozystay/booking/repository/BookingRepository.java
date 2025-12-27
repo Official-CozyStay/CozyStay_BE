@@ -3,6 +3,8 @@ package com.project.cozystay.booking.repository;
 import com.project.cozystay.booking.domain.Booking;
 import com.project.cozystay.booking.domain.BookingStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -24,11 +26,16 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             LocalDate checkOutDate
     );
 
-    // 내 예약 목록
-    List<Booking> findByGuestIdOrderByCreatedAtDesc(Long guestId);
-
-    // 상태 필터 포함 목록
-    List<Booking> findByGuestIdAndStatusOrderByCreatedAtDesc(Long guestId, BookingStatus status);
+    @Query("""
+            select b from Booking b
+            where b.guestId =: guestId
+            and (:status is null or b.status =:status)
+            order by b.createdAt desc
+        """)
+            List<Booking> findGuestIdAndOptionalStatusOrderByCreatedAtDesc(
+                    @Param("guestId") Long guestId,
+                    @Param("status") BookingStatus status
+    );
 
     // 내 예약 상세 (본인 것만)
     Optional<Booking> findByIdAndGuestId(Long bookingId, Long guestId);
