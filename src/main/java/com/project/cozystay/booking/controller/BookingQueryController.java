@@ -1,10 +1,12 @@
 package com.project.cozystay.booking.controller;
 
+import com.project.cozystay.auth.CustomOAuth2User;
 import com.project.cozystay.booking.domain.BookingStatus;
 import com.project.cozystay.booking.dto.BookingResponse;
 import com.project.cozystay.booking.service.BookingQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,10 +21,10 @@ public class BookingQueryController {
     // 내 예약 목록
     @GetMapping
     public ResponseEntity<List<BookingResponse>> getMyBookings(
-            @RequestParam Long guestId, // TODO : JWT에서 꺼내도록 바꾸기
+            @AuthenticationPrincipal CustomOAuth2User user,
             @RequestParam(required = false)BookingStatus status
             ){
-        List<BookingResponse> response = bookingQueryService.getMyBookings(guestId, status);
+        List<BookingResponse> response = bookingQueryService.getMyBookings(user.getId(), status);
         return ResponseEntity.ok(response);
     }
 
@@ -30,9 +32,9 @@ public class BookingQueryController {
     @GetMapping("/{bookingId}")
     public ResponseEntity<BookingResponse> getMyBookingDetail(
             @PathVariable Long bookingId,
-            @RequestParam Long guestId //TODO : JWT에서 꺼내도록 바꾸기
+            @AuthenticationPrincipal CustomOAuth2User user
     ){
-        BookingResponse response = bookingQueryService.getMyBookingDetail(bookingId, guestId);
+        BookingResponse response = bookingQueryService.getMyBookingDetail(bookingId, user.getId());
         return ResponseEntity.ok(response);
     }
 }
