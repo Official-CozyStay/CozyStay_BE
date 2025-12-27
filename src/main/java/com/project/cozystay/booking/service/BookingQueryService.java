@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static java.util.Arrays.stream;
+
 @Service
 @RequiredArgsConstructor
 public class BookingQueryService {
@@ -16,9 +18,7 @@ public class BookingQueryService {
     private final BookingRepository bookingRepository;
 
     public List<BookingResponse> getMyBookings(Long guestId, BookingStatus status){
-        List<Booking> bookings = (status == null)
-                ? bookingRepository.findByGuestIdOrderByCreatedAtDesc(guestId)
-                : bookingRepository.findByGuestIdAndStatusOrderByCreatedAtDesc(guestId, status);
+        List<Booking> bookings = bookingRepository.findByGuestIdAndOptionalStatusOrderByCreatedAtDesc(guestId, status);
 
         return bookings.stream()
                 .map(this::toResponse)

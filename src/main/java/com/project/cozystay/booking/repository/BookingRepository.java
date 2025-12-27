@@ -32,7 +32,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             and (:status is null or b.status =:status)
             order by b.createdAt desc
         """)
-            List<Booking> findGuestIdAndOptionalStatusOrderByCreatedAtDesc(
+            List<Booking> findByGuestIdAndOptionalStatusOrderByCreatedAtDesc(
                     @Param("guestId") Long guestId,
                     @Param("status") BookingStatus status
     );
