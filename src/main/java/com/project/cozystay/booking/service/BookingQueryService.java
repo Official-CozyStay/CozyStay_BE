@@ -3,6 +3,7 @@ package com.project.cozystay.booking.service;
 import com.project.cozystay.booking.domain.Booking;
 import com.project.cozystay.booking.domain.BookingStatus;
 import com.project.cozystay.booking.dto.BookingResponse;
+import com.project.cozystay.booking.exception.BookingNotFoundException;
 import com.project.cozystay.booking.repository.BookingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,7 @@ public class BookingQueryService {
 
     public BookingResponse getMyBookingDetail(Long bookingId, Long guestId){
         Booking booking = bookingRepository.findByIdAndGuestId(bookingId, guestId)
-                .orElseThrow(()-> new IllegalArgumentException("예약이 존재하지 않거나 접근 권한이 없습니다. bookingId=" + bookingId));
+                .orElseThrow(()-> new BookingNotFoundException("예약이 존재하지 않거나 접근 권한이 없습니다."));
 
         return toResponse(booking);
     }
