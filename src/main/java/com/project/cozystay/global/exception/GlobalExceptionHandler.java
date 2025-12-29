@@ -15,7 +15,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleBookingNotFound(BookingNotFoundException e){
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(Map.of("success", false,
-                        "message", e.getMessage()));
+                .body(new ErrorResponse(e.getMessage()));
     }
 }
