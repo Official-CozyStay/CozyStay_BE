@@ -26,16 +26,15 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             LocalDate checkOutDate
     );
 
-    @Query("""
-            select b from Booking b
-            where b.guestId =: guestId
-            and (:status is null or b.status =:status)
-            order by b.createdAt desc
-        """)
-            List<Booking> findByGuestIdAndOptionalStatusOrderByCreatedAtDesc(
-                    @Param("guestId") Long guestId,
-                    @Param("status") BookingStatus status
-    );
+    List<Booking> findByGuestIdOrderByCreatedAtDesc(Long guestId);
+
+    List<Booking> findByGuestIdAndStatusOrderByCreatedAtDesc(Long guestId, BookingStatus status);
+
+    default List<Booking> findByGuestIdWithOptionalStatusOrderByCreatedAtDesc(Long guestId, BookingStatus status) {
+        return (status == null)
+                ? findByGuestIdOrderByCreatedAtDesc(guestId)
+                : findByGuestIdAndStatusOrderByCreatedAtDesc(guestId, status);
+    }
 
     // 내 예약 상세 (본인 것만)
     Optional<Booking> findByIdAndGuestId(Long bookingId, Long guestId);
