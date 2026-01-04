@@ -8,7 +8,6 @@ import java.time.LocalDate;
 public class BookingCreateRequest {
 
     private Long accommodationId;
-    private Long guestId;
     private LocalDate checkInDate;
     private LocalDate checkOutDate;
     private int numberOfGuests;

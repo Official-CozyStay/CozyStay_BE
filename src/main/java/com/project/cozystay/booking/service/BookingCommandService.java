@@ -30,7 +30,7 @@ public class BookingCommandService {
     private final AccommodationRepository accommodationRepository;
     private final AvailabilityCalendarRepository availabilityCalendarRepository;
 
-    public BookingResponse createBooking(BookingCreateRequest request) {
+    public BookingResponse createBooking(BookingCreateRequest request, Long guestId) {
 
         LocalDate checkIn = request.getCheckInDate();
         LocalDate checkOut = request.getCheckOutDate();
@@ -115,7 +115,7 @@ public class BookingCommandService {
         // Booking  엔티티 생성
         Booking booking = Booking.builder()
                 .accommodationId(request.getAccommodationId())
-                .guestId(request.getGuestId()) // TODO : 나중에 JWT 가져오기
+                .guestId(guestId)
                 .checkInDate(checkIn)
                 .checkOutDate(checkOut)
                 .numberOfGuests(request.getNumberOfGuests())
