@@ -7,8 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 @Slf4j
 @RestControllerAdvice
@@ -39,7 +37,7 @@ public class GlobalExceptionHandler {
     }
 
     /* ===================== 409 CONFLICT ===================== */
-    @ExceptionHandler({BookingConflictException.class, BookingNotAvailableException.class})
+    @ExceptionHandler({BookingConflictException.class, BookingNotAvailableException.class, BookingAlreadyCancelledException.class})
     public ResponseEntity<ErrorResponse> handleConflict(RuntimeException e){
         log.warn("Conflict [{}]: {}", e.getClass().getSimpleName(), e.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT)
