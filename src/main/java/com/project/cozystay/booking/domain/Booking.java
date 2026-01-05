@@ -1,5 +1,7 @@
 package com.project.cozystay.booking.domain;
 
+import com.project.cozystay.booking.exception.BookingAlreadyCancelledException;
+import com.project.cozystay.booking.exception.BookingCancellationNotAllowedException;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -96,7 +98,14 @@ public class Booking {
     }
 
     public void cancel(){
+        if(this.status == BookingStatus.CANCELLED){
+            throw new BookingAlreadyCancelledException(this.id);
+        }
+        if(this.status == BookingStatus.COMPLETED){
+            throw new BookingCancellationNotAllowedException(this.id, this.status);
+        }
         this.status = BookingStatus.CANCELLED;
         this.cancelledAt = LocalDateTime.now();
     }
+
 }
