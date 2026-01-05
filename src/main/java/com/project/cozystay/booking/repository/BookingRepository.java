@@ -37,9 +37,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     // 예약 취소
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("select b " +
-            "from Booking b " +
-            "where b.id = :bookingId and b.guestId = :guestId")
+    @Query("select b from Booking b where b.id = :bookingId and b.guestId = :guestId")
     Optional<Booking> findByIdAndGuestIdForUpdate(@Param("bookingId")Long bookingId,
                                                   @Param("guestId")Long guestId);
 }
