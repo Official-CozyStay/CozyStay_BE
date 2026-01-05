@@ -19,6 +19,13 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(e.getMessage()));
     }
 
+    // 401 Unauthorized
+    @ExceptionHandler(AuthenticationRequiredException.class)
+    public ResponseEntity<ErrorResponse> handleAuthRequired(AuthenticationRequiredException e){
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ErrorResponse(e.getMessage()));
+    }
+
     // 404 Not Found
     @ExceptionHandler({AccommodationNotFoundException.class, BookingNotFoundException.class})
     public ResponseEntity<ErrorResponse> handleNotFound(RuntimeException e){

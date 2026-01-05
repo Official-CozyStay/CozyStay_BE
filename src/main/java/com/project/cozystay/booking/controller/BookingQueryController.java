@@ -3,6 +3,7 @@ package com.project.cozystay.booking.controller;
 import com.project.cozystay.auth.CustomOAuth2User;
 import com.project.cozystay.booking.domain.BookingStatus;
 import com.project.cozystay.booking.dto.BookingResponse;
+import com.project.cozystay.booking.exception.AuthenticationRequiredException;
 import com.project.cozystay.booking.service.BookingQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,9 @@ public class BookingQueryController {
             @AuthenticationPrincipal CustomOAuth2User user,
             @RequestParam(required = false)BookingStatus status
             ){
+        if(user == null){
+            throw new AuthenticationRequiredException();
+        }
         List<BookingResponse> response = bookingQueryService.getMyBookings(user.getId(), status);
         return ResponseEntity.ok(response);
     }
@@ -34,6 +38,9 @@ public class BookingQueryController {
             @PathVariable Long bookingId,
             @AuthenticationPrincipal CustomOAuth2User user
     ){
+        if(user == null){
+            throw new AuthenticationRequiredException();
+        }
         BookingResponse response = bookingQueryService.getMyBookingDetail(bookingId, user.getId());
         return ResponseEntity.ok(response);
     }

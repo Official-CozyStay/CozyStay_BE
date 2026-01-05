@@ -3,6 +3,7 @@ package com.project.cozystay.booking.controller;
 import com.project.cozystay.auth.CustomOAuth2User;
 import com.project.cozystay.booking.dto.BookingCreateRequest;
 import com.project.cozystay.booking.dto.BookingResponse;
+import com.project.cozystay.booking.exception.AuthenticationRequiredException;
 import com.project.cozystay.booking.service.BookingCommandService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +29,7 @@ public class BookingCommandController {
             @AuthenticationPrincipal CustomOAuth2User principal
             ) {
         if(principal == null){
-            throw new IllegalStateException("인증이 필요합니다.");
+            throw new AuthenticationRequiredException();
         }
 
         Long guestId = principal.getUser().getId();
