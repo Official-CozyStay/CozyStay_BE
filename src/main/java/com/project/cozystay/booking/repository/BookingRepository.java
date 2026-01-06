@@ -15,14 +15,14 @@ import java.util.Optional;
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     // 특정 숙소에 대해 날짜가 겹치는 예약이 존재하는지 체크
-    boolean existsByAccommodationIdAndCheckInDateBeforeAndCheckOutDateAfter(
+    boolean existsByAccommodation_IdAndCheckInDateBeforeAndCheckOutDateAfter(
             Long accommodationId,
             LocalDate checkInDate,
             LocalDate checkOutDate
     );
 
     // 필요하면 조회용으로도 사용 가능
-    List<Booking> findByAccommodationIdAndCheckInDateLessThanEqualAndCheckOutDateGreaterThanEqual(
+    List<Booking> findByAccommodation_IdAndCheckInDateLessThanEqualAndCheckOutDateGreaterThanEqual(
             Long accommodationId,
             LocalDate checkInDate,
             LocalDate checkOutDate
@@ -32,7 +32,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     List<Booking> findByGuestIdAndStatusOrderByCreatedAtDesc(Long guestId, BookingStatus status);
 
-    // 내 예약 상세 (본인 것만)
+    // 내 예약 상세 (본인 것만) - 게스트
     Optional<Booking> findByIdAndGuestId(Long bookingId, Long guestId);
 
     // 예약 취소
@@ -40,4 +40,38 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("select b from Booking b where b.id = :bookingId and b.guestId = :guestId")
     Optional<Booking> findByIdAndGuestIdForUpdate(@Param("bookingId")Long bookingId,
                                                   @Param("guestId")Long guestId);
+
+    // 호스트 예약 목록 조회 (최신순)
+    @Query("""
+select b
+from Booking b
+join b.accommodation a
+where a.hostId = :hostId
+order by b.createdAt desc
+""")
+    List<Booking> findAllByHostIdOrderByCreatedAtDesc(@Param("hostId") Long hostId);
+
+    // 호스트 예약 목록 + 상태 필터
+    @Query("""
+select b
+from Booking b
+join b.accommodation a
+where a.hostId = :hostId
+and (:status is null or b.status = :status)
+order by b.createdAt desc
+""")
+    List<Booking> findAllByhHostIdAndStatusOrderByCreatedAtDesc(@Param("hostId") Long hostId,
+                                                                @Param("status") BookingStatus status);
+
+    // 호스트 예약 상세 조회 ( 내 숙소 예약만)
+    @Query("""
+select b
+from Booking b
+join b.accommodation a
+where b.id = :bookingId
+and a.hostId =:hostId
+""")
+Optional<Booking> findByIdAndHostId(@Param("bookingId") Long bookingId,
+                                    @Param("hostId") Long hostId);
+
 }

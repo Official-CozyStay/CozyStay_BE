@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum AuthProvider {
+public enum     AuthProvider {
 
     LOCAL("일반 회원가입"),
     KAKAO("카카오"),

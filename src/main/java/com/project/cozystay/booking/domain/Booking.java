@@ -1,5 +1,6 @@
 package com.project.cozystay.booking.domain;
 
+import com.project.cozystay.accommodation.domain.Accommodation;
 import com.project.cozystay.booking.exception.BookingAlreadyCancelledException;
 import com.project.cozystay.booking.exception.BookingCancellationNotAllowedException;
 import com.project.cozystay.booking.exception.BookingDecisionNotAllowedException;
@@ -35,8 +36,9 @@ public class Booking {
     @Column(name="booking_id")
     private Long id;
 
-    @Column(name="accommodation_id", nullable = false)
-    private Long accommodationId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "accommodation_id", nullable = false)
+    private Accommodation accommodation;
 
     @Column(name = "guest_id", nullable = false)
     private Long guestId;

@@ -53,10 +53,10 @@ public class BookingCommandService {
 
         // 이미 예약된 건이 있는지 (날짜 겹침) 체크
         boolean hasOverlap = bookingRepository
-                .existsByAccommodationIdAndCheckInDateBeforeAndCheckOutDateAfter(
+                .existsByAccommodation_IdAndCheckInDateBeforeAndCheckOutDateAfter(
                         request.getAccommodationId(),
-                        checkOut,
-                        checkIn
+                        checkIn,
+                        checkOut
                 );
 
         if(hasOverlap){
@@ -112,9 +112,10 @@ public class BookingCommandService {
         BigDecimal totalPrice = totalRoomPrice.add(cleaningFee).add(serviceFee);
         totalPrice = totalPrice.setScale(2, RoundingMode.HALF_UP);
 
+
         // Booking  엔티티 생성
         Booking booking = Booking.builder()
-                .accommodationId(request.getAccommodationId())
+                .accommodation(accommodation)
                 .guestId(guestId)
                 .checkInDate(checkIn)
                 .checkOutDate(checkOut)
@@ -130,7 +131,7 @@ public class BookingCommandService {
         // DTO로 변환해서 반환
         return BookingResponse.builder()
                 .bookingId(saved.getId())
-                .accommodationId(saved.getAccommodationId())
+                .accommodationId(saved.getAccommodation().getId())
                 .guestId(saved.getGuestId())
                 .checkInDate(saved.getCheckInDate())
                 .checkOutDate(saved.getCheckOutDate())
