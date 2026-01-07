@@ -16,7 +16,7 @@ public class HostBookingDetailResponse {
     private Long bookingId;
 
     private Long accommodationId;
-    private String accommdationTitle;
+    private String accommodationTitle;
 
     private Long guestId;
 

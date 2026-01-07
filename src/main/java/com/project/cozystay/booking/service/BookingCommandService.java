@@ -55,8 +55,8 @@ public class BookingCommandService {
         boolean hasOverlap = bookingRepository
                 .existsByAccommodation_IdAndCheckInDateBeforeAndCheckOutDateAfter(
                         request.getAccommodationId(),
-                        checkIn,
-                        checkOut
+                        checkOut,
+                        checkIn
                 );
 
         if(hasOverlap){

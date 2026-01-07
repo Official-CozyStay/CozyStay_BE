@@ -60,7 +60,7 @@ where a.hostId = :hostId
 and (:status is null or b.status = :status)
 order by b.createdAt desc
 """)
-    List<Booking> findAllByhHostIdAndStatusOrderByCreatedAtDesc(@Param("hostId") Long hostId,
+    List<Booking> findAllByHostIdAndStatusOrderByCreatedAtDesc(@Param("hostId") Long hostId,
                                                                 @Param("status") BookingStatus status);
 
     // 호스트 예약 상세 조회 (내 숙소 예약만)
