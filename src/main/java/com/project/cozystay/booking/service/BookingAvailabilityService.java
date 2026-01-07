@@ -5,6 +5,7 @@ import com.project.cozystay.accommodation.repository.AccommodationRepository;
 import com.project.cozystay.booking.domain.AvailabilityCalendar;
 import com.project.cozystay.booking.dto.AvailabilityResponse;
 import com.project.cozystay.booking.dto.AvailabilityDayResponse;
+import com.project.cozystay.booking.exception.InvalidDateRangeException;
 import com.project.cozystay.booking.repository.AvailabilityCalendarRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -32,7 +33,7 @@ public class BookingAvailabilityService {
             ) {
         // 날짜 유효성 검증 : from < to
         if(from == null || to == null || !from.isBefore(to)){
-            throw new IllegalArgumentException("from 날짜는 to 날짜보다 이전이어야 합니다.");
+            throw InvalidDateRangeException.of(from, to);
         }
 
         // 숙소 기본 정보 가져오기 (기본 1박 가격 등)

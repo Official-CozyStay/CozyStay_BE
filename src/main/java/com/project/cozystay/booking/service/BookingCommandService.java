@@ -6,6 +6,7 @@ import com.project.cozystay.booking.domain.AvailabilityCalendar;
 import com.project.cozystay.booking.domain.Booking;
 import com.project.cozystay.booking.dto.BookingCreateRequest;
 import com.project.cozystay.booking.dto.BookingResponse;
+import com.project.cozystay.booking.exception.*;
 import com.project.cozystay.booking.repository.AvailabilityCalendarRepository;
 import com.project.cozystay.booking.repository.BookingRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,23 +30,25 @@ public class BookingCommandService {
     private final AccommodationRepository accommodationRepository;
     private final AvailabilityCalendarRepository availabilityCalendarRepository;
 
-    public BookingResponse createBooking(BookingCreateRequest request) {
+    public BookingResponse createBooking(BookingCreateRequest request, Long guestId) {
 
         LocalDate checkIn = request.getCheckInDate();
         LocalDate checkOut = request.getCheckOutDate();
 
         if(checkIn == null || checkOut == null || !checkIn.isBefore(checkOut)) {
-            throw new IllegalArgumentException("checkIn은 checkOut보다 이전 날짜여야 합니다.");
+            throw InvalidDateRangeException.checkInOut(checkIn, checkOut);
         }
 
         // 숙소 정보 조회
         Accommodation accommodation = accommodationRepository.findById(request.getAccommodationId())
-                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 숙소입니다. id =" + request.getAccommodationId()));
+                .orElseThrow(()-> new AccommodationNotFoundException(request.getAccommodationId()));
 
         // 인원 수 검증
-        if(request.getNumberOfGuests() <= 0 ||
-        request.getNumberOfGuests() > accommodation.getMaxGuests()){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "허용 인원 범위를 벗어났습니다.");
+        if(request.getNumberOfGuests() <= 0){
+            throw InvalidGuestCountException.of(request.getNumberOfGuests());
+        }
+        if(request.getNumberOfGuests() > accommodation.getMaxGuests()){
+            throw BookingNotAvailableException.guestExceed(request.getNumberOfGuests(), accommodation.getMaxGuests());
         }
 
         // 이미 예약된 건이 있는지 (날짜 겹침) 체크
@@ -57,7 +60,7 @@ public class BookingCommandService {
                 );
 
         if(hasOverlap){
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 겹치는 예약이 존재합니다.");
+            throw new BookingConflictException(request.getAccommodationId(), checkIn, checkOut);
         }
 
         // AvailabilityCalendar 기반으로 예약 가능 여부 + 가격 계산 준비
@@ -84,7 +87,7 @@ public class BookingCommandService {
 
             // AvailabilityCalendar에 있고, isAvailable == false 면 예약불가
             if(cal != null && !cal.isAvailable()){
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "해당 날짜는 예약이 불가합니다: " + date);
+                throw BookingNotAvailableException.blockedDate();
             }
 
             BigDecimal dayPrice = basePrice;
@@ -112,7 +115,7 @@ public class BookingCommandService {
         // Booking  엔티티 생성
         Booking booking = Booking.builder()
                 .accommodationId(request.getAccommodationId())
-                .guestId(request.getGuestId()) // TODO : 나중에 JWT 가져오기
+                .guestId(guestId)
                 .checkInDate(checkIn)
                 .checkOutDate(checkOut)
                 .numberOfGuests(request.getNumberOfGuests())
