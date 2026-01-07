@@ -63,7 +63,7 @@ order by b.createdAt desc
     List<Booking> findAllByhHostIdAndStatusOrderByCreatedAtDesc(@Param("hostId") Long hostId,
                                                                 @Param("status") BookingStatus status);
 
-    // 호스트 예약 상세 조회 ( 내 숙소 예약만)
+    // 호스트 예약 상세 조회 (내 숙소 예약만)
     @Query("""
 select b
 from Booking b
@@ -73,5 +73,19 @@ and a.hostId =:hostId
 """)
 Optional<Booking> findByIdAndHostId(@Param("bookingId") Long bookingId,
                                     @Param("hostId") Long hostId);
+
+    // 호스트 수락/거절 상태 전이
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+select b
+from Booking b
+join b.accommodation a
+where b.id = :bookingId
+and a.hostId =:hostId
+""")
+    Optional<Booking> findByIdAndHostIdForUpdate(
+            @Param("bookingId") Long bookingId,
+            @Param("hostId") Long hostId
+    );
 
 }
