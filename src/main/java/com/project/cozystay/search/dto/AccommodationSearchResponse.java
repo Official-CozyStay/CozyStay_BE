@@ -1,6 +1,7 @@
 package com.project.cozystay.search.dto;
 
 import com.project.cozystay.accommodation.domain.Accommodation;
+import com.querydsl.core.Tuple;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -8,15 +9,18 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.project.cozystay.accommodation.domain.QAccommodation.accommodation;
+import static com.project.cozystay.accommodation.domain.QAccommodationImage.accommodationImage;
+
 @Getter
 @Builder
 public class AccommodationSearchResponse {
 
     private List<AccommodationInfo> accommodations;
 
-    public static AccommodationSearchResponse from(List<Accommodation> accommodations) {
-        List<AccommodationInfo> accommodationInfos = accommodations.stream()
-                .map(AccommodationInfo::from)
+    public static AccommodationSearchResponse from(List<Tuple> searchResults) {
+        List<AccommodationInfo> accommodationInfos = searchResults.stream()
+                .map(tuple -> AccommodationInfo.from(tuple.get(accommodation), tuple.get(accommodationImage.imageUrl)))
                 .collect(Collectors.toList());
         return AccommodationSearchResponse.builder()
                 .accommodations(accommodationInfos)
@@ -34,11 +38,7 @@ public class AccommodationSearchResponse {
         private BigDecimal pricePerNight;
         private String mainImageUrl;
 
-        public static AccommodationInfo from(Accommodation accommodation) {
-            String mainImageUrl = accommodation.getImages().stream()
-                    .findFirst()
-                    .map(com.project.cozystay.accommodation.domain.AccommodationImage::getImageUrl)
-                    .orElse(null);
+        public static AccommodationInfo from(Accommodation accommodation, String imageUrl) {
             return AccommodationInfo.builder()
                     .id(accommodation.getId())
                     .title(accommodation.getTitle())
@@ -46,7 +46,7 @@ public class AccommodationSearchResponse {
                     .address(accommodation.getAddress())
                     .city(accommodation.getCity())
                     .pricePerNight(accommodation.getPricePerNight())
-                    .mainImageUrl(mainImageUrl)
+                    .mainImageUrl(imageUrl)
                     .build();
         }
     }

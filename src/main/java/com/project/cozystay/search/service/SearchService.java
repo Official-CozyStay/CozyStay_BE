@@ -4,6 +4,7 @@ import com.project.cozystay.accommodation.domain.Accommodation;
 import com.project.cozystay.search.dto.AccommodationSearchRequest;
 import com.project.cozystay.search.dto.AccommodationSearchResponse;
 import com.project.cozystay.search.repository.AccommodationSearchRepository;
+import com.querydsl.core.Tuple;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +19,7 @@ public class SearchService {
     private final AccommodationSearchRepository accommodationSearchRepository;
 
     public AccommodationSearchResponse search(AccommodationSearchRequest request) {
-        List<Accommodation> accommodations = accommodationSearchRepository.search(request);
-        return AccommodationSearchResponse.from(accommodations);
+        List<Tuple> searchResults = accommodationSearchRepository.search(request);
+        return AccommodationSearchResponse.from(searchResults);
     }
 }

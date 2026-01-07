@@ -1,8 +1,7 @@
 package com.project.cozystay.search.repository;
 
-import com.project.cozystay.accommodation.domain.Accommodation;
 import com.project.cozystay.accommodation.domain.AccommodationStatus;
-import com.project.cozystay.search.dto.AccommodationSearchRequest;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -12,8 +11,10 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.project.cozystay.search.dto.AccommodationSearchRequest; // Added missing import
+
 import static com.project.cozystay.accommodation.domain.QAccommodation.accommodation;
-import static com.project.cozystay.accommodation.domain.QAccommodationDetail.accommodationDetail;
+import static com.project.cozystay.accommodation.domain.QAccommodationImage.accommodationImage;
 import static com.project.cozystay.booking.domain.QBooking.booking;
 import static org.springframework.util.StringUtils.hasText;
 
@@ -24,16 +25,16 @@ public class AccommodationSearchRepositoryImpl implements AccommodationSearchRep
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<Accommodation> search(AccommodationSearchRequest request) {
+    public List<Tuple> search(AccommodationSearchRequest request) {
         return queryFactory
-                .selectFrom(accommodation)
-                .leftJoin(accommodation.detail, accommodationDetail).fetchJoin()
+                .select(accommodation, accommodationImage.imageUrl)
+                .from(accommodation)
+                .leftJoin(accommodation.images, accommodationImage).on(accommodationImage.primary.isTrue())
                 .where(
                         accommodation.status.eq(AccommodationStatus.ACTIVE), // 활성화된 숙소만
                         cityEq(request.getCity()),
                         titleContains(request.getTitle()),
                         priceBetween(request.getMinPrice(), request.getMaxPrice()),
-                        bedsGoe(request.getNumberOfBeds()),
                         isAvailable(request.getCheckInDate(), request.getCheckOutDate())
                 )
                 .fetch();
@@ -58,10 +59,6 @@ public class AccommodationSearchRepositoryImpl implements AccommodationSearchRep
             return accommodation.pricePerNight.goe(minPrice);
         }
         return accommodation.pricePerNight.between(minPrice, maxPrice);
-    }
-
-    private BooleanExpression bedsGoe(Integer numberOfBeds) {
-        return numberOfBeds != null ? accommodationDetail.bedCount.goe(numberOfBeds) : null;
     }
 
     private BooleanExpression isAvailable(LocalDate checkIn, LocalDate checkOut) {
