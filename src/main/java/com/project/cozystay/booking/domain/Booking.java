@@ -1,7 +1,9 @@
 package com.project.cozystay.booking.domain;
 
+import com.project.cozystay.accommodation.domain.Accommodation;
 import com.project.cozystay.booking.exception.BookingAlreadyCancelledException;
 import com.project.cozystay.booking.exception.BookingCancellationNotAllowedException;
+import com.project.cozystay.booking.exception.BookingDecisionNotAllowedException;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -34,8 +36,9 @@ public class Booking {
     @Column(name="booking_id")
     private Long id;
 
-    @Column(name="accommodation_id", nullable = false)
-    private Long accommodationId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "accommodation_id", nullable = false)
+    private Accommodation accommodation;
 
     @Column(name = "guest_id", nullable = false)
     private Long guestId;
@@ -97,6 +100,7 @@ public class Booking {
         this.updatedAt = LocalDateTime.now();
     }
 
+    // 예약 취소
     public void cancel(){
         if(this.status == BookingStatus.CANCELLED){
             throw new BookingAlreadyCancelledException(this.id);
@@ -106,6 +110,22 @@ public class Booking {
         }
         this.status = BookingStatus.CANCELLED;
         this.cancelledAt = LocalDateTime.now();
+    }
+
+    // 호스트 전용 상태 전이
+    // 수락
+    public void confirmByHost(){
+        if(this.status != BookingStatus.PENDING){
+            throw new BookingDecisionNotAllowedException(this.id, this.status);
+        }
+        this.status = BookingStatus.CONFIRMED;
+    }
+    // 거절
+    public void rejectByHost(){
+        if(this.status != BookingStatus.PENDING){
+            throw new BookingDecisionNotAllowedException(this.id, this.status);
+        }
+        this.status = BookingStatus.REJECTED;
     }
 
 }

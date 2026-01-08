@@ -38,7 +38,9 @@ public class GlobalExceptionHandler {
 
     /* ===================== 409 CONFLICT ===================== */
     @ExceptionHandler({BookingConflictException.class, BookingNotAvailableException.class,
-            BookingAlreadyCancelledException.class, BookingCancellationNotAllowedException.class})
+            BookingAlreadyCancelledException.class, BookingCancellationNotAllowedException.class,
+            BookingDecisionNotAllowedException.class
+    })
     public ResponseEntity<ErrorResponse> handleConflict(RuntimeException e){
         log.warn("Conflict [{}]: {}", e.getClass().getSimpleName(), e.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT)

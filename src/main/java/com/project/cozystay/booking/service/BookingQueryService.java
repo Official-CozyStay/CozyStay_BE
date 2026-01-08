@@ -40,7 +40,7 @@ public class BookingQueryService {
     private BookingResponse toResponse(Booking b){
         return BookingResponse.builder()
                 .bookingId(b.getId())
-                .accommodationId(b.getAccommodationId())
+                .accommodationId(b.getAccommodation().getId())
                 .guestId(b.getGuestId())
                 .checkInDate(b.getCheckInDate())
                 .checkOutDate(b.getCheckOutDate())
