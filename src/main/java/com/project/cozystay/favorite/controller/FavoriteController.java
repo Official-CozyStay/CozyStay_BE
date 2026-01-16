@@ -83,7 +83,7 @@ public class FavoriteController {
     ){
         Long userId = principal.getId();
         favoriteService.deleteFavorite(userId, favoriteId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     /**
@@ -111,6 +111,6 @@ public class FavoriteController {
     ){
         Long userId = principal.getId();
         favoriteService.deleteAccommodation(userId, favoriteId, accommodationId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }
