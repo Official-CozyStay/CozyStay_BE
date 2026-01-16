@@ -48,8 +48,14 @@ public class Favorite {
     private User user;
 
     public void update(FavoriteUpdateRequestDTO request) {
-        if (request.getName() != null) {this.name = request.getName();}
-        if (request.getDescription() != null) {this.description = request.getDescription();}
-        if (request.getIsPrivate() != null) {this.isPrivate = request.getIsPrivate();}
+        if (request.getName() != null) {
+            this.name = request.getName();
+        }
+        if (request.getDescription() != null) {
+            this.description = request.getDescription();
+        }
+        if (request.getIsPrivate() != null) {
+            this.isPrivate = request.getIsPrivate();
+        }
     }
 }
