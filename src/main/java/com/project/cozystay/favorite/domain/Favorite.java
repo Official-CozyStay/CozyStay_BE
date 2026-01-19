@@ -40,6 +40,7 @@ public class Favorite {
 
 
     @OneToMany(mappedBy = "favorite", cascade = CascadeType.ALL, orphanRemoval = true)
+    @org.hibernate.annotations.BatchSize(size = 100)
     @Builder.Default
     private List<FavoriteAccommodation> favoriteAccommodations = new ArrayList<>();
 
