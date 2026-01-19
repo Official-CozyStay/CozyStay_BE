@@ -44,6 +44,11 @@ public class FavoriteService {
         Accommodation accommodation = accommodationRepository.findById(accommodationId)
                 .orElseThrow(() -> new IllegalArgumentException("숙소를 찾을 수 없습니다."));
 
+        //추후 AccommodationStatus.ACTIVE 활용하게 될 경우 추가
+//        Accommodation accommodation = accommodationRepository.findById(accommodationId)
+//                .filter(acc -> acc.getStatus() == AccommodationStatus.ACTIVE)
+//                .orElseThrow(() -> new IllegalArgumentException("활성화된 숙소를 찾을 수 없습니다."));
+
         FavoriteAccommodation favoriteAccommodation = FavoriteAccommodation.of(favorite, accommodation);
 
         favoriteAccommodationRepository.save(favoriteAccommodation);
