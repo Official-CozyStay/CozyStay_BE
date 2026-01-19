@@ -69,7 +69,8 @@ public class FavoriteService {
 
     @Transactional(readOnly = true)
     public FavoriteDetailResponseDTO getFavoriteDetail(Long userId, Long favoriteId){
-        Favorite favorite = getOwnedFavorite(userId, favoriteId);
+        Favorite favorite = favoriteRepository.findDetailByIdAndUserId(favoriteId, userId)
+                .orElseThrow(() -> new IllegalArgumentException("즐겨찾기 목록을 찾을 수 없습니다."));
 
         return FavoriteDetailResponseDTO.from(favorite);
     }
