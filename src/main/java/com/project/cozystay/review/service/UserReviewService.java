@@ -1,5 +1,8 @@
 package com.project.cozystay.review.service;
 
+import com.project.cozystay.booking.domain.Booking;
+import com.project.cozystay.booking.exception.ReviewAlreadyExistsException;
+import com.project.cozystay.booking.repository.BookingRepository;
 import com.project.cozystay.review.domain.AccommodationReview;
 import com.project.cozystay.review.domain.UserReview;
 import com.project.cozystay.review.dto.AccommodationReviewResponse;
@@ -11,11 +14,13 @@ import com.project.cozystay.user.domain.User;
 import com.project.cozystay.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Transactional
@@ -24,6 +29,7 @@ public class UserReviewService {
 
     private final UserReviewRepository userReviewRepository;
     private final UserRepository userRepository;
+    private final BookingRepository bookingRepository;
 
     // 게스트 리뷰 생성
     @Transactional
@@ -39,8 +45,20 @@ public class UserReviewService {
         User targetGuest = userRepository.findById(request.targetGuestId())
                 .orElseThrow(() -> new IllegalArgumentException("게스트가 존재하지 않습니다."));
 
-        //TODO 이 호스트가 이 게스트와 실제로 예약 관계가 있는지 검증 로직 추가
-        UserReview review = request.toEntity(reviewerHost, targetGuest);
+        Booking booking = bookingRepository.findById(request.bookingId())
+                .orElseThrow(() -> new IllegalArgumentException("예약이 존재하지 않습니다."));
+
+        // 중복 리뷰 생성 방지
+        if (userReviewRepository.existsByBooking_Id(request.bookingId())) {
+            throw new ReviewAlreadyExistsException(request.bookingId());
+        }
+
+        // 리뷰 작성자와 호스트가 동일한지 확인
+        if( !Objects.equals(booking.getAccommodation().getHostId(), hostId)) {
+            throw new AccessDeniedException("리뷰를 작성할 권한이 없습니다.");
+        }
+
+        UserReview review = request.toEntity(booking, reviewerHost, targetGuest);
 
         userReviewRepository.save(review);
 
@@ -64,13 +82,15 @@ public class UserReviewService {
     }
 
     // 게스트 리뷰 수정
-    //TODO 사용자가 답글을 달기 전까지만 수정 가능하도록하는 로직 추가 필요
     @Transactional
     public ReviewResponse updateUserReview(Long reviewId, UserReviewCreateRequest request){
 
         UserReview userReview = userReviewRepository.findById(reviewId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 리뷰가 존재하지 않습니다."));
 
+        if(userReview.getComment() != null){
+            throw new IllegalStateException("답글이 달린 리뷰는 수정할 수 없습니다.");
+        }
         userReview.update(request);
 
         // TODO 응답 형식 변경 고려
@@ -98,8 +118,6 @@ public class UserReviewService {
                 .map(UserReviewResponse::from)
                 .toList();
     }
-
-
 
     // 특정 호스트가 작성한 특정 게스트 리뷰 조회
     public UserReviewResponse getUserReviewByHost(Long targetGuestId, Long reviewerHostId){
