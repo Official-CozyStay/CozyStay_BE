@@ -1,5 +1,7 @@
 package com.project.cozystay.review.dto;
 
+import com.project.cozystay.booking.domain.Booking;
+import com.project.cozystay.comment.domain.Comment;
 import com.project.cozystay.review.domain.UserReview;
 import com.project.cozystay.user.domain.User;
 
@@ -12,23 +14,23 @@ import java.math.BigDecimal;
 public record UserReviewCreateRequest (
 
     Long targetGuestId,
-    //private Long bookingId,
+    Long bookingId,
     BigDecimal rating,
-    String comment
+    String reviewComment
 ) {
 
     // 생성자
     public UserReviewCreateRequest{
         rating = (rating == null) ? BigDecimal.ZERO : rating;
-        comment = (comment.isBlank()) ? "" : comment;
+        reviewComment = (reviewComment.isBlank()) ? "" : reviewComment;
     }
 
     // DTO -> Entity
     public UserReview toEntity(
-            //Long bookingId
+            Booking booking,
             User reviewerHost,
             User targetGuest) {
 
-        return UserReview.of(reviewerHost, targetGuest, this.rating, this.comment);
+        return UserReview.of(booking, reviewerHost, targetGuest, this.rating, this.reviewComment);
     }
 }
