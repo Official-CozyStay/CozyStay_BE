@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
     /* ===================== 400 BAD REQUEST ===================== */
-    @ExceptionHandler({InvalidDateRangeException.class, InvalidGuestCountException.class})
+    @ExceptionHandler({InvalidDateRangeException.class, InvalidGuestCountException.class, InvalidAvailabilityRequestException.class})
     public ResponseEntity<ErrorResponse> handleBadRequest(RuntimeException e){
         log.warn("BadRequest [{}]: {} ", e.getClass().getSimpleName(), e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
