@@ -12,6 +12,7 @@ public record AccommodationReviewResponse (
 
     // 숙소 ID
     Long id,
+    Long bookingId,
 
     // 평점
     BigDecimal ratingOverall,
@@ -21,7 +22,7 @@ public record AccommodationReviewResponse (
     BigDecimal ratingCommunication,
     BigDecimal ratingLocation,
 
-    String comment
+    String reviewComment
 ) {
 
     // Entity -> DTO
@@ -29,13 +30,14 @@ public record AccommodationReviewResponse (
 
         return new AccommodationReviewResponse(
                 accommodationReview.getId(),
+                accommodationReview.getBooking().getId(),
                 accommodationReview.getRatingOverall(),
                 accommodationReview.getRatingCleanliness(),
                 accommodationReview.getRatingAccuracy(),
                 accommodationReview.getRatingCheckin(),
                 accommodationReview.getRatingCommunication(),
                 accommodationReview.getRatingLocation(),
-                accommodationReview.getComment()
+                accommodationReview.getReviewComment()
         );
     }
 }
