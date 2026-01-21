@@ -28,8 +28,17 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(e.getMessage()));
     }
 
+    /* ===================== 403 FORBIDDEN ===================== */
+    @ExceptionHandler(java.nio.file.AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDenied(java.nio.file.AccessDeniedException e) {
+        log.warn("Forbidden [{}]: {}", e.getClass().getSimpleName(), e.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ErrorResponse("접근 권한이 없습니다."));
+    }
+
     /* ===================== 404 NOT FOUND ===================== */
-    @ExceptionHandler({AccommodationNotFoundException.class, BookingNotFoundException.class})
+    @ExceptionHandler({AccommodationNotFoundException.class, BookingNotFoundException.class,
+            com.project.cozystay.comment.exception.CommentNotFoundException.class})
     public ResponseEntity<ErrorResponse> handleNotFound(RuntimeException e){
         log.warn("NotFound [{}]: {}", e.getClass().getSimpleName(), e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
