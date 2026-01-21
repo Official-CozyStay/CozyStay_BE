@@ -37,7 +37,7 @@ public class BookingAvailabilityCommandService {
     public void updateAvailability(Long accommodationId, Long hostId, AvailabilityUpdateRequest request){
 
         if(request == null || request.getDays() == null || request.getDays().isEmpty()){
-            throw new InvalidAvailabilityRequestException("days는 비어있을 수 있습니다.");
+            throw new InvalidAvailabilityRequestException("days는 비어있을 수 없습니다.");
         }
 
         Accommodation accommodation = accommodationRepository.findById(accommodationId)
