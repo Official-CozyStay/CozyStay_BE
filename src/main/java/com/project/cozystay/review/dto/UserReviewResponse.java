@@ -13,7 +13,7 @@ public record UserReviewResponse (
 
     Long targetGuestId,
 
-//  Long bookingId,
+    Long bookingId,
 
     BigDecimal rating,
 
@@ -24,8 +24,9 @@ public record UserReviewResponse (
 
         return new UserReviewResponse(
                 userReview.getTargetGuest().getId(),
+                userReview.getBooking().getId(),
                 userReview.getRating(),
-                userReview.getComment()
+                userReview.getReviewComment()
         );
     }
 }
