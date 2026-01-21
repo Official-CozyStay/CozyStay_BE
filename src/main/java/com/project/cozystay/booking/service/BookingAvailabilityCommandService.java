@@ -109,27 +109,36 @@ public class BookingAvailabilityCommandService {
         }
 
         // Upsert / Delete 처리
-        for (AvailabilityDayUpdateRequest d : days) {
+        List<AvailabilityCalendar> toUpsert = new ArrayList<>();
+        List<LocalDate> datesToDelete = new ArrayList<>();
+
+        Map<LocalDate, AvailabilityDayUpdateRequest> normalized = new LinkedHashMap<>();
+        for(AvailabilityDayUpdateRequest d : days){
+            normalized.put(d.getDate(), d);
+        }
+
+        for (AvailabilityDayUpdateRequest d : normalized.values()) {
             LocalDate date = d.getDate();
 
             boolean available = (d.getIsAvailable() == null) ? DEFAULT_AVAILABLE : d.getIsAvailable();
             BigDecimal customPrice = d.getCustomPrice();
             int minNights = (d.getMinNights() == null) ? DEFAULT_MIN_NIGHTS : d.getMinNights();
 
-            boolean isDefault = available == DEFAULT_AVAILABLE
-                    && customPrice == null
-                    && minNights == DEFAULT_MIN_NIGHTS;
+            boolean isDefault = (available == DEFAULT_AVAILABLE)
+                    && (customPrice == null)
+                    && (minNights == DEFAULT_MIN_NIGHTS);
 
             AvailabilityCalendar existing = existingMap.get(date);
 
-            if(isDefault){
-                if(existing != null){
-                    availabilityCalendarRepository.delete(existing);
+            if (isDefault) {
+                // 기본값이면 row 저장할 필요 없음. 기존 row가 있다면 삭제.
+                if (existing != null) {
+                    datesToDelete.add(date);
                 }
                 continue;
             }
 
-            if(existing ==null){
+            if (existing == null) {
                 AvailabilityCalendar created = AvailabilityCalendar.builder()
                         .accommodationId(accommodationId)
                         .date(date)
@@ -137,14 +146,22 @@ public class BookingAvailabilityCommandService {
                         .customPrice(customPrice)
                         .minNights(minNights)
                         .build();
-
-                availabilityCalendarRepository.save(created);
-            }
-            else{
+                toUpsert.add(created);
+            } else {
                 existing.update(available, customPrice, minNights);
+                toUpsert.add(existing);
             }
-
         }
+
+        // 삭제 먼저 (같은 date에 대해 upsert와 충돌 방지)
+        if (!datesToDelete.isEmpty()) {
+            availabilityCalendarRepository.deleteAllByAccommodationIdAndDateIn(accommodationId, datesToDelete);
+        }
+
+        if (!toUpsert.isEmpty()) {
+            availabilityCalendarRepository.saveAll(toUpsert);
+        }
+
     }
 
 }
