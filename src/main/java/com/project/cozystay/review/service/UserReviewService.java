@@ -58,7 +58,7 @@ public class UserReviewService {
             throw new AccessDeniedException("리뷰를 작성할 권한이 없습니다.");
         }
 
-        UserReview review = request.toEntity(booking, reviewerHost, targetGuest);
+        UserReview review = UserReview.of(booking, reviewerHost, targetGuest, request.rating(), request.reviewComment());
 
         userReviewRepository.save(review);
 
