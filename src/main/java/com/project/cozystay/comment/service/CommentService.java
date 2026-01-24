@@ -76,6 +76,7 @@ public class CommentService {
         return CommentResponseDTO.from(comment);
     }
 
+    // TODO 메서드 사용하기로 결정한다면 -> 페이징 처리 필수
     @Transactional(readOnly = true)
     public List<CommentResponseDTO> findAllComments() {
         return commentRepository.findAll().stream()
