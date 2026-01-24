@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "reviewComment")
+@Table(name = "review_comment")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Comment extends BaseTimeEntity {
 
@@ -21,20 +21,20 @@ public class Comment extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false)
-    private User reviewer;
+    private User author;
 
     @Column(name = "content", columnDefinition = "TEXT", nullable = false)
     private String content;
 
     @Builder
-    private Comment(User reviewer, String content) {
-        this.reviewer = reviewer;
+    private Comment(User author, String content) {
+        this.author = author;
         this.content = content;
     }
 
-    public static Comment of(User reviewer, String content) {
+    public static Comment of(User author, String content) {
         return Comment.builder()
-                .reviewer(reviewer)
+                .author(author)
                 .content(content)
                 .build();
     }
