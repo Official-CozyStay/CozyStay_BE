@@ -4,6 +4,7 @@ import com.project.cozystay.comment.domain.Comment;
 import com.project.cozystay.comment.domain.ReviewType;
 import com.project.cozystay.comment.dto.CommentRequestDTO;
 import com.project.cozystay.comment.dto.CommentResponseDTO;
+import com.project.cozystay.comment.dto.CommentSwitchRequestDTO;
 import com.project.cozystay.comment.exception.CommentNotFoundException;
 import com.project.cozystay.comment.repository.CommentRepository;
 import com.project.cozystay.review.domain.Commentable;
@@ -11,10 +12,10 @@ import com.project.cozystay.review.repository.AccommodationReviewRepository;
 import com.project.cozystay.review.repository.UserReviewRepository;
 import com.project.cozystay.user.domain.User;
 import com.project.cozystay.user.repository.UserRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.file.AccessDeniedException;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -83,10 +84,10 @@ public class CommentService {
     }
 
     @Transactional
-    public CommentResponseDTO updateComment(Long userId, Long commentId, CommentRequestDTO commentRequestDto) throws AccessDeniedException {
+    public CommentResponseDTO updateComment(Long userId, Long commentId, CommentSwitchRequestDTO commentRequestDto) throws AccessDeniedException {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException("댓글을 찾을 수 없습니다."));
-        if (!comment.getReviewer().getId().equals(userId)) {
+        if (!comment.getAuthor().getId().equals(userId)) {
             throw new AccessDeniedException("수정 권한이 없습니다.");
         }
         comment.update(commentRequestDto.content());
@@ -97,7 +98,7 @@ public class CommentService {
     public void deleteComment(Long userId, Long commentId) throws AccessDeniedException {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException("댓글을 찾을 수 없습니다."));
-        if (!comment.getReviewer().getId().equals(userId)) {
+        if (!comment.getAuthor().getId().equals(userId)) {
             throw new AccessDeniedException("삭제 권한이 없습니다.");
         }
         commentRepository.delete(comment);
