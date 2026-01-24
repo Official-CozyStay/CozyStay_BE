@@ -22,9 +22,9 @@ public class CommentResponseDTO {
         return CommentResponseDTO.builder()
                 .commentId(comment.getId())
                 .content(comment.getContent())
-                .authorId(comment.getReviewer().getId())
-                .authorNickname(comment.getReviewer().getNickName())
-                .authorProfileImage(comment.getReviewer().getProfileImageUrl())
+                .authorId(comment.getAuthor().getId())
+                .authorNickname(comment.getAuthor().getNickName())
+                .authorProfileImage(comment.getAuthor().getProfileImageUrl())
                 .createdAt(comment.getCreatedAt())
                 .updatedAt(comment.getUpdatedAt())
                 .build();
