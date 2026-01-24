@@ -3,15 +3,16 @@ package com.project.cozystay.comment.controller;
 import com.project.cozystay.auth.CustomOAuth2User;
 import com.project.cozystay.comment.dto.CommentRequestDTO;
 import com.project.cozystay.comment.dto.CommentResponseDTO;
+import com.project.cozystay.comment.dto.CommentSwitchRequestDTO;
 import com.project.cozystay.comment.service.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @RestController
@@ -60,13 +61,13 @@ public class CommentController {
     @PatchMapping("/{commentId}")
     public ResponseEntity<CommentResponseDTO> updateComment(
             @PathVariable Long commentId,
-            @RequestBody @Valid CommentRequestDTO commentRequestDto,
+            @RequestBody @Valid CommentSwitchRequestDTO commentSwitchRequestDTO,
             @AuthenticationPrincipal CustomOAuth2User customUser
     ) throws AccessDeniedException {
 
         Long userId = customUser.getId();
-        CommentResponseDTO responseDto = commentService.updateComment(userId, commentId, commentRequestDto);
-        return ResponseEntity.ok(responseDto);
+        CommentResponseDTO responseDTO = commentService.updateComment(userId, commentId, commentSwitchRequestDTO);
+        return ResponseEntity.ok(responseDTO);
     }
 
     /**
