@@ -3,7 +3,7 @@ package com.project.cozystay.comment.controller;
 import com.project.cozystay.auth.CustomOAuth2User;
 import com.project.cozystay.comment.dto.CommentRequestDTO;
 import com.project.cozystay.comment.dto.CommentResponseDTO;
-import com.project.cozystay.comment.dto.CommentSwitchRequestDTO;
+import com.project.cozystay.comment.dto.CommentUpdateRequestDTO;
 import com.project.cozystay.comment.service.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,11 +11,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/comments")
@@ -63,12 +60,12 @@ public class CommentController {
     @PatchMapping("/{commentId}")
     public ResponseEntity<CommentResponseDTO> updateComment(
             @PathVariable Long commentId,
-            @RequestBody @Valid CommentSwitchRequestDTO commentSwitchRequestDTO,
+            @RequestBody @Valid CommentUpdateRequestDTO commentUpdateRequestDTO,
             @AuthenticationPrincipal CustomOAuth2User customUser
     ) {
 
         Long userId = customUser.getId();
-        CommentResponseDTO responseDTO = commentService.updateComment(userId, commentId, commentSwitchRequestDTO);
+        CommentResponseDTO responseDTO = commentService.updateComment(userId, commentId, commentUpdateRequestDTO);
         return ResponseEntity.ok(responseDTO);
     }
 
