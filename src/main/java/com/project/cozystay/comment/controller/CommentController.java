@@ -7,6 +7,8 @@ import com.project.cozystay.comment.dto.CommentSwitchRequestDTO;
 import com.project.cozystay.comment.service.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -47,11 +49,11 @@ public class CommentController {
     }
 
     /**
-     * 모든 댓글 조회
+     * 모든 댓글 페이징 조회
      */
     @GetMapping
-    public ResponseEntity<List<CommentResponseDTO>> getAllComments() {
-        List<CommentResponseDTO> responseDtos = commentService.findAllComments();
+    public ResponseEntity<Page<CommentResponseDTO>> getAllComments(Pageable pageable) {
+        Page<CommentResponseDTO> responseDtos = commentService.findAllComments(pageable);
         return ResponseEntity.ok(responseDtos);
     }
 
