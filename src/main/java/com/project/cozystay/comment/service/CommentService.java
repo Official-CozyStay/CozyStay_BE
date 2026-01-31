@@ -12,6 +12,8 @@ import com.project.cozystay.review.repository.AccommodationReviewRepository;
 import com.project.cozystay.review.repository.UserReviewRepository;
 import com.project.cozystay.user.domain.User;
 import com.project.cozystay.user.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,10 +57,10 @@ public class CommentService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        Comment comment = Comment.of(user, requestDTO.content());
+        Comment comment = Comment.of(user, requestDTO.content(), requestDTO.reviewType());
         Comment savedComment = commentRepository.save(comment);
 
-        Function<Long, Commentable> fetcher = reviewFetcherMap.get(requestDTO.reviewType());
+        Function<Long, Commentable> fetcher = reviewFetcherMap.get(comment.getReviewType());
         if (fetcher == null) {
             throw new IllegalArgumentException("지원하지 않는 리뷰 타입입니다: " + requestDTO.reviewType());
         }
@@ -76,12 +78,10 @@ public class CommentService {
         return CommentResponseDTO.from(comment);
     }
 
-    // TODO 메서드 사용하기로 결정한다면 -> 페이징 처리 필수
     @Transactional(readOnly = true)
-    public List<CommentResponseDTO> findAllComments() {
-        return commentRepository.findAll().stream()
-                .map(CommentResponseDTO::from)
-                .collect(Collectors.toList());
+    public Page<CommentResponseDTO> findAllComments(Pageable pageable) {
+        return commentRepository.findAll(pageable)
+                .map(CommentResponseDTO::from);
     }
 
     @Transactional
@@ -102,6 +102,15 @@ public class CommentService {
         if (!comment.getAuthor().getId().equals(userId)) {
             throw new AccessDeniedException("삭제 권한이 없습니다.");
         }
-        commentRepository.delete(comment);
+
+        switch (comment.getReviewType()) {
+            case ACCOMMODATION ->
+                accommodationReviewRepository.findByComment_CommentId(commentId)
+                    .ifPresent(review -> review.addComment(null));
+            case USER ->
+                userReviewRepository.findByComment_CommentId(commentId)
+                    .ifPresent(review -> review.addComment(null));
+            default -> throw new IllegalArgumentException("지원하지 않는 리뷰 타입입니다: " + comment.getReviewType());
+        }
     }
 }
