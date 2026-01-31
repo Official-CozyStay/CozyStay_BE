@@ -12,6 +12,7 @@ import com.project.cozystay.review.repository.AccommodationReviewRepository;
 import com.project.cozystay.review.repository.UserReviewRepository;
 import com.project.cozystay.user.domain.User;
 import com.project.cozystay.user.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
@@ -44,10 +45,10 @@ public class CommentService {
     private void initializeFetcherMap() {
         reviewFetcherMap.put(ReviewType.USER, id -> userReviewRepository.findById(id)
                 .map(Commentable.class::cast)
-                .orElseThrow(() -> new IllegalArgumentException("사용자 리뷰를 찾을 수 없습니다.")));
+                .orElseThrow(() -> new EntityNotFoundException("사용자 리뷰를 찾을 수 없습니다.")));
         reviewFetcherMap.put(ReviewType.ACCOMMODATION, id -> accommodationReviewRepository.findById(id)
                 .map(Commentable.class::cast)
-                .orElseThrow(() -> new IllegalArgumentException("숙소 리뷰를 찾을 수 없습니다.")));
+                .orElseThrow(() -> new EntityNotFoundException("숙소 리뷰를 찾을 수 없습니다.")));
     }
 
     @Transactional
@@ -108,7 +109,7 @@ public class CommentService {
             case USER ->
                 userReviewRepository.findByComment_CommentId(commentId)
                     .ifPresent(review -> review.addComment(null));
-            default -> throw new IllegalArgumentException("지원하지 않는 리뷰 타입입니다: " + comment.getReviewType());
+            default -> throw new EntityNotFoundException("지원하지 않는 리뷰 타입입니다: " + comment.getReviewType());
         }
     }
 }
