@@ -4,7 +4,7 @@ import com.project.cozystay.comment.domain.Comment;
 import com.project.cozystay.comment.domain.ReviewType;
 import com.project.cozystay.comment.dto.CommentRequestDTO;
 import com.project.cozystay.comment.dto.CommentResponseDTO;
-import com.project.cozystay.comment.dto.CommentSwitchRequestDTO;
+import com.project.cozystay.comment.dto.CommentUpdateRequestDTO;
 import com.project.cozystay.comment.exception.CommentNotFoundException;
 import com.project.cozystay.comment.repository.CommentRepository;
 import com.project.cozystay.review.domain.Commentable;
@@ -19,10 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.EnumMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Service
 public class CommentService {
@@ -85,7 +83,7 @@ public class CommentService {
     }
 
     @Transactional
-    public CommentResponseDTO updateComment(Long userId, Long commentId, CommentSwitchRequestDTO commentRequestDto) throws AccessDeniedException {
+    public CommentResponseDTO updateComment(Long userId, Long commentId, CommentUpdateRequestDTO commentRequestDto) throws AccessDeniedException {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException("댓글을 찾을 수 없습니다."));
         if (!comment.getAuthor().getId().equals(userId)) {
