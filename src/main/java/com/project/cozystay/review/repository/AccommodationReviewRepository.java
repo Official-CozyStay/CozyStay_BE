@@ -27,5 +27,11 @@ public interface AccommodationReviewRepository extends JpaRepository<Accommodati
     """)
     Optional<AccommodationReview> findByGuestAndAccommodation(@Param("guestId") Long guestId, @Param("accId") Long accId);
 
+    @Query("""
+            SELECT ar FROM AccommodationReview ar
+            WHERE ar.comment.Id = :commentId
+            """)
+    Optional<AccommodationReview> findByComment_CommentId(@Param("commentId") Long commentId);
+
 
 }
