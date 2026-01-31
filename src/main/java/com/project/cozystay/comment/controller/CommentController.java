@@ -65,7 +65,7 @@ public class CommentController {
             @PathVariable Long commentId,
             @RequestBody @Valid CommentSwitchRequestDTO commentSwitchRequestDTO,
             @AuthenticationPrincipal CustomOAuth2User customUser
-    ) throws AccessDeniedException {
+    ) {
 
         Long userId = customUser.getId();
         CommentResponseDTO responseDTO = commentService.updateComment(userId, commentId, commentSwitchRequestDTO);
@@ -79,7 +79,7 @@ public class CommentController {
     public ResponseEntity<Void> deleteComment(
             @PathVariable Long commentId,
             @AuthenticationPrincipal CustomOAuth2User customUser
-    ) throws AccessDeniedException {
+    ) {
 
         Long userId = customUser.getId();
         commentService.deleteComment(userId, commentId);
