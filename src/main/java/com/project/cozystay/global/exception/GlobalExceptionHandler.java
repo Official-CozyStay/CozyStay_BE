@@ -3,11 +3,15 @@ package com.project.cozystay.global.exception;
 import com.project.cozystay.booking.exception.*;
 import com.project.cozystay.booking.guest.exception.*;
 import com.project.cozystay.comment.exception.CommentNotFoundException;
+import com.project.cozystay.booking.guest.exception.*;
+import com.project.cozystay.comment.exception.CommentNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -45,7 +49,7 @@ public class GlobalExceptionHandler {
 
     /* ===================== 403 FORBIDDEN ===================== */
     @ExceptionHandler(java.nio.file.AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleAccessDenied(java.nio.file.AccessDeniedException e) {
+    public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException e) {
         log.warn("Forbidden [{}]: {}", e.getClass().getSimpleName(), e.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(new ErrorResponse("접근 권한이 없습니다."));
