@@ -2,6 +2,8 @@ package com.project.cozystay.review.repository;
 
 import com.project.cozystay.review.domain.UserReview;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,4 +23,9 @@ public interface UserReviewRepository extends JpaRepository<UserReview, Long> {
 
     boolean existsByTargetGuestIdAndReviewerHostId(Long targetGuestId, Long reviewerHostId);
 
+    @Query("""
+            SELECT ur FROM UserReview ur
+            WHERE ur.comment.Id = :commentId
+            """)
+    Optional<UserReview> findByComment_CommentId(@Param("commentId") Long commentId);
 }
