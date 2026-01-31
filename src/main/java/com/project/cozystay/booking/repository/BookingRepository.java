@@ -103,4 +103,19 @@ and b.checkOutDate > :startInclusive
             @Param("endExclusive") LocalDate endExclusive
     );
 
+    @Query("""
+select count(b) > 0
+from Booking b
+where b.accommodation.id = :accommodationId
+and b.status in :activeStatuses
+and b.checkInDate < :endExclusive
+and b.checkOutDate > :startInclusive
+""")
+    boolean existsActiveBookingOverlapping(
+            @Param("accommodationId") Long accommodationId,
+            @Param("activeStatuses") List<BookingStatus> activeStatuses,
+            @Param("startInclusive") LocalDate startInclusive,
+            @Param("endExclusive") LocalDate endExclusive
+    );
+
 }

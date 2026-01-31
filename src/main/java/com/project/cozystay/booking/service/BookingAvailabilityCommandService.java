@@ -37,6 +37,7 @@ public class BookingAvailabilityCommandService {
         // 요청 날짜 정리
         List<AvailabilityDayUpdateRequest> days = request.getDays();
 
+        // 숙소 조회
         Accommodation accommodation = accommodationRepository.findById(accommodationId)
                 .orElseThrow(()-> new AccommodationNotFoundException(accommodationId));
 
@@ -65,38 +66,27 @@ public class BookingAvailabilityCommandService {
                 .toList();
 
         if(!blockDates.isEmpty()){
-            LocalDate start = Collections.min(blockDates);
+            LocalDate startInclusive = Collections.min(blockDates);
             LocalDate endExclusive = Collections.max(blockDates).plusDays(1);
 
-            // 활성 예약 범위 조회
-            List<Booking> activeBookings = bookingRepository.findActiveBookingsOverlapping(
+            boolean hasOverlap = bookingRepository.existsActiveBookingOverlapping(
                     accommodationId,
                     List.of(BookingStatus.PENDING, BookingStatus.CONFIRMED),
-                    start,
+                    startInclusive,
                     endExclusive
             );
 
-            // 예약이 포함하는 날짜를 set으로 풀어서 막으려는 날짜와 비교
-            Set<LocalDate> bookedDates = new HashSet<>();
-            for(Booking b : activeBookings){
-                LocalDate s = b.getCheckInDate().isAfter(start) ? b.getCheckInDate() : start;
-                LocalDate e = b.getCheckOutDate().isBefore(endExclusive) ? b.getCheckOutDate() : endExclusive;
-                for(LocalDate cur = s; cur.isBefore(e); cur = cur.plusDays(1)){
-                    bookedDates.add(cur);
-                }
+            if (hasOverlap) {
+                throw new BookingConflictException(accommodationId, startInclusive, endExclusive);
             }
 
-            for(LocalDate d : blockDates){
-                if(bookedDates.contains(d)){
-                    throw new BookingConflictException(accommodationId, start, endExclusive);
-                }
-            }
         }
 
         // Upsert / Delete 처리
         List<AvailabilityCalendar> toUpsert = new ArrayList<>();
         List<LocalDate> datesToDelete = new ArrayList<>();
 
+        // 같은 date가 여러 번 오면 마지막 값으로 덮어쓰기(중복 방지)
         Map<LocalDate, AvailabilityDayUpdateRequest> normalized = new LinkedHashMap<>();
         for(AvailabilityDayUpdateRequest d : days){
             normalized.put(d.getDate(), d);
