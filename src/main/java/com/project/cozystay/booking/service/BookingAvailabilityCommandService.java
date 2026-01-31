@@ -9,8 +9,6 @@ import com.project.cozystay.booking.dto.AvailabilityDayUpdateRequest;
 import com.project.cozystay.booking.dto.AvailabilityUpdateRequest;
 import com.project.cozystay.booking.exception.AccommodationNotFoundException;
 import com.project.cozystay.booking.exception.BookingConflictException;
-import com.project.cozystay.booking.exception.InvalidAvailabilityRequestException;
-import com.project.cozystay.booking.exception.InvalidDateRangeException;
 import com.project.cozystay.booking.repository.AvailabilityCalendarRepository;
 import com.project.cozystay.booking.repository.BookingRepository;
 import lombok.RequiredArgsConstructor;
@@ -36,9 +34,8 @@ public class BookingAvailabilityCommandService {
     @Transactional
     public void updateAvailability(Long accommodationId, Long hostId, AvailabilityUpdateRequest request){
 
-        if(request == null || request.getDays() == null || request.getDays().isEmpty()){
-            throw new InvalidAvailabilityRequestException("days는 비어있을 수 없습니다.");
-        }
+        // 요청 날짜 정리
+        List<AvailabilityDayUpdateRequest> days = request.getDays();
 
         Accommodation accommodation = accommodationRepository.findById(accommodationId)
                 .orElseThrow(()-> new AccommodationNotFoundException(accommodationId));
@@ -48,23 +45,11 @@ public class BookingAvailabilityCommandService {
             throw new AccommodationNotFoundException(accommodationId);
         }
 
-        // 요청 날짜 정리 + validation
-        List<AvailabilityDayUpdateRequest> days = request.getDays();
-
-        List<LocalDate> dates = new ArrayList<>();
-        for(AvailabilityDayUpdateRequest d : days){
-            if(d.getDate() == null){
-                throw new InvalidAvailabilityRequestException("date는 필수입니다.");
-            }
-            if(d.getMinNights() != null && d.getMinNights() < 1){
-                throw new InvalidAvailabilityRequestException("minNights는 1 이상이어야 합니다.");
-            }
-            if(d.getCustomPrice() != null && d.getCustomPrice().compareTo(BigDecimal.ZERO) <= 0){
-                throw new InvalidAvailabilityRequestException("customPrice는 0보다 커야합니다.");
-            }
-            dates.add(d.getDate());
-        }
-        dates = dates.stream().distinct().toList();
+        // 요청 날짜 목록(중복 제거)
+        List<LocalDate> dates = days.stream()
+                .map(AvailabilityDayUpdateRequest::getDate)
+                .distinct()
+                .toList();
 
         // 기존 예외 데이터 한번에 조회
         Map<LocalDate, AvailabilityCalendar> existingMap =

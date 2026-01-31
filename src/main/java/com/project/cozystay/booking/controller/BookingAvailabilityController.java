@@ -6,6 +6,7 @@ import com.project.cozystay.booking.dto.AvailabilityUpdateRequest;
 import com.project.cozystay.booking.exception.AuthenticationRequiredException;
 import com.project.cozystay.booking.service.BookingAvailabilityCommandService;
 import com.project.cozystay.booking.service.BookingAvailabilityService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -42,7 +43,7 @@ public class BookingAvailabilityController {
     @PutMapping("/{accommodationId}/availability")
     public ResponseEntity<Void> updateAvailability(
             @PathVariable Long accommodationId,
-            @RequestBody AvailabilityUpdateRequest request,
+            @Valid @RequestBody AvailabilityUpdateRequest request,
             @AuthenticationPrincipal CustomOAuth2User user
     ){
         if(user == null) throw new AuthenticationRequiredException();
