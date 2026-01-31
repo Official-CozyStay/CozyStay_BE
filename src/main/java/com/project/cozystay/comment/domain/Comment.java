@@ -17,7 +17,7 @@ public class Comment extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "comment_id")
-    private Long id;
+    private Long Id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false)
@@ -26,16 +26,20 @@ public class Comment extends BaseTimeEntity {
     @Column(name = "content", columnDefinition = "TEXT", nullable = false)
     private String content;
 
+    private ReviewType reviewType;
+
     @Builder
-    private Comment(User author, String content) {
+    private Comment(User author, String content, ReviewType reviewType) {
         this.author = author;
         this.content = content;
+        this.reviewType = reviewType;
     }
 
-    public static Comment of(User author, String content) {
+    public static Comment of(User author, String content, ReviewType reviewType) {
         return Comment.builder()
                 .author(author)
                 .content(content)
+                .reviewType(reviewType)
                 .build();
     }
 
