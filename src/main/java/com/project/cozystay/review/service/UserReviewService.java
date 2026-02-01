@@ -3,6 +3,7 @@ package com.project.cozystay.review.service;
 import com.project.cozystay.booking.domain.Booking;
 import com.project.cozystay.booking.exception.ReviewAlreadyExistsException;
 import com.project.cozystay.booking.repository.BookingRepository;
+import com.project.cozystay.comment.dto.CommentResponseDTO;
 import com.project.cozystay.review.domain.AccommodationReview;
 import com.project.cozystay.review.domain.UserReview;
 import com.project.cozystay.review.dto.AccommodationReviewResponse;
@@ -22,6 +23,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -65,7 +67,13 @@ public class UserReviewService {
 
         reviewerHost.increaseReviewCount(); // 리뷰 카운트 +1
 
-        return UserReviewResponse.from(review);
+        return new UserReviewResponse(
+                review.getTargetGuest().getId(),
+                review.getBooking().getId(),
+                review.getRating(),
+                review.getReviewComment(),
+                review.getComment() != null ? CommentResponseDTO.from(review.getComment()) : null
+        );
     }
 
     // 게스트 리뷰 조회
@@ -78,8 +86,14 @@ public class UserReviewService {
         List<UserReview> userReviewList = userReviewRepository.findByTargetGuestId(targetUserId);
 
         return userReviewList.stream()
-                .map(UserReviewResponse::from)
-                .toList();
+                .map(review -> new UserReviewResponse(
+                        review.getTargetGuest().getId(),
+                        review.getBooking().getId(),
+                        review.getRating(),
+                        review.getReviewComment(),
+                        review.getComment() != null ? CommentResponseDTO.from(review.getComment()) : null
+                ))
+                .collect(Collectors.toList());
     }
 
     // 게스트 리뷰 수정
@@ -116,8 +130,14 @@ public class UserReviewService {
         List<UserReview> reviewList = userReviewRepository.findByReviewerHostId(reviewerHostId);
 
         return reviewList.stream()
-                .map(UserReviewResponse::from)
-                .toList();
+                .map(review -> new UserReviewResponse(
+                        review.getTargetGuest().getId(),
+                        review.getBooking().getId(),
+                        review.getRating(),
+                        review.getReviewComment(),
+                        review.getComment() != null ? CommentResponseDTO.from(review.getComment()) : null
+                ))
+                .collect(Collectors.toList());
     }
 
     // 특정 호스트가 작성한 특정 게스트 리뷰 조회
@@ -128,6 +148,12 @@ public class UserReviewService {
                         HttpStatus.NOT_FOUND, "해당 사용자에 대해서 작성하신 리뷰를 찾을 수 없습니다. id=" + targetGuestId
                 ));
 
-        return UserReviewResponse.from(review);
+        return new UserReviewResponse(
+                review.getTargetGuest().getId(),
+                review.getBooking().getId(),
+                review.getRating(),
+                review.getReviewComment(),
+                review.getComment() != null ? CommentResponseDTO.from(review.getComment()) : null
+        );
     }
 }

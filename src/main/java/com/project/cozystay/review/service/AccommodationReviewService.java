@@ -6,6 +6,7 @@ import com.project.cozystay.booking.domain.Booking;
 import com.project.cozystay.booking.domain.BookingStatus;
 import com.project.cozystay.booking.exception.ReviewAlreadyExistsException;
 import com.project.cozystay.booking.repository.BookingRepository;
+import com.project.cozystay.comment.dto.CommentResponseDTO;
 import com.project.cozystay.review.domain.AccommodationReview;
 import com.project.cozystay.review.dto.AccommodationReviewCreateRequest;
 import com.project.cozystay.review.dto.AccommodationReviewResponse;
@@ -27,6 +28,7 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -72,7 +74,18 @@ public class AccommodationReviewService {
 
         guest.increaseReviewCount(); // 리뷰 카운트 +1
 
-        return AccommodationReviewResponse.from(review);
+        return new AccommodationReviewResponse(
+                review.getId(),
+                review.getBooking().getId(),
+                review.getRatingOverall(),
+                review.getRatingCleanliness(),
+                review.getRatingAccuracy(),
+                review.getRatingCheckin(),
+                review.getRatingCommunication(),
+                review.getRatingLocation(),
+                review.getReviewComment(),
+                review.getComment() != null ? CommentResponseDTO.from(review.getComment()) : null
+        );
     }
 
 
@@ -86,8 +99,19 @@ public class AccommodationReviewService {
         List<AccommodationReview> accommodationReviewList = accommodationReviewRepository.findByAccommodation_Id(accId);
 
         return accommodationReviewList.stream()
-                .map(AccommodationReviewResponse::from)
-                .toList();
+                .map(review -> new AccommodationReviewResponse(
+                        review.getId(),
+                        review.getBooking().getId(),
+                        review.getRatingOverall(),
+                        review.getRatingCleanliness(),
+                        review.getRatingAccuracy(),
+                        review.getRatingCheckin(),
+                        review.getRatingCommunication(),
+                        review.getRatingLocation(),
+                        review.getReviewComment(),
+                        review.getComment() != null ? CommentResponseDTO.from(review.getComment()) : null
+                ))
+                .collect(Collectors.toList());
 
     }
 
@@ -142,8 +166,19 @@ public class AccommodationReviewService {
         List<AccommodationReview> reviewList = accommodationReviewRepository.findByGuestId(guestId);
 
         return reviewList.stream()
-                .map(AccommodationReviewResponse::from)
-                .toList();
+                .map(review -> new AccommodationReviewResponse(
+                        review.getId(),
+                        review.getBooking().getId(),
+                        review.getRatingOverall(),
+                        review.getRatingCleanliness(),
+                        review.getRatingAccuracy(),
+                        review.getRatingCheckin(),
+                        review.getRatingCommunication(),
+                        review.getRatingLocation(),
+                        review.getReviewComment(),
+                        review.getComment() != null ? CommentResponseDTO.from(review.getComment()) : null
+                ))
+                .collect(Collectors.toList());
     }
 
 
@@ -156,6 +191,17 @@ public class AccommodationReviewService {
                         HttpStatus.NOT_FOUND, "작성하신 리뷰를 찾을 수 없습니다. id=" + accId
                 ));
 
-        return AccommodationReviewResponse.from(review);
+        return new AccommodationReviewResponse(
+                review.getId(),
+                review.getBooking().getId(),
+                review.getRatingOverall(),
+                review.getRatingCleanliness(),
+                review.getRatingAccuracy(),
+                review.getRatingCheckin(),
+                review.getRatingCommunication(),
+                review.getRatingLocation(),
+                review.getReviewComment(),
+                review.getComment() != null ? CommentResponseDTO.from(review.getComment()) : null
+        );
     }
 }
