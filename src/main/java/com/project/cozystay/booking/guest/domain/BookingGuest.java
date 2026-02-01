@@ -1,6 +1,7 @@
 package com.project.cozystay.booking.guest.domain;
 
 import com.project.cozystay.booking.domain.Booking;
+import com.project.cozystay.booking.guest.exception.BookingGuestResponseNotAllowedException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -73,4 +74,20 @@ public class BookingGuest {
         return bg;
     }
 
+
+    public void accept(){
+        if(this.invitationStatus != InvitationStatus.PENDING){
+            throw new BookingGuestResponseNotAllowedException("PENDING 상태에서만 수락할 수 있습니다.");
+        }
+        this.invitationStatus= InvitationStatus.ACCEPTED;
+        this.respondedAt = LocalDateTime.now();
+    }
+
+    public void decline(){
+        if(this.invitationStatus != InvitationStatus.PENDING){
+            throw new BookingGuestResponseNotAllowedException("PENDING 상태에서만 수락할 수 있습니다.");
+        }
+        this.invitationStatus = InvitationStatus.DECLINED;
+        this.respondedAt = LocalDateTime.now();
+    }
 }

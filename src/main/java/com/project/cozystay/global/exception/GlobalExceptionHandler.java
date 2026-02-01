@@ -56,7 +56,8 @@ public class GlobalExceptionHandler {
             BookingAlreadyCancelledException.class, BookingCancellationNotAllowedException.class,
             BookingDecisionNotAllowedException.class,
             BookingGuestInvitationNotAllowedException.class, BookingGuestLimitExceededException.class,
-            BookingGuestDuplicateInvitationException.class, BookingGuestCancelNotAllowedException.class
+            BookingGuestDuplicateInvitationException.class, BookingGuestCancelNotAllowedException.class,
+            BookingGuestResponseForbiddenException.class, BookingGuestResponseNotAllowedException.class
     })
     public ResponseEntity<ErrorResponse> handleConflict(RuntimeException e){
         log.warn("Conflict [{}]: {}", e.getClass().getSimpleName(), e.getMessage());

@@ -24,4 +24,5 @@ public interface BookingGuestRepository extends JpaRepository<BookingGuest, Long
 
     // 게스트 초대 삭제
     Optional<BookingGuest> findByIdAndBooking_Id(Long bookingGuestId, Long bookingId);
+
 }
