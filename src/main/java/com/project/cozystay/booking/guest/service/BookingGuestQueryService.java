@@ -31,7 +31,7 @@ public class BookingGuestQueryService {
             throw new BookingGuestInvitationNotAllowedException("예약자 본인만 게스트 목록을 조회할 수 있습니다.");
         }
 
-        List<BookingGuest> guests = bookingGuestRepository.findAllByBooking_IdOrderByInvitiedAtAsc(bookingId);
+        List<BookingGuest> guests = bookingGuestRepository.findAllByBooking_IdOrderByInvitedAtAsc(bookingId);
 
         return guests.stream()
                 .map(bg -> new BookingGuestListResponse(

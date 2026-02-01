@@ -17,13 +17,13 @@ public interface BookingGuestRepository extends JpaRepository<BookingGuest, Long
             from BookingGuest bg
             where bg.booking.id = :bookingId
     """)
-    long countByBookingId(Long bookingId);
+    long countByBooking_Id(Long bookingId);
 
     // 같은 예약에 같은 이메일 중복 초대 방지
     boolean existsByBooking_IdAndGuestEmail(Long bookingId, String guestEmail);
 
     // 게스트 조회
-    List<BookingGuest> findAllByBooking_IdOrderByInvitiedAtAsc(Long bookingId);
+    List<BookingGuest> findAllByBooking_IdOrderByInvitedAtAsc(Long bookingId);
 
     // 게스트 초대 삭제
     Optional<BookingGuest> findByIdAndBooking_Id(Long bookingGuestId, Long bookingId);

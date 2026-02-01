@@ -50,7 +50,7 @@ public class BookingGuestCommandService {
         // 정원 제한
         // booking.guestCount = 총 인원수, 동반자 최대 = guestCount-1
         int totalGuests = booking.getNumberOfGuests();
-        long currentInvited = bookingGuestRepository.countByBookingId(bookingId);
+        long currentInvited = bookingGuestRepository.countByBooking_Id(bookingId);
         long maxCompanions = Math.max(0, totalGuests - 1);
 
         if(currentInvited >= maxCompanions) {

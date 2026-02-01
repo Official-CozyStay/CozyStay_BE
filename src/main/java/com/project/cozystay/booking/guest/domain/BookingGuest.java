@@ -85,7 +85,7 @@ public class BookingGuest {
 
     public void decline(){
         if(this.invitationStatus != InvitationStatus.PENDING){
-            throw new BookingGuestResponseNotAllowedException("PENDING 상태에서만 수락할 수 있습니다.");
+            throw new BookingGuestResponseNotAllowedException("PENDING 상태에서만 거절할 수 있습니다.");
         }
         this.invitationStatus = InvitationStatus.DECLINED;
         this.respondedAt = LocalDateTime.now();
