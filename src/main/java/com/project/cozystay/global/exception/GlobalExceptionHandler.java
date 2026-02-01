@@ -1,6 +1,9 @@
 package com.project.cozystay.global.exception;
 
 import com.project.cozystay.booking.exception.*;
+import com.project.cozystay.booking.guest.exception.BookingGuestDuplicateInvitationException;
+import com.project.cozystay.booking.guest.exception.BookingGuestInvitationNotAllowedException;
+import com.project.cozystay.booking.guest.exception.BookingGuestLimitExceededException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,7 +55,9 @@ public class GlobalExceptionHandler {
     /* ===================== 409 CONFLICT ===================== */
     @ExceptionHandler({BookingConflictException.class, BookingNotAvailableException.class,
             BookingAlreadyCancelledException.class, BookingCancellationNotAllowedException.class,
-            BookingDecisionNotAllowedException.class
+            BookingDecisionNotAllowedException.class,
+            BookingGuestInvitationNotAllowedException.class, BookingGuestLimitExceededException.class,
+            BookingGuestDuplicateInvitationException.class
     })
     public ResponseEntity<ErrorResponse> handleConflict(RuntimeException e){
         log.warn("Conflict [{}]: {}", e.getClass().getSimpleName(), e.getMessage());
