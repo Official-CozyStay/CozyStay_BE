@@ -1,9 +1,7 @@
 package com.project.cozystay.global.exception;
 
 import com.project.cozystay.booking.exception.*;
-import com.project.cozystay.booking.guest.exception.BookingGuestDuplicateInvitationException;
-import com.project.cozystay.booking.guest.exception.BookingGuestInvitationNotAllowedException;
-import com.project.cozystay.booking.guest.exception.BookingGuestLimitExceededException;
+import com.project.cozystay.booking.guest.exception.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,7 +43,8 @@ public class GlobalExceptionHandler {
     }
 
     /* ===================== 404 NOT FOUND ===================== */
-    @ExceptionHandler({AccommodationNotFoundException.class, BookingNotFoundException.class})
+    @ExceptionHandler({AccommodationNotFoundException.class, BookingNotFoundException.class,
+            BookingGuestNotFoundException.class})
     public ResponseEntity<ErrorResponse> handleNotFound(RuntimeException e){
         log.warn("NotFound [{}]: {}", e.getClass().getSimpleName(), e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -57,7 +56,7 @@ public class GlobalExceptionHandler {
             BookingAlreadyCancelledException.class, BookingCancellationNotAllowedException.class,
             BookingDecisionNotAllowedException.class,
             BookingGuestInvitationNotAllowedException.class, BookingGuestLimitExceededException.class,
-            BookingGuestDuplicateInvitationException.class
+            BookingGuestDuplicateInvitationException.class, BookingGuestCancelNotAllowedException.class
     })
     public ResponseEntity<ErrorResponse> handleConflict(RuntimeException e){
         log.warn("Conflict [{}]: {}", e.getClass().getSimpleName(), e.getMessage());

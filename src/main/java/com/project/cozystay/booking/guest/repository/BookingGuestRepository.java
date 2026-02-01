@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface BookingGuestRepository extends JpaRepository<BookingGuest, Long> {
 
@@ -20,4 +21,7 @@ public interface BookingGuestRepository extends JpaRepository<BookingGuest, Long
 
     // 게스트 조회
     List<BookingGuest> findAllByBooking_IdOrderByInvitiedAtAsc(Long bookingId);
+
+    // 게스트 초대 삭제
+    Optional<BookingGuest> findByIdAndBooking_Id(Long bookingGuestId, Long bookingId);
 }
