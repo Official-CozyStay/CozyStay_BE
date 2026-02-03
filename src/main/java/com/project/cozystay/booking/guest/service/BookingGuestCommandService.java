@@ -30,7 +30,7 @@ public class BookingGuestCommandService {
 
     @Transactional
     public BookingGuestCreateResponse invite(Long bookingId, Long inviterUserId, BookingGuestCreateRequest request) {
-        Booking booking = bookingRepository.findById(bookingId)
+        Booking booking = bookingRepository.findByIdAndGuestIdForUpdate(bookingId, inviterUserId)
                 .orElseThrow(() -> new BookingNotFoundException("예약을 찾을 수 없습니다."));
 
         // 예약자 본인 체크
