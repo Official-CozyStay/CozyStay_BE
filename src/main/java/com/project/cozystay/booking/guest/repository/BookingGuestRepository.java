@@ -24,7 +24,40 @@ public interface BookingGuestRepository extends JpaRepository<BookingGuest, Long
     Optional<BookingGuest> findByIdAndBooking_Id(Long bookingGuestId, Long bookingId);
 
     // 내가 받은 초대 목록
-    Page<BookingGuest> findAllByGuestUserId(Long guestUserId, Pageable pageable);
-    Page<BookingGuest> findAllByGuestUserIdAndInvitationStatus(Long guestUserId, InvitationStatus status, Pageable pageable);
+    @Query(
+            value = """
+select bg
+from BookingGuest bg
+join fetch bg.booking b
+where bg.guestUserId = :guestUserId
+""",
+            countQuery = """
+select count(bg)
+from BookingGuest bg
+where bg.guestUserId = :guestUserId
+"""
+    )
+    Page<BookingGuest> findAllByGuestUserIdWithBooking(Long guestUserId, Pageable pageable);
+
+
+    @Query(
+            value = """
+        select bg
+        from BookingGuest bg
+        join fetch bg.booking b
+        where bg.guestUserId = :guestUserId
+          and bg.invitationStatus = :status
+    """,
+            countQuery = """
+        select count(bg)
+        from BookingGuest bg
+        where bg.guestUserId = :guestUserId
+          and bg.invitationStatus = :status
+    """
+    )
+    Page<BookingGuest> findAllByGuestUserIdAndInvitationStatusWithBooking(
+            Long guestUserId,
+            InvitationStatus status,
+            Pageable pageable);
 
 }

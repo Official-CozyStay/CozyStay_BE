@@ -21,8 +21,8 @@ public class BookingGuestMeQueryService {
     public Page<MyInvitationResponse> getMyInvitations(Long userId, InvitationStatus status, Pageable pageable){
 
         Page<BookingGuest> page = (status == null)
-        ? bookingGuestRepository.findAllByGuestUserId(userId, pageable)
-        : bookingGuestRepository.findAllByGuestUserIdAndInvitationStatus(userId, status, pageable);
+        ? bookingGuestRepository.findAllByGuestUserIdWithBooking(userId, pageable)
+        : bookingGuestRepository.findAllByGuestUserIdAndInvitationStatusWithBooking(userId, status, pageable);
 
         return page.map(bg -> {
             Booking booking = bg.getBooking();
