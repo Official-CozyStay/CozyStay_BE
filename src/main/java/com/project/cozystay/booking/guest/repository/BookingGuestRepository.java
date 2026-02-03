@@ -12,12 +12,7 @@ import java.util.Optional;
 
 public interface BookingGuestRepository extends JpaRepository<BookingGuest, Long> {
 
-    @Query("""
-            select count(bg)
-            from BookingGuest bg
-            where bg.booking.id = :bookingId
-    """)
-    long countByBooking_Id(Long bookingId);
+    long countByBooking_IdAndInvitationStatusNot(Long bookingId, InvitationStatus status);
 
     // 같은 예약에 같은 이메일 중복 초대 방지
     boolean existsByBooking_IdAndGuestEmail(Long bookingId, String guestEmail);
