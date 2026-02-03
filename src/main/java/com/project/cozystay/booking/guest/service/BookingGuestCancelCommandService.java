@@ -46,9 +46,9 @@ public class BookingGuestCancelCommandService {
         BookingGuest bookingGuest = bookingGuestRepository.findByIdAndBooking_Id(bookingGuestId, bookingId)
                 .orElseThrow(()-> new BookingGuestNotFoundException("동반자 초대를 찾을 수 없습니다."));
 
-        // 초대 상태 확인 : PENDING만 취소 가능
-        if(bookingGuest.getInvitationStatus() != InvitationStatus.PENDING){
-            throw new BookingGuestCancelNotAllowedException("대기 상태인 초대만 취소할 수 있습니다.");
+        // 초대 상태 확인 : PENDING, DECLINED 삭제 허용
+        if(bookingGuest.getInvitationStatus() == InvitationStatus.ACCEPTED){
+            throw new BookingGuestCancelNotAllowedException("수락된 초대는 취소할 수 없습니다.");
         }
 
         bookingGuestRepository.delete(bookingGuest);
