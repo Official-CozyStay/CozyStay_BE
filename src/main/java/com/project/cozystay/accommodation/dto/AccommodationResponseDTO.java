@@ -24,7 +24,7 @@ public class AccommodationResponseDTO {
 
         String imageUrl = entity.getImages().stream()
                 .filter(AccommodationImage::isPrimary)
-                .findFirst()
+                .min(Comparator.comparing(AccommodationImage::getId))
                 .or(() -> entity.getImages().stream()
                         .min(Comparator.comparing(AccommodationImage::getId)))
                 .map(AccommodationImage::getImageUrl)
