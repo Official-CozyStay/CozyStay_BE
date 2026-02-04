@@ -58,16 +58,38 @@ public class BookingGuestCommandService {
             throw new BookingGuestLimitExceededException("동반자 초대 가능 인원을 초과했습니다.");
         }
 
-        BookingGuest bookingGuest = BookingGuest.invite(
-                booking,
-                request.getGuestUserId(),
-                request.getGuestName(),
-                request.getGuestEmail(),
-                request.getGuestPhone()
-        );
+        BookingGuest bookingGuest;
+
+        if(request.getGuestUserId() != null) {
+            // 회원 초대
+            bookingGuest = BookingGuest.invite(
+                    booking,
+                    request.getGuestUserId(),
+                    null,
+                    request.getGuestEmail(),
+                    request.getGuestPhone()
+            );
+        }
+        else{
+            // 비회원 초대
+            if(request.getGuestName() == null || request.getGuestName().isBlank()){
+                throw new BookingGuestInvitationNotAllowedException("비회원 초대 시 이름은 필수입니다.");
+            }
+
+            bookingGuest = BookingGuest.invite(
+                    booking,
+                    null, // guestUserId 없음
+                    request.getGuestName(),
+                    request.getGuestEmail(),
+                    request.getGuestPhone()
+            );
+        }
 
         BookingGuest saved = bookingGuestRepository.save(bookingGuest);
 
-        return new BookingGuestCreateResponse(saved.getId(), saved.getInvitationStatus(), saved.getInvitedAt());
+        return new BookingGuestCreateResponse(
+                saved.getId(),
+                saved.getInvitationStatus(),
+                saved.getInvitedAt());
     }
 }
