@@ -15,7 +15,7 @@ public interface AccommodationRepository extends JpaRepository<Accommodation, Lo
     SELECT DISTINCT a
     FROM Accommodation a
     LEFT JOIN FETCH a.images
-    WHERE a.status = 'ACTIVE'
+    WHERE a.status = com.project.cozystay.accommodation.domain.AccommodationStatus.ACTIVE
 """)
     List<Accommodation> findAllAccommodations();
 
