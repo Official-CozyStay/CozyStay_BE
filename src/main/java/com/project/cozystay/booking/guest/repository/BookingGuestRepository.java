@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.lang.ScopedValue;
 import java.util.List;
 import java.util.Optional;
 
@@ -66,5 +65,5 @@ where bg.guestUserId = :guestUserId
 
     Optional<BookingGuest> findByInvitationToken(String invitationToken);
 
-    <T> ScopedValue<T> findByInvitationToken(String invitationToken, Sort sort);
+    Optional<BookingGuest> findByInvitationToken(String invitationToken, Sort sort);
 }
