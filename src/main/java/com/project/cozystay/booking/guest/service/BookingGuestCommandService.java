@@ -34,6 +34,8 @@ public class BookingGuestCommandService {
 
     private final InvitationEmailSender invitationEmailSender;
 
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+
     @Value("${redirect.frontend-url}")
     private String frontendUrl;
 
@@ -121,7 +123,7 @@ public class BookingGuestCommandService {
 
     private String generateToken(){
         byte[] bytes = new byte[32];
-        new SecureRandom().nextBytes(bytes);
+        SECURE_RANDOM.nextBytes(bytes);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }
 }
