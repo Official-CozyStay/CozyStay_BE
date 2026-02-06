@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -110,8 +111,15 @@ public class BookingGuestCommandService {
         BookingGuest saved = bookingGuestRepository.save(bookingGuest);
 
         // 링크 구성 (프론트에서 토큰 받아서 API 호출하도록)
-        String acceptLink = frontendUrl + "invitation/accept?token=" + token;
-        String declineLink = frontendUrl + "invitation/decline?token=" + token;
+        String acceptLink = UriComponentsBuilder.fromHttpUrl(frontendUrl)
+                .path("/invitation/accept")
+                .queryParam("token", token)
+                .toUriString();
+
+        String declineLink = UriComponentsBuilder.fromHttpUrl(frontendUrl)
+                .path("/invitation/decline")
+                .queryParam("token", token)
+                .toUriString();
 
         invitationEmailSender.send(saved.getGuestEmail(), saved.getGuestName(), acceptLink, declineLink);
 
