@@ -53,6 +53,9 @@ dependencies {
 
 	// Test(Junit)
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	// Email
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
 }
 
 tasks.named('test') {
