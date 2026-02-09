@@ -37,7 +37,7 @@ public class SmtpInvitationEmailSender implements InvitationEmailSender{
                     링크를 통해 초대에 대해 수락/거절을 선택해주세요.
                     (링크는 만료될 수 있습니다.)
                    
-                    """.formatted(guestName, invitationPageLink);
+                    """.formatted(guestName.replaceAll("[\\r\\n]", " "), invitationPageLink);
 
         message.setText(body);
         mailSender.send(message);
