@@ -19,7 +19,7 @@ public class BookingGuestTokenDecisionService {
 
     @Transactional
     public void acceptByToken(String token){
-        BookingGuest bg = bookingGuestRepository.findByInvitationToken(token)
+        BookingGuest bg = bookingGuestRepository.findByInvitationTokenForUpdate(token)
                 .orElseThrow(()-> new BookingGuestNotFoundException("유효하지 않은 초대입니다."));
 
         validateTokenUsable(bg);
@@ -28,7 +28,7 @@ public class BookingGuestTokenDecisionService {
 
     @Transactional
     public void declineByToken(String token){
-        BookingGuest bg = bookingGuestRepository.findByInvitationToken(token)
+        BookingGuest bg = bookingGuestRepository.findByInvitationTokenForUpdate(token)
                 .orElseThrow(()->new BookingGuestNotFoundException("유효하지 않은 초대입니다."));
 
         validateTokenUsable(bg);

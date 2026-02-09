@@ -2,12 +2,15 @@ package com.project.cozystay.booking.guest.repository;
 
 import com.project.cozystay.booking.guest.domain.BookingGuest;
 import com.project.cozystay.booking.guest.domain.InvitationStatus;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -65,5 +68,11 @@ where bg.guestUserId = :guestUserId
 
     Optional<BookingGuest> findByInvitationToken(String invitationToken);
 
-    Optional<BookingGuest> findByInvitationToken(String invitationToken, Sort sort);
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+select bg
+from BookingGuest bg
+where bg.invitationToken = :invitationToken
+""")
+    Optional<BookingGuest> findByInvitationTokenForUpdate(@Param("invitationToken") String invitationToken);
 }
