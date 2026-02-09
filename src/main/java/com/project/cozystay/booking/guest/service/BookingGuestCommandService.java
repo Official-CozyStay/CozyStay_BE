@@ -37,8 +37,8 @@ public class BookingGuestCommandService {
 
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
-    @Value("${redirect.frontend-url}")
-    private String frontendUrl;
+    @Value("${cozystay.mail.invitation-page-url}")
+    private String invitationPageUrl;
 
     private static final long TOKEN_EXPIRE_HOURS = 48;
 
@@ -111,17 +111,12 @@ public class BookingGuestCommandService {
         BookingGuest saved = bookingGuestRepository.save(bookingGuest);
 
         // 링크 구성 (프론트에서 토큰 받아서 API 호출하도록)
-        String acceptLink = UriComponentsBuilder.fromHttpUrl(frontendUrl)
-                .path("/invitation/accept")
-                .queryParam("token", token)
+        String invitationPageLink = UriComponentsBuilder.fromHttpUrl(invitationPageUrl)
+                .pathSegment(token)
                 .toUriString();
 
-        String declineLink = UriComponentsBuilder.fromHttpUrl(frontendUrl)
-                .path("/invitation/decline")
-                .queryParam("token", token)
-                .toUriString();
 
-        invitationEmailSender.send(saved.getGuestEmail(), saved.getGuestName(), acceptLink, declineLink);
+        invitationEmailSender.send(saved.getGuestEmail(), saved.getGuestName(), invitationPageLink);
 
         return new BookingGuestCreateResponse(
                 saved.getId(),

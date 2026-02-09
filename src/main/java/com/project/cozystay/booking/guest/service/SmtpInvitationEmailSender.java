@@ -18,7 +18,7 @@ public class SmtpInvitationEmailSender implements InvitationEmailSender{
     private String from;
 
     @Override
-    public void send(String toEmail, String guestName, String acceptLink, String declineLink){
+    public void send(String toEmail, String guestName, String invitationPageLink){
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(from);
@@ -30,13 +30,14 @@ public class SmtpInvitationEmailSender implements InvitationEmailSender{
                     
                     CozyStay 예약 초대가 도착했습니다. 
                     
-                    수락 : %s
-                    거절 : %s
+                    초대에 응답하려면 아래 링크를 클릭하세요:
+                    
+                    %s
                     
                     링크를 통해 초대에 대해 수락/거절을 선택해주세요.
                     (링크는 만료될 수 있습니다.)
                    
-                    """.formatted(guestName, acceptLink, declineLink);
+                    """.formatted(guestName, invitationPageLink);
 
         message.setText(body);
         mailSender.send(message);

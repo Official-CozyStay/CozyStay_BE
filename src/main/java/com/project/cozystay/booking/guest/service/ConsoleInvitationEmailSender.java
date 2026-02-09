@@ -13,9 +13,8 @@ import org.springframework.stereotype.Component;
 )
 public class ConsoleInvitationEmailSender implements InvitationEmailSender {
     @Override
-    public void send(String toEmail, String guestName, String acceptLink, String declineLink) {
+    public void send(String toEmail, String guestName, String invitationPageLink) {
         log.info("[INVITATION EMAIL - CONSOLE] to={}, name={}", toEmail, guestName);
-        log.info("ACCEPT: {}", acceptLink);
-        log.info("DECLINE: {}", declineLink);
+        log.info("Invitation Page Link: {}", invitationPageLink);
     }
 }
