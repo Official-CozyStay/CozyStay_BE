@@ -6,6 +6,9 @@ import com.project.cozystay.user.dto.UserGradeResponse;
 import com.project.cozystay.user.dto.UserProfileResponse;
 import com.project.cozystay.user.dto.UserProfileUpdateRequest;
 
+import java.util.List;
+import java.util.Map;
+
 public interface UserService {
 
     UserProfileResponse getMyProfile(User user);
@@ -17,5 +20,7 @@ public interface UserService {
     void becomeHost(Long userId);
 
     PublicUserProfileResponse getPublicProfile(Long userId);
+
+    Map<Long, User> getUsers(List<Long> userIds);
 
 }
