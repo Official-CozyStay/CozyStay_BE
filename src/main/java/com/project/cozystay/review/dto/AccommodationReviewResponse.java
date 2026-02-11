@@ -1,5 +1,6 @@
 package com.project.cozystay.review.dto;
 
+import com.project.cozystay.comment.dto.CommentResponseDTO;
 import com.project.cozystay.review.domain.AccommodationReview;
 
 import java.math.BigDecimal;
@@ -12,6 +13,7 @@ public record AccommodationReviewResponse (
 
     // 숙소 ID
     Long id,
+    Long bookingId,
 
     // 평점
     BigDecimal ratingOverall,
@@ -21,21 +23,9 @@ public record AccommodationReviewResponse (
     BigDecimal ratingCommunication,
     BigDecimal ratingLocation,
 
-    String comment
+    String reviewComment,
+
+    CommentResponseDTO comment
 ) {
 
-    // Entity -> DTO
-    public static AccommodationReviewResponse from(AccommodationReview accommodationReview) {
-
-        return new AccommodationReviewResponse(
-                accommodationReview.getId(),
-                accommodationReview.getRatingOverall(),
-                accommodationReview.getRatingCleanliness(),
-                accommodationReview.getRatingAccuracy(),
-                accommodationReview.getRatingCheckin(),
-                accommodationReview.getRatingCommunication(),
-                accommodationReview.getRatingLocation(),
-                accommodationReview.getComment()
-        );
-    }
 }

@@ -68,7 +68,7 @@ public class AccommodationSearchRepositoryImpl implements AccommodationSearchRep
 
         return accommodation.id.notIn(
                 queryFactory
-                        .select(booking.accommodationId)
+                        .select(booking.accommodation.id)
                         .from(booking)
                         .where(
                                 (booking.checkOutDate.after(checkIn)
