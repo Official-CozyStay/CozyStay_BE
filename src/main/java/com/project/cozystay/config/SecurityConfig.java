@@ -59,6 +59,8 @@ public class SecurityConfig {
                         // "/", "/api/auth/**", "/login/oauth2/**" (로그인 관련 경로)는 모두 허용
                         .requestMatchers("/", "/auth/success", "/login/**", "/oauth2/**", "/api/auth/**").permitAll()
 
+                        .requestMatchers("/ws/**").permitAll()  // WebSocket SockJS 핸드셰이크 허용
+
                         //추가한 부분
                         .requestMatchers(HttpMethod.GET, "/api/accommodations/**").permitAll()
                         .requestMatchers("/error").permitAll() // TODO: 원인 로그를 바로 볼 수 있게 임시적으로
