@@ -5,14 +5,33 @@ import com.project.cozystay.booking.domain.BookingStatus;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
+
+    // 스케줄링
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+update Booking b
+set b.status = :completed,
+    b.updatedAt = :now
+where b.status = :confirmed
+and b.checkOutDate < :today
+""")
+            int markCompletedBefore(
+                    @Param("today") LocalDate today,
+                    @Param("now") LocalDateTime now,
+                    @Param("confirmed") BookingStatus confirmed,
+                    @Param("completed") BookingStatus completed
+    );
+
 
     // 특정 숙소에 대해 날짜가 겹치는 예약이 존재하는지 체크
     boolean existsByAccommodation_IdAndCheckInDateBeforeAndCheckOutDateAfter(
