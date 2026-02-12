@@ -40,7 +40,8 @@ public class BookingGuestCommandService {
     @Value("${cozystay.mail.invitation-page-url}")
     private String invitationPageUrl;
 
-    private static final long TOKEN_EXPIRE_HOURS = 48;
+    @Value("${cozystay.mail.token-expire-hours:48}")
+    private long tokenExpireHour = 48;
 
     @Transactional
     public BookingGuestCreateResponse invite(Long bookingId, Long inviterUserId, BookingGuestCreateRequest request) {
@@ -106,7 +107,7 @@ public class BookingGuestCommandService {
 
         // 비회원만 토큰 발급 + 이메일 발송
         String token = generateToken();
-        bookingGuest.issueInvitationToken(token, LocalDateTime.now().plusHours(TOKEN_EXPIRE_HOURS));
+        bookingGuest.issueInvitationToken(token, LocalDateTime.now().plusHours(tokenExpireHour));
 
         BookingGuest saved = bookingGuestRepository.save(bookingGuest);
 
