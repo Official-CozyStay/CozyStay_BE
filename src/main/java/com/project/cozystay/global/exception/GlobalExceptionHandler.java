@@ -7,6 +7,7 @@ import com.project.cozystay.review.exception.ReviewUpdateNotAllowedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -65,7 +66,6 @@ public class GlobalExceptionHandler {
     /* ===================== 409 CONFLICT ===================== */
     @ExceptionHandler({BookingConflictException.class, BookingNotAvailableException.class,
             BookingAlreadyCancelledException.class, BookingCancellationNotAllowedException.class,
-            BookingDecisionNotAllowedException.class,
             BookingGuestInvitationNotAllowedException.class, BookingGuestLimitExceededException.class,
             BookingGuestDuplicateInvitationException.class, BookingGuestCancelNotAllowedException.class,
             BookingGuestResponseForbiddenException.class, BookingGuestResponseNotAllowedException.class,
