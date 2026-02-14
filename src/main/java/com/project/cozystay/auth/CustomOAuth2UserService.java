@@ -6,6 +6,8 @@ import com.project.cozystay.user.domain.User;
 import com.project.cozystay.user.domain.UserGrade;
 import com.project.cozystay.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -27,6 +29,7 @@ import java.util.Optional;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
+    private static final Logger logger = LoggerFactory.getLogger(CustomOAuth2UserService.class);
 
     @Override
     @Transactional
@@ -67,7 +70,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         };
     }
 
-    private User saveOrUpdate(Map<String, Object> attributes,
+    @Transactional
+    public User saveOrUpdate(Map<String, Object> attributes,
                               String oauthAccessToken,
                               LocalDateTime kakaoTokenExpiresAt,
                               AuthProvider provider) {
@@ -96,10 +100,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             throw new OAuth2AuthenticationException("카카오에서 필수 사용자 정보(email 또는 nickname)를 제공하지 않았습니다.");
         }
 
+        logger.info("provider ID를 사용하여 사용자를 찾으려고 시도하는 중: {} (type: {}) and provider: {}",
+                    providerId, providerId.getClass().getName(), provider);
+
         Optional<User> userOptional = userRepository.findByProviderIdAndProvider(providerId.toString(), provider);
 
         User user;
-        // TODO: JPA 더티 체킹 활용
         if (userOptional.isPresent()) {
             // 기존 회원
             user = userOptional.get();
@@ -110,6 +116,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             user = User.builder()
                     .nickName(nickname)
                     .email(email)
+                    .isEmailVerified(false)
                     .profileImageUrl(profileImageUrl)
                     .provider(provider)
                     .providerId(providerId.toString())

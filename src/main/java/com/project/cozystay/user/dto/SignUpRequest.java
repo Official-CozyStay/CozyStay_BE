@@ -6,7 +6,8 @@ import lombok.Builder;
 
 @Builder
 public record SignUpRequest(
-        @NotBlank @Email String email,
+        @NotBlank String username,
+        String email,
         @NotBlank String password,
         @NotBlank String nickName
 ) {

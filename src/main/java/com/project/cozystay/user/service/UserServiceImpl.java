@@ -1,14 +1,17 @@
 package com.project.cozystay.user.service;
 
+import com.project.cozystay.user.domain.AuthProvider;
 import com.project.cozystay.user.domain.Role;
 import com.project.cozystay.user.domain.User;
 import com.project.cozystay.user.domain.UserGrade;
 import com.project.cozystay.user.dto.PublicUserProfileResponse;
+import com.project.cozystay.user.dto.SignUpRequest;
 import com.project.cozystay.user.dto.UserGradeResponse;
 import com.project.cozystay.user.dto.UserProfileResponse;
 import com.project.cozystay.user.dto.UserProfileUpdateRequest;
 import com.project.cozystay.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +21,31 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserServiceImpl implements UserService{
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    @Override
+    public void signUp(SignUpRequest signUpRequest) {
+        if (userRepository.findByUsername(signUpRequest.username()).isPresent()) {
+            throw new IllegalStateException("이미 사용중인 아이디입니다.");
+        }
+        if (signUpRequest.email() != null && userRepository.findByEmail(signUpRequest.email()).isPresent()) {
+            throw new IllegalStateException("이미 가입된 이메일입니다.");
+        }
+
+        User user = User.builder()
+                .username(signUpRequest.username())
+                .email(signUpRequest.email())
+                .password(passwordEncoder.encode(signUpRequest.password()))
+                .nickName(signUpRequest.nickName())
+                .userRole(Role.USER)
+                .provider(AuthProvider.LOCAL)
+                .providerId(signUpRequest.username()) // providerId를 username으로 사용
+                .userGrade(UserGrade.BRONZE)
+                .isEmailVerified(false) // 이메일 인증 여부 초기화
+                .build();
+
+        userRepository.save(user);
+    }
 
     /* 등급 기준 예시 (횟수/박수 기준) */
     private static final int SILVER_BOOKING_THRESHOLD = 5;

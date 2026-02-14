@@ -2,6 +2,7 @@ package com.project.cozystay.user.controller;
 
 import com.project.cozystay.auth.CustomUserDetails;
 import com.project.cozystay.auth.JwtProvider;
+import com.project.cozystay.user.dto.ApiResponse;
 import com.project.cozystay.user.domain.User;
 import com.project.cozystay.user.dto.SignInRequest;
 import com.project.cozystay.user.dto.SignInResponse;
@@ -29,15 +30,16 @@ public class AuthController {
     private final JwtProvider jwtProvider;
 
     @PostMapping("/signup")
-    public ResponseEntity<Void> signUp(@Valid @RequestBody SignUpRequest signUpRequest) {
+    public ResponseEntity<ApiResponse<Void>> signUp(@Valid @RequestBody SignUpRequest signUpRequest) {
         userService.signUp(signUpRequest);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(ApiResponse.success("회원가입이 완료되었습니다.", null));
     }
 
     @PostMapping("/signin")
     public ResponseEntity<SignInResponse> signIn(@Valid @RequestBody SignInRequest signInRequest) {
+
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(signInRequest.email(), signInRequest.password())
+                new UsernamePasswordAuthenticationToken(signInRequest.username(), signInRequest.password())
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
