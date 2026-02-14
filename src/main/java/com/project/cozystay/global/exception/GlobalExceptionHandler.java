@@ -3,15 +3,13 @@ package com.project.cozystay.global.exception;
 import com.project.cozystay.booking.exception.*;
 import com.project.cozystay.booking.guest.exception.*;
 import com.project.cozystay.comment.exception.CommentNotFoundException;
-import com.project.cozystay.booking.guest.exception.*;
-import com.project.cozystay.comment.exception.CommentNotFoundException;
+import com.project.cozystay.review.exception.ReviewUpdateNotAllowedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -70,7 +68,7 @@ public class GlobalExceptionHandler {
             BookingDecisionNotAllowedException.class,
             BookingGuestInvitationNotAllowedException.class, BookingGuestLimitExceededException.class,
             BookingGuestDuplicateInvitationException.class, BookingGuestCancelNotAllowedException.class,
-            BookingGuestResponseForbiddenException.class, BookingGuestResponseNotAllowedException.class
+            BookingGuestResponseForbiddenException.class, BookingGuestResponseNotAllowedException.class,
             BookingDecisionNotAllowedException.class, ReviewUpdateNotAllowedException.class
     })
     public ResponseEntity<ErrorResponse> handleConflict(RuntimeException e){
