@@ -15,6 +15,10 @@ import java.time.LocalDateTime;
         name = "users",
         uniqueConstraints = {
                 @UniqueConstraint(
+                        name = "uk_user_username",
+                        columnNames = {"username"}
+                ),
+                @UniqueConstraint(
                         name = "uk_user_provider_provider_id",
                         columnNames = {"provider", "provider_id"}
                 )
@@ -26,7 +30,15 @@ public class User extends BaseTimeEntity {
     @Column(name = "user_id")
     private Long id;
 
+    @Column(unique = true)
+    private String username;
+
     private String email;
+
+    @Column(nullable = false)
+    private boolean isEmailVerified = false;
+
+    private String password;
 
     @Column(nullable = false)
     private String nickName;
