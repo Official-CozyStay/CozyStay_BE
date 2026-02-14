@@ -2,6 +2,7 @@ package com.project.cozystay.global.exception;
 
 import com.project.cozystay.booking.exception.*;
 import com.project.cozystay.booking.guest.exception.*;
+import com.project.cozystay.comment.exception.CommentNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,9 +43,17 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(e.getMessage()));
     }
 
+    /* ===================== 403 FORBIDDEN ===================== */
+    @ExceptionHandler(java.nio.file.AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDenied(java.nio.file.AccessDeniedException e) {
+        log.warn("Forbidden [{}]: {}", e.getClass().getSimpleName(), e.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ErrorResponse("접근 권한이 없습니다."));
+    }
+
     /* ===================== 404 NOT FOUND ===================== */
     @ExceptionHandler({AccommodationNotFoundException.class, BookingNotFoundException.class,
-            BookingGuestNotFoundException.class})
+            BookingGuestNotFoundException.class, CommentNotFoundException.class})
     public ResponseEntity<ErrorResponse> handleNotFound(RuntimeException e){
         log.warn("NotFound [{}]: {}", e.getClass().getSimpleName(), e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
