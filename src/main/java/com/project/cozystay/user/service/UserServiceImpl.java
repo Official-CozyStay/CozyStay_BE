@@ -9,6 +9,8 @@ import com.project.cozystay.user.dto.SignUpRequest;
 import com.project.cozystay.user.dto.UserGradeResponse;
 import com.project.cozystay.user.dto.UserProfileResponse;
 import com.project.cozystay.user.dto.UserProfileUpdateRequest;
+import com.project.cozystay.user.exception.UserEmailAlreadyExistsException;
+import com.project.cozystay.user.exception.UserNameAlreadyExistsException;
 import com.project.cozystay.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,10 +28,10 @@ public class UserServiceImpl implements UserService{
     @Override
     public void signUp(SignUpRequest signUpRequest) {
         if (userRepository.findByUsername(signUpRequest.username()).isPresent()) {
-            throw new IllegalStateException("이미 사용중인 아이디입니다.");
+            throw UserNameAlreadyExistsException.of(signUpRequest.username());
         }
         if (signUpRequest.email() != null && userRepository.findByEmail(signUpRequest.email()).isPresent()) {
-            throw new IllegalStateException("이미 가입된 이메일입니다.");
+            throw UserEmailAlreadyExistsException.of(signUpRequest.email());
         }
 
         User user = User.builder()
