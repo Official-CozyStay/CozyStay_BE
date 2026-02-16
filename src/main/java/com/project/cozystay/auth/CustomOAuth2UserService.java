@@ -70,8 +70,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         };
     }
 
-    @Transactional
-    public User saveOrUpdate(Map<String, Object> attributes,
+    private User saveOrUpdate(Map<String, Object> attributes,
                               String oauthAccessToken,
                               LocalDateTime kakaoTokenExpiresAt,
                               AuthProvider provider) {
