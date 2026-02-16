@@ -58,7 +58,7 @@ public class SecurityConfig {
 
                         // "/", "/api/auth/**", "/login/oauth2/**" (로그인 관련 경로)는 모두 허용
                         .requestMatchers("/", "/auth/success", "/login/**", "/oauth2/**", "/api/auth/**").permitAll()
-
+                        .requestMatchers("/api/booking-guests/invitations/**").permitAll() // 비회원 초대 링크 로그인 없이 접근
                         //추가한 부분
                         .requestMatchers(HttpMethod.GET, "/api/accommodations/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/search/**").permitAll()

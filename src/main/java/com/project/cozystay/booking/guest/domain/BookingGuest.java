@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
 @Getter
@@ -51,6 +52,12 @@ public class BookingGuest {
     @Column(name = "responded_at")
     private LocalDateTime respondedAt;
 
+    @Column(name = "invitation_token", length = 64, unique = true)
+    private String invitationToken;
+
+    @Column(name = "token_expires_at")
+    private LocalDateTime tokenExpiresAt;
+
     @PrePersist
     void prePersist(){
         if(this.invitationStatus == null) this.invitationStatus = InvitationStatus.PENDING;
@@ -88,5 +95,10 @@ public class BookingGuest {
         }
         this.invitationStatus = InvitationStatus.DECLINED;
         this.respondedAt = LocalDateTime.now();
+    }
+
+    public void issueInvitationToken(String token, LocalDateTime expiresAt){
+        this.invitationToken = token;
+        this.tokenExpiresAt = expiresAt;
     }
 }
