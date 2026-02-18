@@ -1,5 +1,4 @@
 package com.project.cozystay.user.service;
-import com.project.cozystay.user.domain.User;
 import com.project.cozystay.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
