@@ -25,8 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserServiceImpl implements UserService{
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+
     private final AuthenticationManager authenticationManager;
+    private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
     @Override
@@ -78,6 +79,16 @@ public class UserServiceImpl implements UserService{
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public void existsByUsername(String userName){
+
+        if (userRepository.findByUsername(userName).isPresent()) {
+            throw UserNameAlreadyExistsException.of(userName);
+        }
+
     }
 
     @Override
