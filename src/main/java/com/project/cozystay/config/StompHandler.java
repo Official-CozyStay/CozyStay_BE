@@ -23,6 +23,7 @@ import java.util.Collections;
 public class StompHandler implements ChannelInterceptor {
 
     private final JwtProvider jwtProvider;
+    private static final String BEARER_PREFIX = "Bearer ";
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -31,15 +32,16 @@ public class StompHandler implements ChannelInterceptor {
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
             String token = accessor.getFirstNativeHeader("Authorization");
 
-            if (token != null && token.startsWith("Bearer ")) {
-                token = token.substring(7);
+            if (token != null && token.startsWith(BEARER_PREFIX)) {
+                token = token.substring(BEARER_PREFIX.length());
 
                 if (jwtProvider.validateToken(token)) {
                     Long userId = jwtProvider.getUserId(token);
+                    String roleKey = jwtProvider.getRole(token);
                     Authentication auth = new UsernamePasswordAuthenticationToken(
                             userId, // Principal로 사용될 값 (컨트롤러에서 추출)
                             null,
-                            Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
+                            Collections.singletonList(new SimpleGrantedAuthority(roleKey))
                     );
                     accessor.setUser(auth);
                     log.info("WebSocket 인증 성공 - UserId: {}", userId);
