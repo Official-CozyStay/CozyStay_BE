@@ -1,18 +1,20 @@
 package com.project.cozystay.user.service;
 
+import com.project.cozystay.auth.CustomUserDetails;
+import com.project.cozystay.auth.JwtProvider;
 import com.project.cozystay.user.domain.AuthProvider;
 import com.project.cozystay.user.domain.Role;
 import com.project.cozystay.user.domain.User;
 import com.project.cozystay.user.domain.UserGrade;
-import com.project.cozystay.user.dto.PublicUserProfileResponse;
-import com.project.cozystay.user.dto.SignUpRequest;
-import com.project.cozystay.user.dto.UserGradeResponse;
-import com.project.cozystay.user.dto.UserProfileResponse;
-import com.project.cozystay.user.dto.UserProfileUpdateRequest;
+import com.project.cozystay.user.dto.*;
 import com.project.cozystay.user.exception.UserEmailAlreadyExistsException;
 import com.project.cozystay.user.exception.UserNameAlreadyExistsException;
 import com.project.cozystay.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,40 +26,59 @@ public class UserServiceImpl implements UserService{
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final JwtProvider jwtProvider;
 
     @Override
     public void signUp(SignUpRequest signUpRequest) {
+
         if (userRepository.findByUsername(signUpRequest.username()).isPresent()) {
             throw UserNameAlreadyExistsException.of(signUpRequest.username());
         }
-        if (signUpRequest.email() != null && userRepository.findByEmail(signUpRequest.email()).isPresent()) {
+
+        if (userRepository.existsByEmail(signUpRequest.email())) {
             throw UserEmailAlreadyExistsException.of(signUpRequest.email());
         }
 
         User user = User.builder()
                 .username(signUpRequest.username())
-                .email(signUpRequest.email())
                 .password(passwordEncoder.encode(signUpRequest.password()))
+                .email(signUpRequest.email())
                 .nickName(signUpRequest.nickName())
                 .userRole(Role.USER)
                 .provider(AuthProvider.LOCAL)
                 .providerId(signUpRequest.username()) // providerId를 username으로 사용
                 .userGrade(UserGrade.BRONZE)
-                .isEmailVerified(false) // 이메일 인증 여부 초기화
+                .isEmailVerified(true)
                 .build();
 
         userRepository.save(user);
     }
 
-    /* 등급 기준 예시 (횟수/박수 기준) */
-    private static final int SILVER_BOOKING_THRESHOLD = 5;
-    private static final int SILVER_NIGHTS_THRESHOLD = 10;
+    @Override
+    public SignInResponse signIn(SignInRequest signInRequest) {
 
-    private static final int GOLD_BOOKING_THRESHOLD = 10;
-    private static final int GOLD_NIGHTS_THRESHOLD = 20;
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(signInRequest.username(), signInRequest.password())
+        );
 
-    private static final int PLATINUM_BOOKING_THRESHOLD = 20;
-    private static final int PLATINUM_NIGHTS_THRESHOLD = 40;
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        User user = userDetails.getUser();
+
+        String accessToken = jwtProvider.createAccessToken(user.getId(), user.getUserRole());
+        String refreshToken = jwtProvider.createRefreshToken(user.getId());
+
+        return SignInResponse.builder()
+                .userId(user.getId())
+                .nickName(user.getNickName())
+                .role(user.getUserRole().name())
+                .grantType("Bearer")
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+    }
 
     @Override
     @Transactional(readOnly = true)
