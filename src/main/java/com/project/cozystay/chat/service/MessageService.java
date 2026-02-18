@@ -9,9 +9,11 @@ import com.project.cozystay.chat.dto.ChatMessageResponseDTO;
 import com.project.cozystay.chat.repository.ConversationRepository;
 import com.project.cozystay.chat.repository.MessageRepository;
 import lombok.RequiredArgsConstructor;
+import org.jsoup.safety.Safelist;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.jsoup.Jsoup;
 
 import java.util.Collections;
 import java.util.List;
@@ -35,7 +37,10 @@ public class MessageService {
             throw new IllegalArgumentException("전송자와 일치하는 채팅방 사용자가 없습니다.");
         }
 
-        Message message = Message.create(conversationId, senderId, request.getMessageText());
+        //XSS 취약점 방어를 위한 모든 HTML 태그 제거
+        String cleanText = Jsoup.clean(request.getMessageText(), Safelist.none());
+
+        Message message = Message.create(conversationId, senderId, cleanText);
         Message saved = messageRepository.save(message);
 
         // 메세지 전송 시, 보낸 사람의 마지막 읽은 메시지 업데이트
