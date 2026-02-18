@@ -10,6 +10,7 @@ public class ConversationCreateRequestDTO {
     @NotNull
     private Long hostId;
 
+    @NotNull
     private Long accommodationId;
 
 }
