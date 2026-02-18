@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.MessageDeliveryException;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
@@ -32,10 +33,17 @@ public class StompHandler implements ChannelInterceptor {
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
             String token = accessor.getFirstNativeHeader("Authorization");
 
-            if (token != null && token.startsWith(BEARER_PREFIX)) {
+            if (token == null || !token.startsWith(BEARER_PREFIX)) {
+                throw new MessageDeliveryException("인증 헤더가 누락되었거나 형식이 잘못되었습니다.");
+            }
+
                 token = token.substring(BEARER_PREFIX.length());
 
-                if (jwtProvider.validateToken(token)) {
+                if (!jwtProvider.validateToken(token)) {
+                    throw new MessageDeliveryException("유효하지 않은 토큰입니다.");
+                }
+
+                try{
                     Long userId = jwtProvider.getUserId(token);
                     String roleKey = jwtProvider.getRole(token);
                     Authentication auth = new UsernamePasswordAuthenticationToken(
@@ -43,11 +51,13 @@ public class StompHandler implements ChannelInterceptor {
                             null,
                             Collections.singletonList(new SimpleGrantedAuthority(roleKey))
                     );
+
                     accessor.setUser(auth);
-                    log.info("WebSocket 인증 성공 - UserId: {}", userId);
+                    log.info("WebSocket 인증 성공 - UserId: {}, Role: {}", userId, roleKey);
+                } catch (Exception e){
+                    throw new MessageDeliveryException("인증 처리 중 오류가 발생했습니다.");
                 }
             }
-        }
         return message;
     }
 }
