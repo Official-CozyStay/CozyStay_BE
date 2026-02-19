@@ -1,7 +1,7 @@
 package com.project.cozystay.review.dto;
 
+import com.project.cozystay.comment.dto.CommentResponseDTO;
 import com.project.cozystay.review.domain.UserReview;
-import lombok.*;
 
 import java.math.BigDecimal;
 
@@ -13,19 +13,12 @@ public record UserReviewResponse (
 
     Long targetGuestId,
 
-//  Long bookingId,
+    Long bookingId,
 
     BigDecimal rating,
 
-    String comment
-) {
-    // Entity -> DTO
-    public static UserReviewResponse from(UserReview userReview){
+    String reviewComment,
 
-        return new UserReviewResponse(
-                userReview.getTargetGuest().getId(),
-                userReview.getRating(),
-                userReview.getComment()
-        );
-    }
+    CommentResponseDTO comment
+) {
 }

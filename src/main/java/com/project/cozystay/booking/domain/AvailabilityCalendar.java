@@ -12,7 +12,7 @@ import java.time.LocalDate;
         uniqueConstraints = {
                 @UniqueConstraint(
                         name = "uq_accommodation_date",
-                        columnNames = {"accommodation_id", "date"}
+                        columnNames = {"accommodation_id", "availability_date"}
                 )
         }
 )
@@ -30,7 +30,7 @@ public class AvailabilityCalendar {
     @Column(name = "accommodation_id", nullable = false)
     private Long accommodationId;
 
-    @Column(nullable = false)
+    @Column(name = "availability_date", nullable = false)
     private LocalDate date;
 
     @Column(name = "is_available", nullable = false)
@@ -41,5 +41,11 @@ public class AvailabilityCalendar {
 
     @Column(name = "min_nights", nullable = false)
     private int minNights;
+
+    public void update(boolean available, BigDecimal customPrice, int minNights) {
+        this.available = available;
+        this.customPrice = customPrice;
+        this.minNights = minNights;
+    }
 
 }

@@ -61,8 +61,11 @@ public class SecurityConfig {
 
                         .requestMatchers("/ws/**").permitAll()  // WebSocket SockJS 핸드셰이크 허용
 
+                        .requestMatchers("/api/booking-guests/invitations/**").permitAll() // 비회원 초대 링크 로그인 없이 접근
                         //추가한 부분
                         .requestMatchers(HttpMethod.GET, "/api/accommodations/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/search/**").permitAll()
+
                         .requestMatchers("/error").permitAll() // TODO: 원인 로그를 바로 볼 수 있게 임시적으로
                         // 그 외 모든 요청은 인증 필요
                         .anyRequest().authenticated()
