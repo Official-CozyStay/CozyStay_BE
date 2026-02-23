@@ -1,10 +1,12 @@
 package com.project.cozystay.payment.domain;
 
 import com.project.cozystay.booking.domain.Booking;
+import com.project.cozystay.payment.exception.PaymentInvalidStateException;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import static jakarta.persistence.FetchType.LAZY;
@@ -15,66 +17,84 @@ import static jakarta.persistence.FetchType.LAZY;
 @Table(
       name = "payments",
       uniqueConstraints ={
-              @UniqueConstraint(name = "uk_payments_booking", columnNames = "booking_id")
+              @UniqueConstraint(name = "uk_payments_booking", columnNames = "booking_id"),
+              @UniqueConstraint(name = "uk_payments_payment_key", columnNames = "payment_key")
       }
 )
 public class Payment {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "payment_id")
     private Long id;
 
     @ManyToOne(fetch = LAZY, optional = false)
     @JoinColumn(name = "booking_id", nullable = false)
     private Booking booking;
 
-    @Column(nullable = false)
+    @Column(name = "payer_id", nullable = false)
     private Long payerId;
 
-    @Column(nullable = false)
-    private int amount;
+    @Column(name = "amount", nullable = false, precision = 10, scale = 2)
+    private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "payment_method", length = 30)
+    private PaymentMethod paymentMethod;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_status", nullable = false, length = 20)
     private PaymentStatus status;
 
     // 실제 PG 연동 시 채워질 값 (지금은 Mock)
+    @Column(name= "payment_key", length = 255, unique = true)
     private String paymentKey;
 
+    @Column(name = "paid_at")
     private LocalDateTime paidAt;
+
+    @Column(name = "cancelled_at")
     private LocalDateTime cancelledAt;
+
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    private Payment(Booking booking, Long payerId, int amount){
+    private Payment(Booking booking, Long payerId, BigDecimal amount, PaymentMethod paymentMethod){
         this.booking = booking;
         this.payerId = payerId;
         this.amount = amount;
+        this.paymentMethod = paymentMethod;
         this.status = PaymentStatus.READY;
         this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = this.createdAt;
     }
 
-    private static Payment create(Booking booking, Long payerId, int amount){
-        return new Payment(booking, payerId, amount);
+    public static Payment create(Booking booking, Long payerId, BigDecimal amount, PaymentMethod paymentMethod){
+        return new Payment(booking, payerId, amount, paymentMethod);
     }
 
-    private void markSuccess(String paymentKey){
-        if(this.status == PaymentStatus.CANCELLED) throw new IllegalStateException("이미 환불된 결제입니다.");
+    public void markSuccess(String paymentKey){
+        if(this.status != PaymentStatus.READY){
+            throw new PaymentInvalidStateException("결제 성공 처리 불가: status=" + this.status);
+        }
         this.status = PaymentStatus.SUCCESS;
         this.paymentKey = paymentKey;
         this.paidAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = this.paidAt;
     }
 
     public void markFailed(){
-        if(this.status == PaymentStatus.SUCCESS) throw new IllegalStateException("이미 성공한 결제입니다.");
-        if(this.status == PaymentStatus.CANCELLED) throw new IllegalStateException("이미 환불된 결제입니다.");
+        if(this.status != PaymentStatus.READY){
+            throw new PaymentInvalidStateException("결제 실패 처리 불가: status=" + this.status);
+        }
         this.status = PaymentStatus.FAILED;
         this.updatedAt = LocalDateTime.now();
     }
 
     public void refund(){
         if(this.status != PaymentStatus.SUCCESS){
-            throw new IllegalStateException("성공한 결제만 환불할 수 있습니다. current=" + this.status);
+            throw new PaymentInvalidStateException("환불 불가: status=" + this.status);
         }
         this.status = PaymentStatus.CANCELLED;
         this.cancelledAt = LocalDateTime.now();
