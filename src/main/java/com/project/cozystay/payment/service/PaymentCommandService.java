@@ -31,6 +31,10 @@ public class PaymentCommandService {
         Booking booking = bookingRepository.findByIdWithAccommodation(bookingId)
                 .orElseThrow(()->new BookingNotFoundException("예약을 찾을 수 없습니다."));
 
+        if(!booking.getGuestId().equals(payerId)){
+            throw new PaymentInvalidStateException("본인의 예약만 결제할 수 있습니다.");
+        }
+
         if(booking.getStatus() != BookingStatus.PENDING){
             throw new PaymentInvalidStateException("PENDING 예약만 결제 할 수 있습니다. status=" + booking.getStatus());
         }
