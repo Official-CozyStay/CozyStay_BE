@@ -93,8 +93,11 @@ public class Payment {
     }
 
     public void refund(){
-        if(this.status != PaymentStatus.SUCCESS){
-            throw new PaymentInvalidStateException("환불 불가: status=" + this.status);
+        if(this.status == PaymentStatus.CANCELLED){
+            return; // 이미 취소/환불 된 경우
+        }
+        if(this.status != PaymentStatus.SUCCESS && this.status != PaymentStatus.READY){
+            throw new PaymentInvalidStateException("환불/취소 불가: status=" + this.status);
         }
         this.status = PaymentStatus.CANCELLED;
         this.cancelledAt = LocalDateTime.now();
