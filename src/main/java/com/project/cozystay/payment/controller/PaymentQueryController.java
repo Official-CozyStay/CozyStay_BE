@@ -28,7 +28,7 @@ public class PaymentQueryController {
 
         if(principal == null) throw new AuthenticationRequiredException();
 
-        Long requestUserId = principal.getUser().getId();
+        Long requestUserId = principal.getId();
 
         Payment payment = paymentQueryService.getById(paymentId, requestUserId);
         return ResponseEntity.ok(toResponse(payment));
@@ -42,7 +42,7 @@ public class PaymentQueryController {
 
         if(principal == null) throw new AuthenticationRequiredException();
 
-        Long requesterUserId = principal.getUser().getId();
+        Long requesterUserId = principal.getId();
 
         Payment payment = paymentQueryService.getByBookingId(bookingId, requesterUserId);
         return ResponseEntity.ok(toResponse(payment));

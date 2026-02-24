@@ -29,7 +29,7 @@ public class PaymentCommandController {
             ){
         if(principal == null) throw new AuthenticationRequiredException();
 
-        Long payerId = principal.getUser().getId();
+        Long payerId = principal.getId();
         Long bookingId = request.getBookingId();
 
         PaymentMethod method = request.getPaymentMethod() != null ? request.getPaymentMethod() : PaymentMethod.MOCK;
