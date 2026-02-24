@@ -29,12 +29,12 @@ public class PaymentCommandController {
             ){
         if(principal == null) throw new AuthenticationRequiredException();
 
-        Long payerId = principal.getId();
+        Long payerId = principal.getUser().getId();
         Long bookingId = request.getBookingId();
 
         PaymentMethod method = request.getPaymentMethod() != null ? request.getPaymentMethod() : PaymentMethod.MOCK;
 
-        Payment payment = paymentCommandService.createPayment(payerId, bookingId, method);
+        Payment payment = paymentCommandService.createPayment(bookingId, payerId, method);
 
         return ResponseEntity.ok(new PaymentCreateResponse(
                 payment.getId(),

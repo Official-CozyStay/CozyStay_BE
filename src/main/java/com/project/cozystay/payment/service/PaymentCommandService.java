@@ -97,7 +97,7 @@ public class PaymentCommandService {
     @Transactional
     public void refundByBooking(Long bookingId){
         Payment payment = paymentRepository.findByBooking_Id(bookingId)
-                .orElseThrow(()-> new PaymentNotFoundException("예약 결제를 찾을 수 없습니다. booingId=" + bookingId));
+                .orElseThrow(()-> new PaymentNotFoundException("예약 결제를 찾을 수 없습니다. bookingId=" + bookingId));
 
         payment.refund();
     }
