@@ -3,6 +3,7 @@ package com.project.cozystay.global.exception;
 import com.project.cozystay.booking.exception.*;
 import com.project.cozystay.booking.guest.exception.*;
 import com.project.cozystay.comment.exception.CommentNotFoundException;
+import com.project.cozystay.payment.exception.PaymentAccessDeniedException;
 import com.project.cozystay.review.exception.ReviewUpdateNotAllowedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -46,7 +47,7 @@ public class GlobalExceptionHandler {
     }
 
     /* ===================== 403 FORBIDDEN ===================== */
-    @ExceptionHandler(java.nio.file.AccessDeniedException.class)
+    @ExceptionHandler({AccessDeniedException.class, PaymentAccessDeniedException.class})
     public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException e) {
         log.warn("Forbidden [{}]: {}", e.getClass().getSimpleName(), e.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
