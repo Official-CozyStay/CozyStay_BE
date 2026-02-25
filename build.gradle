@@ -60,6 +60,10 @@ dependencies {
 	// Test(Junit)
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+	// WebSocket
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+	implementation 'org.jsoup:jsoup:1.17.2'
 	// Email
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 }
