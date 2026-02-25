@@ -84,7 +84,7 @@ public class PaymentCommandService {
     // Mock 결제 실패 처리
     @Transactional
     public Payment failPayment(Long paymentId, Long payerId){
-        Payment payment = paymentRepository.findById(paymentId)
+        Payment payment = paymentRepository.findByIdWithBooking(paymentId)
                 .orElseThrow(()-> new PaymentNotFoundException("결제를 찾을 수 없습니다."));
 
         if(!payment.getPayerId().equals(payerId)){
