@@ -101,4 +101,11 @@ public class JwtProvider {
     public Long getUserId(String token) {
         return Long.parseLong(getClaims(token).getSubject());
     }
+
+    /**
+     * 토큰에서 사용자의 권한(Role) 추출
+     */
+    public String getRole(String token){
+        return getClaims(token).get("role", String.class);
+    }
 }
