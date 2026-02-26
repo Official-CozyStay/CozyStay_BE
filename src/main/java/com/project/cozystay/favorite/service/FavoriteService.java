@@ -25,17 +25,13 @@ public class FavoriteService {
     private final FavoriteRepository favoriteRepository;
     private final FavoriteAccommodationRepository favoriteAccommodationRepository;
     private final AccommodationRepository accommodationRepository;
-    private final UserRepository userRepository;
 
     @Transactional
-    public void createFavorite(Long userId, FavoriteCreateRequestDTO request) {
-
-        User user = userRepository.getReferenceById(userId);
-
-        Favorite favorite = request.toEntity(user);
-
-        favoriteRepository.save(favorite);
+    public Long saveFavorite(Favorite favorite) {
+        Favorite saved = favoriteRepository.save(favorite);
+        return saved.getId();
     }
+
 
     @Transactional
     public void addAccommodation(Long userId, Long favoriteId, Long accommodationId){
