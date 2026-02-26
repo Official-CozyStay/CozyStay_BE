@@ -35,8 +35,8 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse<Void>> signUp(@Valid @RequestBody SignUpRequest signUpRequest) {
 
-        if(emailService.isVerified(signUpRequest.email())){
-            ResponseEntity.badRequest().body("이메일 인증이 필요합니다");
+        if(!emailService.isVerified(signUpRequest.email())){
+            return ResponseEntity.badRequest().body(ApiResponse.fail("이메일 인증이 필요합니다"));
         }
 
         userService.signUp(signUpRequest);
