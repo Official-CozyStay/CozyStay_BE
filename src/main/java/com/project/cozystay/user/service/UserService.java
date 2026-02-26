@@ -10,6 +10,8 @@ public interface UserService {
 
     void signUp(SignUpRequest signUpRequest);
 
+    void existsByUsername(String username);
+
     SignInResponse signIn(SignInRequest signInRequest);
 
     UserProfileResponse getMyProfile(User user);

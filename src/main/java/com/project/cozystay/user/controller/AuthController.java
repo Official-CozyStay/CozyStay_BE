@@ -10,6 +10,7 @@ import com.project.cozystay.user.service.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -33,7 +34,9 @@ public class AuthController {
      * 회원가입
      */
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<Void>> signUp(@Valid @RequestBody SignUpRequest signUpRequest) {
+    public ResponseEntity<ApiResponse<Void>> signUp(
+            @Valid @RequestBody SignUpRequest signUpRequest
+    ) {
 
         if(!emailService.isVerified(signUpRequest.email())){
             return ResponseEntity.badRequest().body(ApiResponse.fail("이메일 인증이 필요합니다"));
@@ -41,6 +44,18 @@ public class AuthController {
 
         userService.signUp(signUpRequest);
         return ResponseEntity.ok(ApiResponse.success("회원가입이 완료되었습니다.", null));
+    }
+
+    /**
+     * 아이디 중복 검사
+     */
+    @GetMapping("/exists")
+    public ResponseEntity<ApiResponse<Void>> existsUsername(
+            @Valid @ModelAttribute UsernameCheckRequest request
+    ){
+        userService.existsByUsername(request.username());
+
+        return ResponseEntity.ok(ApiResponse.success(null));
     }
 
     /**
@@ -67,7 +82,9 @@ public class AuthController {
         return ResponseEntity.ok("인증 코드를 보냈습니다! 📧");
     }
 
-    // 인증 확인 (코드 검사)
+    /**
+     * 인증 확인 (코드 검사)
+     */
     @PostMapping("/verify")
     public ResponseEntity<String> verifyEmail(
             @RequestBody VerificationEmailRequestDTO request
