@@ -2,10 +2,8 @@ package com.project.cozystay.favorite.controller;
 
 
 import com.project.cozystay.auth.CustomOAuth2User;
-import com.project.cozystay.favorite.dto.FavoriteCreateRequestDTO;
-import com.project.cozystay.favorite.dto.FavoriteDetailResponseDTO;
-import com.project.cozystay.favorite.dto.FavoriteResponseDTO;
-import com.project.cozystay.favorite.dto.FavoriteUpdateRequestDTO;
+import com.project.cozystay.favorite.dto.*;
+import com.project.cozystay.favorite.service.FavoriteFacade;
 import com.project.cozystay.favorite.service.FavoriteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,6 +19,7 @@ import java.util.List;
 public class FavoriteController {
 
     private final FavoriteService favoriteService;
+    private final FavoriteFacade favoriteFacade;
 
     /**
      * 즐겨찾기 목록 조회
@@ -37,13 +36,13 @@ public class FavoriteController {
      * 즐겨찾기 생성
      */
     @PostMapping
-    public ResponseEntity<Void> createFavorite(
+    public ResponseEntity<FavoriteCreateResponseDTO> createFavorite(
             @AuthenticationPrincipal CustomOAuth2User principal,
             @RequestBody FavoriteCreateRequestDTO request
     ){
         Long userId = principal.getId();
-        favoriteService.createFavorite(userId, request);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        FavoriteCreateResponseDTO response = favoriteFacade.createFavorite(userId, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     /**
