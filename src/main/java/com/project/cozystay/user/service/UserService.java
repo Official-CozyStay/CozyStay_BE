@@ -23,4 +23,6 @@ public interface UserService {
 
     Map<Long, User> getUsers(List<Long> userIds);
 
+    User getUserRefOrThrow(Long userId);
+
 }
