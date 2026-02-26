@@ -3,6 +3,9 @@ package com.project.cozystay.user.service;
 import com.project.cozystay.user.domain.User;
 import com.project.cozystay.user.dto.*;
 
+import java.util.List;
+import java.util.Map;
+
 public interface UserService {
 
     void signUp(SignUpRequest signUpRequest);
@@ -20,5 +23,7 @@ public interface UserService {
     void becomeHost(Long userId);
 
     PublicUserProfileResponse getPublicProfile(Long userId);
+
+    Map<Long, User> getUsers(List<Long> userIds);
 
 }
