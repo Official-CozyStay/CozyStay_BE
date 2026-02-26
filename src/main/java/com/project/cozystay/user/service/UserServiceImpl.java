@@ -19,6 +19,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -158,6 +162,20 @@ public class UserServiceImpl implements UserService{
         int remainingNights = nextGrade.calculateRemainingNights(user.getTotalStayedNights());
 
         return new GradeInfo(nextGrade.name(), remainingBookings, remainingNights);
+    }
+
+    /**
+     * 유저 ID 리스트를 받아서 Map<Long, User> 형태로 반환
+     */
+    @Override
+    public Map<Long, User> getUsers(List<Long> userIds){
+        List<User> users = userRepository.findAllById(userIds);
+
+        return users.stream()
+                .collect(Collectors.toMap(
+                        User::getId,
+                        user -> user
+                ));
     }
 
     /**
