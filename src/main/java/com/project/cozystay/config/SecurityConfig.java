@@ -35,6 +35,11 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
+    public org.springframework.security.crypto.password.PasswordEncoder passwordEncoder() {
+        return new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
@@ -54,7 +59,7 @@ public class SecurityConfig {
                 // URL별 권한 설정
                 .authorizeHttpRequests(authz -> authz
                         // Swagger UI, H2 콘솔 등 개발 편의 기능 모두 허용
-                        .requestMatchers("/swagger-ui.html", "/v3/api-docs/**", "/h2-console/**").permitAll()
+                        .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
 
                         // "/", "/api/auth/**", "/login/oauth2/**" (로그인 관련 경로)는 모두 허용
                         .requestMatchers("/", "/auth/success", "/login/**", "/oauth2/**", "/api/auth/**").permitAll()
