@@ -20,10 +20,6 @@ public class AccommodationFullResponseDTO {
 
     private Long hostId;
 
-    private String hostNickname;
-
-    private String hostProfileImageUrl;
-
     private String title;
 
     private String description;
@@ -91,57 +87,6 @@ public class AccommodationFullResponseDTO {
                                 : null
                 )
 
-                .images(
-                        entity.getImages().stream()
-                                .map(i -> AccommodationImageDTO.builder()
-                                        .imageId(i.getId())
-                                        .imageUrl(i.getImageUrl())
-                                        .displayOrder(i.getDisplayOrder())
-                                        .isPrimary(i.isPrimary())
-                                        .build()
-                                ).toList()
-                )
-                .amenities(
-                        entity.getAmenities().stream()
-                                .map(a -> AmenityDTO.builder()
-                                        .amenityId(a.getAmenity().getId())
-                                        .name(a.getAmenity().getName())
-                                        .icon(a.getAmenity().getIcon())
-                                        .category(a.getAmenity().getCategory())
-                                        .build()
-                                ).toList()
-                )
-                .build();
-    }
-
-    public static AccommodationFullResponseDTO fromEntity(
-            Accommodation entity,
-            String hostNickname,
-            String hostProfileImageUrl
-    ){
-        return AccommodationFullResponseDTO.builder()
-                .accommodationId(entity.getId())
-                .hostId(entity.getHostId())
-                .hostNickname(hostNickname)
-                .hostProfileImageUrl(hostProfileImageUrl)
-                .title(entity.getTitle())
-                .description(entity.getDescription())
-                .accommodationType(entity.getAccommodationType().name())
-                .address(entity.getAddress())
-                .city(entity.getCity())
-                .state(entity.getState())
-                .country(entity.getCountry())
-                .postalCode(entity.getPostalCode())
-                .latitude(entity.getLatitude())
-                .longitude(entity.getLongitude())
-                .maxGuests(entity.getMaxGuests())
-                .pricePerNight(entity.getPricePerNight())
-                .cleaningFee(entity.getCleaningFee())
-                .serviceFeePercentage(entity.getServiceFeePercentage())
-                .instantBooking(entity.getInstantBooking())
-                .checkInTime(entity.getCheckInTime())
-                .checkOutTime(entity.getCheckOutTime())
-                .detail(entity.getDetail() != null ? AccommodationDetailInfoDTO.fromEntity(entity.getDetail()) : null)
                 .images(
                         entity.getImages().stream()
                                 .map(i -> AccommodationImageDTO.builder()
