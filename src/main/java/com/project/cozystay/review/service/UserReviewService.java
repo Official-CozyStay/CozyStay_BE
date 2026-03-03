@@ -68,6 +68,8 @@ public class UserReviewService {
         return new UserReviewResponse(
                 review.getTargetGuest().getId(),
                 review.getBooking().getId(),
+                review.getReviewerHost().getNickName(),
+                review.getReviewerHost().getProfileImageUrl(),
                 review.getRating(),
                 review.getReviewComment(),
                 review.getComment() != null ? CommentResponseDTO.from(review.getComment()) : null
@@ -87,6 +89,8 @@ public class UserReviewService {
                 .map(review -> new UserReviewResponse(
                         review.getTargetGuest().getId(),
                         review.getBooking().getId(),
+                        review.getReviewerHost().getNickName(),
+                        review.getReviewerHost().getProfileImageUrl(),
                         review.getRating(),
                         review.getReviewComment(),
                         review.getComment() != null ? CommentResponseDTO.from(review.getComment()) : null
@@ -131,6 +135,8 @@ public class UserReviewService {
                 .map(review -> new UserReviewResponse(
                         review.getTargetGuest().getId(),
                         review.getBooking().getId(),
+                        review.getReviewerHost().getNickName(),
+                        review.getReviewerHost().getProfileImageUrl(),
                         review.getRating(),
                         review.getReviewComment(),
                         review.getComment() != null ? CommentResponseDTO.from(review.getComment()) : null
@@ -149,6 +155,8 @@ public class UserReviewService {
         return new UserReviewResponse(
                 review.getTargetGuest().getId(),
                 review.getBooking().getId(),
+                review.getReviewerHost().getNickName(),
+                review.getReviewerHost().getProfileImageUrl(),
                 review.getRating(),
                 review.getReviewComment(),
                 review.getComment() != null ? CommentResponseDTO.from(review.getComment()) : null
