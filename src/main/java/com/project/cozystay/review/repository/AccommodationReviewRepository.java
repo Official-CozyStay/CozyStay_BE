@@ -25,6 +25,7 @@ public interface AccommodationReviewRepository extends JpaRepository<Accommodati
     // 특정 게스트가 작성한 특정 숙소 리뷰
     @Query("""
     SELECT DISTINCT ar FROM AccommodationReview ar
+    LEFT JOIN FETCH ar.guest
     WHERE ar.guest.id = :guestId
     AND ar.accommodation.id = :accId
     """)
@@ -32,6 +33,7 @@ public interface AccommodationReviewRepository extends JpaRepository<Accommodati
 
     @Query("""
             SELECT ar FROM AccommodationReview ar
+            LEFT JOIN FETCH ar.guest
             WHERE ar.comment.Id = :commentId
             """)
     Optional<AccommodationReview> findByComment_CommentId(@Param("commentId") Long commentId);
