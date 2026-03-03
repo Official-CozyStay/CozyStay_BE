@@ -10,7 +10,10 @@ import java.util.Optional;
 
 public interface AccommodationReviewRepository extends JpaRepository<AccommodationReview, Long> {
 
-    @Query("SELECT r FROM AccommodationReview r LEFT JOIN FETCH r.comment WHERE r.accommodation.id = :accId")
+    @Query("SELECT r FROM AccommodationReview r " +
+            "LEFT JOIN FETCH r.comment " +
+            "LEFT JOIN FETCH r.guest " +
+            "WHERE r.accommodation.id = :accId")
     List<AccommodationReview> findByAccommodation_Id(@Param("accId") Long accId);
 
     // 해당 예약 ID로 작성된 리뷰 존재 여부
