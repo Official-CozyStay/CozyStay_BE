@@ -92,7 +92,6 @@ public class PaymentCommandService {
         }
 
         payment.markFailed();
-        payment.getBooking().cancel(); // 결제 실패 시 예약 취소
 
         return payment;
     }
