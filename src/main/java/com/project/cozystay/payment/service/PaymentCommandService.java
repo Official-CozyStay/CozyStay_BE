@@ -82,7 +82,7 @@ public class PaymentCommandService {
     // Mock 결제 성공 처리
     @Transactional
     public Payment confirmPayment(Long paymentId, Long payerId, String paymentKey){
-        Payment payment = paymentRepository.findById(paymentId)
+        Payment payment = paymentRepository.findByIdWithBooking(paymentId)
                 .orElseThrow(()-> new PaymentNotFoundException("결제를 찾을 수 없습니다."));
 
         if(!payment.getPayerId().equals(payerId)){
@@ -90,6 +90,17 @@ public class PaymentCommandService {
         }
 
         payment.markSuccess(paymentKey);
+
+        // instantBooking = true인 경우 -> 결제 성공 시 즉시 예약(CONFIRMED)
+        Long bookingId = payment.getBooking().getId();
+        Booking booking = bookingRepository.findByIdWithAccommodation(bookingId)
+                .orElseThrow(()-> new BookingNotFoundException("예약을 찾을 수 없습니다."));
+
+        Boolean instant = booking.getAccommodation().getInstantBooking();
+        if(Boolean.TRUE.equals(instant)){
+            booking.confirmByHost();
+        }
+
         return payment;
     }
 
