@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "Booking Guest")
+@Tag(name = "Booking Guest", description = "동반 게스트 초대 API")
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/bookings")

@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Booking Guest")
+@Tag(name = "Booking Guest",  description = "동반 게스트 초대 결정 API")
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/booking-guests")

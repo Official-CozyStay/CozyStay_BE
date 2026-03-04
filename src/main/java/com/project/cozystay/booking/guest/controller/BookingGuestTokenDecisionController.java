@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Booking Guest")
+@Tag(name = "Booking Guest", description = "초대 토큰을 통한 동반 게스트 초대 결정 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/booking-guests/invitations")

@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@Tag(name = "Booking Guest")
+@Tag(name = "Booking Guest",  description = "예약별 동반 게스트 목록 조회 API")
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/bookings")
