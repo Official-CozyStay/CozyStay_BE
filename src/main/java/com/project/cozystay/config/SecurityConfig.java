@@ -58,7 +58,7 @@ public class SecurityConfig {
 
                 // URL별 권한 설정
                 .authorizeHttpRequests(authz -> authz
-                        // Swagger UI, H2 콘솔 등 개발 편의 기능 모두 허용
+                        // Swagger UI 개발 편의 기능 모두 허용
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
 
                         // "/", "/api/auth/**", "/login/oauth2/**" (로그인 관련 경로)는 모두 허용
