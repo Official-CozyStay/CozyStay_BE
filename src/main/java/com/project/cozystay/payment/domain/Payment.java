@@ -103,4 +103,26 @@ public class Payment {
         this.cancelledAt = LocalDateTime.now();
         this.updatedAt = this.cancelledAt;
     }
+
+    public void retry(BigDecimal amount, PaymentMethod method){
+        if(this.status != PaymentStatus.FAILED && this.status != PaymentStatus.CANCELLED){
+            throw new PaymentInvalidStateException("결제 재시도 불가: status=" + this.status);
+        }
+
+        this.amount = amount;
+        this.paymentMethod = method;
+
+        // 이전 결제 시도 값 초기화
+        this.paymentKey = null;
+        this.paidAt = null;
+        this.cancelledAt = null;
+
+        // 다시 결제 시작
+        this.status = PaymentStatus.READY;
+
+        // 타임아웃 기준 갱신
+        LocalDateTime now = LocalDateTime.now();
+        this.createdAt = now;
+        this.updatedAt = now;
+    }
 }

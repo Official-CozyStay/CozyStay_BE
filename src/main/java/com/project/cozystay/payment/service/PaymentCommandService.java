@@ -39,11 +39,23 @@ public class PaymentCommandService {
             throw new PaymentInvalidStateException("PENDING 예약만 결제 할 수 있습니다. status=" + booking.getStatus());
         }
 
-        if (paymentRepository.existsByBooking_Id(bookingId)) {
-            throw new PaymentAlreadyExistsException("이미 결제가 생성된 예약입니다.");
-        }
-
         BigDecimal amount = calculateAmount(booking);
+
+        // 기존 결제 조회
+        Payment existing = paymentRepository.findByBooking_Id(bookingId).orElse(null);
+
+        if(existing != null){
+            switch(existing.getStatus()){
+                case SUCCESS -> throw new PaymentAlreadyExistsException("이미 결제 완료된 예약입니다.");
+                case READY -> throw new PaymentAlreadyExistsException("이미 결제 진행 중(READY)입니다.");
+                case FAILED, CANCELLED -> {
+                    // 기존 결제를 READY로 리셋
+                    existing.retry(amount, method);
+                    return existing;
+                }
+                default -> throw new PaymentInvalidStateException("처리할 수 없는 결제 상태입니다. status=" + existing.getStatus());
+            }
+        }
 
         Payment payment = Payment.create(booking, payerId, amount, method);
         return paymentRepository.save(payment);
