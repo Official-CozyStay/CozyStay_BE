@@ -17,6 +17,7 @@ public class HostBookingListItemResponse {
     private Long accommodationId;
     private String accommodationTitle;
 
+    private Long guestId;
     private LocalDate checkInDate;
     private LocalDate checkOutDate;
     private int numberOfGuests;
@@ -31,6 +32,7 @@ public class HostBookingListItemResponse {
                 booking.getId(),
                 booking.getAccommodation().getId(),
                 booking.getAccommodation().getTitle(),
+                booking.getGuestId(),
                 booking.getCheckInDate(),
                 booking.getCheckOutDate(),
                 booking.getNumberOfGuests(),

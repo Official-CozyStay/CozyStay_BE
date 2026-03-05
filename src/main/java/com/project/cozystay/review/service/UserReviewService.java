@@ -4,9 +4,7 @@ import com.project.cozystay.booking.domain.Booking;
 import com.project.cozystay.booking.exception.ReviewAlreadyExistsException;
 import com.project.cozystay.booking.repository.BookingRepository;
 import com.project.cozystay.comment.dto.CommentResponseDTO;
-import com.project.cozystay.review.domain.AccommodationReview;
 import com.project.cozystay.review.domain.UserReview;
-import com.project.cozystay.review.dto.AccommodationReviewResponse;
 import com.project.cozystay.review.dto.ReviewResponse;
 import com.project.cozystay.review.dto.UserReviewCreateRequest;
 import com.project.cozystay.review.dto.UserReviewResponse;
@@ -70,6 +68,8 @@ public class UserReviewService {
         return new UserReviewResponse(
                 review.getTargetGuest().getId(),
                 review.getBooking().getId(),
+                review.getReviewerHost().getNickName(),
+                review.getReviewerHost().getProfileImageUrl(),
                 review.getRating(),
                 review.getReviewComment(),
                 review.getComment() != null ? CommentResponseDTO.from(review.getComment()) : null
@@ -89,6 +89,8 @@ public class UserReviewService {
                 .map(review -> new UserReviewResponse(
                         review.getTargetGuest().getId(),
                         review.getBooking().getId(),
+                        review.getReviewerHost().getNickName(),
+                        review.getReviewerHost().getProfileImageUrl(),
                         review.getRating(),
                         review.getReviewComment(),
                         review.getComment() != null ? CommentResponseDTO.from(review.getComment()) : null
@@ -133,6 +135,8 @@ public class UserReviewService {
                 .map(review -> new UserReviewResponse(
                         review.getTargetGuest().getId(),
                         review.getBooking().getId(),
+                        review.getReviewerHost().getNickName(),
+                        review.getReviewerHost().getProfileImageUrl(),
                         review.getRating(),
                         review.getReviewComment(),
                         review.getComment() != null ? CommentResponseDTO.from(review.getComment()) : null
@@ -151,6 +155,8 @@ public class UserReviewService {
         return new UserReviewResponse(
                 review.getTargetGuest().getId(),
                 review.getBooking().getId(),
+                review.getReviewerHost().getNickName(),
+                review.getReviewerHost().getProfileImageUrl(),
                 review.getRating(),
                 review.getReviewComment(),
                 review.getComment() != null ? CommentResponseDTO.from(review.getComment()) : null

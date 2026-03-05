@@ -15,6 +15,9 @@ public record UserReviewResponse (
 
     Long bookingId,
 
+    String userNickName,
+    String userProfileImageUrl,
+
     BigDecimal rating,
 
     String reviewComment,

@@ -4,6 +4,8 @@ import com.project.cozystay.booking.exception.*;
 import com.project.cozystay.booking.guest.exception.*;
 import com.project.cozystay.comment.exception.CommentNotFoundException;
 import com.project.cozystay.review.exception.ReviewUpdateNotAllowedException;
+import com.project.cozystay.user.exception.UserEmailAlreadyExistsException;
+import com.project.cozystay.user.exception.UserNameAlreadyExistsException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -68,7 +70,8 @@ public class GlobalExceptionHandler {
             BookingGuestInvitationNotAllowedException.class, BookingGuestLimitExceededException.class,
             BookingGuestDuplicateInvitationException.class, BookingGuestCancelNotAllowedException.class,
             BookingGuestResponseForbiddenException.class, BookingGuestResponseNotAllowedException.class,
-            BookingDecisionNotAllowedException.class, ReviewUpdateNotAllowedException.class
+            BookingDecisionNotAllowedException.class, ReviewUpdateNotAllowedException.class,
+            UserEmailAlreadyExistsException.class, UserNameAlreadyExistsException.class
     })
     public ResponseEntity<ErrorResponse> handleConflict(RuntimeException e){
         log.warn("Conflict [{}]: {}", e.getClass().getSimpleName(), e.getMessage());

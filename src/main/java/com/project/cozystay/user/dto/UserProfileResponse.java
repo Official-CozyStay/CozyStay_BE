@@ -9,7 +9,9 @@ import lombok.Builder;
 @Builder
 public record UserProfileResponse(
         Long id,
+        String username,
         String email,
+        boolean isEmailVerified,
         String nickName,
         String profileImageUrl,
         String role,      // USER / HOST / ADMIN
@@ -18,7 +20,9 @@ public record UserProfileResponse(
     public static UserProfileResponse from(User user) {
         return UserProfileResponse.builder()
                 .id(user.getId())
+                .username(user.getUsername())
                 .email(user.getEmail())
+                .isEmailVerified(user.isEmailVerified())
                 .nickName(user.getNickName())
                 .profileImageUrl(user.getProfileImageUrl())
                 .role(user.getUserRole().name())

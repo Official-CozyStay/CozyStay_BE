@@ -1,15 +1,18 @@
 package com.project.cozystay.user.service;
 
 import com.project.cozystay.user.domain.User;
-import com.project.cozystay.user.dto.PublicUserProfileResponse;
-import com.project.cozystay.user.dto.UserGradeResponse;
-import com.project.cozystay.user.dto.UserProfileResponse;
-import com.project.cozystay.user.dto.UserProfileUpdateRequest;
+import com.project.cozystay.user.dto.*;
 
 import java.util.List;
 import java.util.Map;
 
 public interface UserService {
+
+    void signUp(SignUpRequest signUpRequest);
+
+    void existsByUsername(String username);
+
+    SignInResponse signIn(SignInRequest signInRequest);
 
     UserProfileResponse getMyProfile(User user);
 

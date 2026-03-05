@@ -2,7 +2,6 @@ package com.project.cozystay.review.controller;
 
 
 import com.project.cozystay.auth.CustomOAuth2User;
-import com.project.cozystay.review.dto.AccommodationReviewResponse;
 import com.project.cozystay.review.dto.ReviewResponse;
 import com.project.cozystay.review.dto.UserReviewCreateRequest;
 import com.project.cozystay.review.dto.UserReviewResponse;

@@ -15,6 +15,10 @@ public record AccommodationReviewResponse (
     Long id,
     Long bookingId,
 
+    // 사용자
+    String userNickName,
+    String userProfileImageUrl,
+
     // 평점
     BigDecimal ratingOverall,
     BigDecimal ratingCleanliness,
