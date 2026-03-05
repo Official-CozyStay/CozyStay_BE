@@ -63,16 +63,20 @@ public class AccommodationFullResponseDTO {
     private List<AccommodationImageDTO> images;
     private List<AmenityDTO> amenities;
 
+    private ReviewSummaryDTO reviewSummary;
+
     public static AccommodationFullResponseDTO fromEntity(
             Accommodation entity,
             String hostNickname,
-            String hostProfileImageUrl
+            String hostProfileImageUrl,
+            ReviewSummaryDTO reviewSummary
     ){
         return AccommodationFullResponseDTO.builder()
                 .accommodationId(entity.getId())
                 .hostId(entity.getHostId())
                 .hostNickname(hostNickname)
                 .hostProfileImageUrl(hostProfileImageUrl)
+                .reviewSummary(reviewSummary)
                 .title(entity.getTitle())
                 .description(entity.getDescription())
                 .accommodationType(entity.getAccommodationType().name())
