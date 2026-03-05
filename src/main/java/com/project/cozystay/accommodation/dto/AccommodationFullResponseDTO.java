@@ -63,57 +63,6 @@ public class AccommodationFullResponseDTO {
     private List<AccommodationImageDTO> images;
     private List<AmenityDTO> amenities;
 
-    public static AccommodationFullResponseDTO fromEntity(Accommodation entity) {
-
-        return AccommodationFullResponseDTO.builder()
-                .accommodationId(entity.getId())
-                .hostId(entity.getHostId())
-                .title(entity.getTitle())
-                .description(entity.getDescription())
-                .accommodationType(entity.getAccommodationType().name())
-                .address(entity.getAddress())
-                .city(entity.getCity())
-                .state(entity.getState())
-                .country(entity.getCountry())
-                .postalCode(entity.getPostalCode())
-                .latitude(entity.getLatitude())
-                .longitude(entity.getLongitude())
-                .maxGuests(entity.getMaxGuests())
-                .pricePerNight(entity.getPricePerNight())
-                .cleaningFee(entity.getCleaningFee())
-                .serviceFeePercentage(entity.getServiceFeePercentage())
-                .instantBooking(entity.getInstantBooking())
-                .checkInTime(entity.getCheckInTime())
-                .checkOutTime(entity.getCheckOutTime())
-
-                .detail(entity.getDetail() != null ?
-                                AccommodationDetailInfoDTO.fromEntity(entity.getDetail())
-                                : null
-                )
-
-                .images(
-                        entity.getImages().stream()
-                                .map(i -> AccommodationImageDTO.builder()
-                                        .imageId(i.getId())
-                                        .imageUrl(i.getImageUrl())
-                                        .displayOrder(i.getDisplayOrder())
-                                        .isPrimary(i.isPrimary())
-                                        .build()
-                                ).toList()
-                )
-                .amenities(
-                        entity.getAmenities().stream()
-                                .map(a -> AmenityDTO.builder()
-                                        .amenityId(a.getAmenity().getId())
-                                        .name(a.getAmenity().getName())
-                                        .icon(a.getAmenity().getIcon())
-                                        .category(a.getAmenity().getCategory())
-                                        .build()
-                                ).toList()
-                )
-                .build();
-    }
-
     public static AccommodationFullResponseDTO fromEntity(
             Accommodation entity,
             String hostNickname,
