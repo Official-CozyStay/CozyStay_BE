@@ -33,5 +33,12 @@ public interface AccommodationReviewRepository extends JpaRepository<Accommodati
             """)
     Optional<AccommodationReview> findByComment_CommentId(@Param("commentId") Long commentId);
 
+    // [0] -> 리뷰 평균 평점, [1] -> 리뷰 개수
+    @Query("""
+        select coalesce(avg(r.ratingOverall), 0), count(r)
+        from AccommodationReview r
+        where r.accommodation.id = :accommodationId
+    """)
+    Object[] getReviewSummary(@Param("accommodationId") Long accommodationId);
 
 }
