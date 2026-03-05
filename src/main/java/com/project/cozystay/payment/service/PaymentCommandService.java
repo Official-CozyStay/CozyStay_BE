@@ -92,12 +92,8 @@ public class PaymentCommandService {
         payment.markSuccess(paymentKey);
 
         // instantBooking = true인 경우 -> 결제 성공 시 즉시 예약(CONFIRMED)
-        Long bookingId = payment.getBooking().getId();
-        Booking booking = bookingRepository.findByIdWithAccommodation(bookingId)
-                .orElseThrow(()-> new BookingNotFoundException("예약을 찾을 수 없습니다."));
-
-        Boolean instant = booking.getAccommodation().getInstantBooking();
-        if(Boolean.TRUE.equals(instant)){
+        Booking booking = payment.getBooking();
+        if(Boolean.TRUE.equals(booking.getAccommodation().getInstantBooking())){
             booking.confirmByHost();
         }
 

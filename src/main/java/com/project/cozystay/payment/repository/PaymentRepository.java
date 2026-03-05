@@ -18,6 +18,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
             select p
             from Payment p
             join fetch p.booking b
+            join fetch b.accommodation a
             where p.id = :paymentId 
             """)
     Optional<Payment>findByIdWithBooking(@Param("paymentId") Long paymentId);
