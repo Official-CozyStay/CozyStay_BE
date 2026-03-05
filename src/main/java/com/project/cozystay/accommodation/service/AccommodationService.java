@@ -77,13 +77,7 @@ public class AccommodationService {
                 .orElseThrow(()-> new IllegalArgumentException("호스트 유저가 없습니다."));
 
         // 리뷰 요약 조회
-        Object result = accommodationReviewRepository.getReviewSummary(accommodationId);
-        Object[] row = (Object[]) result;
-
-        double average = ((Number) row[0]).doubleValue();
-        long count = ((Number) row[1]).longValue();
-
-        ReviewSummaryDTO reviewSummary = new ReviewSummaryDTO(average, count);
+        ReviewSummaryDTO reviewSummary = accommodationReviewRepository.getReviewSummary(accommodationId);
 
         return AccommodationFullResponseDTO.fromEntity(
                 accommodation,

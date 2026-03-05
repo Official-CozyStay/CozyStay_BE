@@ -7,6 +7,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public class ReviewSummaryDTO {
 
-    private Double average;
+    private Number average;
     private Long count;
 }
