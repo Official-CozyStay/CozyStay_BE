@@ -11,6 +11,7 @@ import com.project.cozystay.review.repository.AccommodationReviewRepository;
 import com.project.cozystay.user.domain.User;
 import com.project.cozystay.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AccommodationService {
@@ -75,11 +77,11 @@ public class AccommodationService {
                 .orElseThrow(()-> new IllegalArgumentException("호스트 유저가 없습니다."));
 
         // 리뷰 요약 조회
-        Object[] summary = accommodationReviewRepository.getReviewSummary(accommodationId);
+        Object result = accommodationReviewRepository.getReviewSummary(accommodationId);
+        Object[] row = (Object[]) result;
 
-        BigDecimal avgBd = (BigDecimal) summary[0];
-        double average = avgBd.doubleValue();
-        long count = (long) summary[1];
+        double average = ((Number) row[0]).doubleValue();
+        long count = ((Number) row[1]).longValue();
 
         ReviewSummaryDTO reviewSummary = new ReviewSummaryDTO(average, count);
 

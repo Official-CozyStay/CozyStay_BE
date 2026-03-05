@@ -39,6 +39,6 @@ public interface AccommodationReviewRepository extends JpaRepository<Accommodati
         from AccommodationReview r
         where r.accommodation.id = :accommodationId
     """)
-    Object[] getReviewSummary(@Param("accommodationId") Long accommodationId);
+    Object getReviewSummary(@Param("accommodationId") Long accommodationId);
 
 }
