@@ -48,7 +48,7 @@ public class GlobalExceptionHandler {
 
     /* ===================== 403 FORBIDDEN ===================== */
     @ExceptionHandler({AccessDeniedException.class, PaymentAccessDeniedException.class})
-    public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException e) {
+    public ResponseEntity<ErrorResponse> handleAccessDenied(RuntimeException e) {
         log.warn("Forbidden [{}]: {}", e.getClass().getSimpleName(), e.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(new ErrorResponse("접근 권한이 없습니다."));
