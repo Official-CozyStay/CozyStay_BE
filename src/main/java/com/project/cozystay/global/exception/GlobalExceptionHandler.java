@@ -72,7 +72,7 @@ public class GlobalExceptionHandler {
             BookingGuestDuplicateInvitationException.class, BookingGuestCancelNotAllowedException.class,
             BookingGuestResponseForbiddenException.class, BookingGuestResponseNotAllowedException.class,
             BookingDecisionNotAllowedException.class, ReviewUpdateNotAllowedException.class,
-            InstantBookingDecisionNotAllowedException.class
+            InstantBookingDecisionNotAllowedException.class,
             UserEmailAlreadyExistsException.class, UserNameAlreadyExistsException.class
     })
     public ResponseEntity<ErrorResponse> handleConflict(RuntimeException e){
