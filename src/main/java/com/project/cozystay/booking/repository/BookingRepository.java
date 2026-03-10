@@ -137,4 +137,12 @@ and b.checkOutDate > :startInclusive
             @Param("endExclusive") LocalDate endExclusive
     );
 
+    @Query("""
+select b
+from Booking b
+join fetch b.accommodation a
+where b.id = :bookingId
+""")
+    Optional<Booking> findByIdWithAccommodation(@Param("bookingId") Long bookingId);
+
 }

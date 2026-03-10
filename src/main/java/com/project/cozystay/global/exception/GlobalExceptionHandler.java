@@ -3,6 +3,7 @@ package com.project.cozystay.global.exception;
 import com.project.cozystay.booking.exception.*;
 import com.project.cozystay.booking.guest.exception.*;
 import com.project.cozystay.comment.exception.CommentNotFoundException;
+import com.project.cozystay.payment.exception.PaymentAccessDeniedException;
 import com.project.cozystay.review.exception.ReviewUpdateNotAllowedException;
 import com.project.cozystay.user.exception.UserEmailAlreadyExistsException;
 import com.project.cozystay.user.exception.UserNameAlreadyExistsException;
@@ -48,8 +49,8 @@ public class GlobalExceptionHandler {
     }
 
     /* ===================== 403 FORBIDDEN ===================== */
-    @ExceptionHandler(java.nio.file.AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException e) {
+    @ExceptionHandler({AccessDeniedException.class, PaymentAccessDeniedException.class})
+    public ResponseEntity<ErrorResponse> handleAccessDenied(RuntimeException e) {
         log.warn("Forbidden [{}]: {}", e.getClass().getSimpleName(), e.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(new ErrorResponse("접근 권한이 없습니다."));
@@ -71,6 +72,7 @@ public class GlobalExceptionHandler {
             BookingGuestDuplicateInvitationException.class, BookingGuestCancelNotAllowedException.class,
             BookingGuestResponseForbiddenException.class, BookingGuestResponseNotAllowedException.class,
             BookingDecisionNotAllowedException.class, ReviewUpdateNotAllowedException.class,
+            InstantBookingDecisionNotAllowedException.class
             UserEmailAlreadyExistsException.class, UserNameAlreadyExistsException.class
     })
     public ResponseEntity<ErrorResponse> handleConflict(RuntimeException e){
