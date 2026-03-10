@@ -66,6 +66,9 @@ dependencies {
 	implementation 'org.jsoup:jsoup:1.17.2'
 	// Email
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+	// Swagger (OpenAPI 3)
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5'
 }
 
 tasks.named('test') {

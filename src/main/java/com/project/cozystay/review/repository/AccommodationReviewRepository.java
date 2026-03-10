@@ -1,5 +1,6 @@
 package com.project.cozystay.review.repository;
 
+import com.project.cozystay.accommodation.dto.ReviewSummaryDTO;
 import com.project.cozystay.review.domain.AccommodationReview;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -10,7 +11,10 @@ import java.util.Optional;
 
 public interface AccommodationReviewRepository extends JpaRepository<AccommodationReview, Long> {
 
-    @Query("SELECT r FROM AccommodationReview r LEFT JOIN FETCH r.comment WHERE r.accommodation.id = :accId")
+    @Query("SELECT r FROM AccommodationReview r " +
+            "LEFT JOIN FETCH r.comment " +
+            "LEFT JOIN FETCH r.guest " +
+            "WHERE r.accommodation.id = :accId")
     List<AccommodationReview> findByAccommodation_Id(@Param("accId") Long accId);
 
     // 해당 예약 ID로 작성된 리뷰 존재 여부
@@ -22,6 +26,7 @@ public interface AccommodationReviewRepository extends JpaRepository<Accommodati
     // 특정 게스트가 작성한 특정 숙소 리뷰
     @Query("""
     SELECT DISTINCT ar FROM AccommodationReview ar
+    LEFT JOIN FETCH ar.guest
     WHERE ar.guest.id = :guestId
     AND ar.accommodation.id = :accId
     """)
@@ -29,9 +34,17 @@ public interface AccommodationReviewRepository extends JpaRepository<Accommodati
 
     @Query("""
             SELECT ar FROM AccommodationReview ar
+            LEFT JOIN FETCH ar.guest
             WHERE ar.comment.Id = :commentId
             """)
     Optional<AccommodationReview> findByComment_CommentId(@Param("commentId") Long commentId);
 
+    // 리뷰 평균, 개수 계산
+    @Query("""
+        select new com.project.cozystay.accommodation.dto.ReviewSummaryDTO(coalesce(avg(r.ratingOverall), 0.0), count(r))
+        from AccommodationReview r
+        where r.accommodation.id = :accommodationId
+    """)
+    ReviewSummaryDTO getReviewSummary(@Param("accommodationId") Long accommodationId);
 
 }

@@ -7,13 +7,19 @@ import com.project.cozystay.accommodation.repository.AccommodationAmenityReposit
 import com.project.cozystay.accommodation.repository.AccommodationImageRepository;
 import com.project.cozystay.accommodation.repository.AccommodationRepository;
 import com.project.cozystay.accommodation.repository.AmenityRepository;
+import com.project.cozystay.review.repository.AccommodationReviewRepository;
+import com.project.cozystay.user.domain.User;
+import com.project.cozystay.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AccommodationService {
@@ -22,6 +28,8 @@ public class AccommodationService {
     private final AccommodationImageRepository accommodationImageRepository;
     private final AccommodationAmenityRepository accommodationAmenityRepository;
     private final AmenityRepository amenityRepository;
+    private final UserRepository userRepository;
+    private final AccommodationReviewRepository accommodationReviewRepository;
 
     @Transactional(readOnly = true)
     public List<AccommodationResponseDTO> getAllAccommodations() {
@@ -46,7 +54,7 @@ public class AccommodationService {
         Accommodation accommodation = accommodationRepository.findById(accommodationId)
                 .orElseThrow(() -> new IllegalArgumentException("ID에 해당하는 숙소가 없습니다."));
 
-       accommodationHostCheck(accommodation, hostId);
+        accommodationHostCheck(accommodation, hostId);
 
         AccommodationDetail detail = request.toEntity();
 
@@ -65,7 +73,18 @@ public class AccommodationService {
         Accommodation accommodation = accommodationRepository.findDetailById(accommodationId)
                 .orElseThrow(() -> new IllegalArgumentException("ID에 해당하는 숙소가 없습니다"));
 
-        return AccommodationFullResponseDTO.fromEntity(accommodation);
+        User host = userRepository.findById(accommodation.getHostId())
+                .orElseThrow(()-> new IllegalArgumentException("호스트 유저가 없습니다."));
+
+        // 리뷰 요약 조회
+        ReviewSummaryDTO reviewSummary = accommodationReviewRepository.getReviewSummary(accommodationId);
+
+        return AccommodationFullResponseDTO.fromEntity(
+                accommodation,
+                host.getNickName(),
+                host.getProfileImageUrl(),
+                reviewSummary
+        );
     }
 
     @Transactional

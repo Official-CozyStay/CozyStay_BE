@@ -77,6 +77,8 @@ public class AccommodationReviewService {
         return new AccommodationReviewResponse(
                 review.getId(),
                 review.getBooking().getId(),
+                review.getGuest().getUsername(),
+                review.getGuest().getProfileImageUrl(),
                 review.getRatingOverall(),
                 review.getRatingCleanliness(),
                 review.getRatingAccuracy(),
@@ -102,6 +104,8 @@ public class AccommodationReviewService {
                 .map(review -> new AccommodationReviewResponse(
                         review.getId(),
                         review.getBooking().getId(),
+                        review.getGuest().getNickName(),
+                        review.getGuest().getProfileImageUrl(),
                         review.getRatingOverall(),
                         review.getRatingCleanliness(),
                         review.getRatingAccuracy(),
@@ -169,6 +173,8 @@ public class AccommodationReviewService {
                 .map(review -> new AccommodationReviewResponse(
                         review.getId(),
                         review.getBooking().getId(),
+                        review.getGuest().getNickName(),
+                        review.getGuest().getProfileImageUrl(),
                         review.getRatingOverall(),
                         review.getRatingCleanliness(),
                         review.getRatingAccuracy(),
@@ -194,6 +200,8 @@ public class AccommodationReviewService {
         return new AccommodationReviewResponse(
                 review.getId(),
                 review.getBooking().getId(),
+                review.getGuest().getNickName(),
+                review.getGuest().getProfileImageUrl(),
                 review.getRatingOverall(),
                 review.getRatingCleanliness(),
                 review.getRatingAccuracy(),

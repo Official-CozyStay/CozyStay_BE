@@ -20,6 +20,10 @@ public class AccommodationFullResponseDTO {
 
     private Long hostId;
 
+    private String hostNickname;
+
+    private String hostProfileImageUrl;
+
     private String title;
 
     private String description;
@@ -59,11 +63,20 @@ public class AccommodationFullResponseDTO {
     private List<AccommodationImageDTO> images;
     private List<AmenityDTO> amenities;
 
-    public static AccommodationFullResponseDTO fromEntity(Accommodation entity) {
+    private ReviewSummaryDTO reviewSummary;
 
+    public static AccommodationFullResponseDTO fromEntity(
+            Accommodation entity,
+            String hostNickname,
+            String hostProfileImageUrl,
+            ReviewSummaryDTO reviewSummary
+    ){
         return AccommodationFullResponseDTO.builder()
                 .accommodationId(entity.getId())
                 .hostId(entity.getHostId())
+                .hostNickname(hostNickname)
+                .hostProfileImageUrl(hostProfileImageUrl)
+                .reviewSummary(reviewSummary)
                 .title(entity.getTitle())
                 .description(entity.getDescription())
                 .accommodationType(entity.getAccommodationType().name())
@@ -81,12 +94,7 @@ public class AccommodationFullResponseDTO {
                 .instantBooking(entity.getInstantBooking())
                 .checkInTime(entity.getCheckInTime())
                 .checkOutTime(entity.getCheckOutTime())
-
-                .detail(entity.getDetail() != null ?
-                                AccommodationDetailInfoDTO.fromEntity(entity.getDetail())
-                                : null
-                )
-
+                .detail(entity.getDetail() != null ? AccommodationDetailInfoDTO.fromEntity(entity.getDetail()) : null)
                 .images(
                         entity.getImages().stream()
                                 .map(i -> AccommodationImageDTO.builder()
