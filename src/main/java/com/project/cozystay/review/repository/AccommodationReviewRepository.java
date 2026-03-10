@@ -1,5 +1,6 @@
 package com.project.cozystay.review.repository;
 
+import com.project.cozystay.accommodation.dto.ReviewSummaryDTO;
 import com.project.cozystay.review.domain.AccommodationReview;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -38,5 +39,12 @@ public interface AccommodationReviewRepository extends JpaRepository<Accommodati
             """)
     Optional<AccommodationReview> findByComment_CommentId(@Param("commentId") Long commentId);
 
+    // 리뷰 평균, 개수 계산
+    @Query("""
+        select new com.project.cozystay.accommodation.dto.ReviewSummaryDTO(coalesce(avg(r.ratingOverall), 0.0), count(r))
+        from AccommodationReview r
+        where r.accommodation.id = :accommodationId
+    """)
+    ReviewSummaryDTO getReviewSummary(@Param("accommodationId") Long accommodationId);
 
 }
