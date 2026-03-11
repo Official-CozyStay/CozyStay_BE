@@ -91,6 +91,7 @@ public class UserServiceImpl implements UserService{
      */
     @Override
     public User getUserRefOrThrow(Long userId){
+
         return userRepository.getReferenceById(userId);
     }
 
