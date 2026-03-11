@@ -1,6 +1,7 @@
 package com.project.cozystay.payment.domain;
 
 import com.project.cozystay.booking.domain.Booking;
+import com.project.cozystay.common.BaseTimeEntity;
 import com.project.cozystay.payment.exception.PaymentInvalidStateException;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -21,7 +22,8 @@ import static jakarta.persistence.FetchType.LAZY;
               @UniqueConstraint(name = "uk_payments_payment_key", columnNames = "payment_key")
       }
 )
-public class Payment {
+public class Payment extends BaseTimeEntity{
+
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "payment_id")
     private Long id;
@@ -54,20 +56,12 @@ public class Payment {
     @Column(name = "cancelled_at")
     private LocalDateTime cancelledAt;
 
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
-
     private Payment(Booking booking, Long payerId, BigDecimal amount, PaymentMethod paymentMethod){
         this.booking = booking;
         this.payerId = payerId;
         this.amount = amount;
         this.paymentMethod = paymentMethod;
         this.status = PaymentStatus.READY;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = this.createdAt;
     }
 
     public static Payment create(Booking booking, Long payerId, BigDecimal amount, PaymentMethod paymentMethod){
@@ -81,7 +75,6 @@ public class Payment {
         this.status = PaymentStatus.SUCCESS;
         this.paymentKey = paymentKey;
         this.paidAt = LocalDateTime.now();
-        this.updatedAt = this.paidAt;
     }
 
     public void markFailed(){
@@ -89,7 +82,6 @@ public class Payment {
             throw new PaymentInvalidStateException("결제 실패 처리 불가: status=" + this.status);
         }
         this.status = PaymentStatus.FAILED;
-        this.updatedAt = LocalDateTime.now();
     }
 
     // 환불 & 결제 실패 시 결제 취소 처리
@@ -104,7 +96,6 @@ public class Payment {
 
         this.status = PaymentStatus.CANCELLED;
         this.cancelledAt = LocalDateTime.now();
-        this.updatedAt = this.cancelledAt;
     }
 
     public void retry(BigDecimal amount, PaymentMethod method){
@@ -122,10 +113,5 @@ public class Payment {
 
         // 다시 결제 시작
         this.status = PaymentStatus.READY;
-
-        // 타임아웃 기준 갱신
-        LocalDateTime now = LocalDateTime.now();
-        this.createdAt = now;
-        this.updatedAt = now;
     }
 }

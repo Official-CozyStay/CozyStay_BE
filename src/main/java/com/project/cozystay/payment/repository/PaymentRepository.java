@@ -36,8 +36,8 @@ select p
 from Payment p
 join fetch p.booking b
 where p.status = :status
-and p.createdAt < :cutoff
+and p.updatedAt < :cutoff
 """)
     List<Payment> findTimeoutTargetWithBooking(@Param("status")PaymentStatus status,
-                                               @Param("cutoff") LocalDateTime curtoff);
+                                               @Param("cutoff") LocalDateTime cutoff);
 }
