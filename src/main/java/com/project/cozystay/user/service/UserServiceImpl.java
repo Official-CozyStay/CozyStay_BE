@@ -91,9 +91,6 @@ public class UserServiceImpl implements UserService{
      */
     @Override
     public User getUserRefOrThrow(Long userId){
-        if (!userRepository.existsById(userId)) {
-            throw new IllegalArgumentException("사용자를 찾을 수 없습니다. id=" + userId);
-        }
         return userRepository.getReferenceById(userId);
     }
 
