@@ -1,7 +1,6 @@
 package com.project.cozystay.payment.controller;
 
 import com.project.cozystay.auth.CustomOAuth2User;
-import com.project.cozystay.booking.exception.AuthenticationRequiredException;
 import com.project.cozystay.payment.domain.Payment;
 import com.project.cozystay.payment.dto.PaymentResponse;
 import com.project.cozystay.payment.service.PaymentQueryService;
@@ -26,8 +25,6 @@ public class PaymentQueryController {
             @PathVariable Long paymentId,
             @AuthenticationPrincipal CustomOAuth2User principal) {
 
-        if(principal == null) throw new AuthenticationRequiredException();
-
         Long requestUserId = principal.getId();
 
         Payment payment = paymentQueryService.getById(paymentId, requestUserId);
@@ -39,8 +36,6 @@ public class PaymentQueryController {
     public ResponseEntity<PaymentResponse> getPaymentByBooking(
             @PathVariable Long bookingId,
             @AuthenticationPrincipal CustomOAuth2User principal) {
-
-        if(principal == null) throw new AuthenticationRequiredException();
 
         Long requesterUserId = principal.getId();
 
