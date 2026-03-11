@@ -1,5 +1,6 @@
 package com.project.cozystay.payment.dto;
 
+import com.project.cozystay.payment.domain.Payment;
 import com.project.cozystay.payment.domain.PaymentMethod;
 import com.project.cozystay.payment.domain.PaymentStatus;
 import lombok.AllArgsConstructor;
@@ -23,4 +24,17 @@ public class PaymentResponse {
 
     private LocalDateTime paidAt;
     private LocalDateTime cancelledAt;
+
+    public static PaymentResponse from(Payment payment) {
+        return new PaymentResponse(
+                payment.getId(),
+                payment.getBooking().getId(),
+                payment.getAmount(),
+                payment.getPaymentMethod(),
+                payment.getStatus(),
+                payment.getPaymentKey(),
+                payment.getPaidAt(),
+                payment.getCancelledAt()
+        );
+    }
 }

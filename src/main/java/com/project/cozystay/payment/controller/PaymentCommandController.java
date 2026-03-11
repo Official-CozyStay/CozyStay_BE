@@ -36,12 +36,7 @@ public class PaymentCommandController {
 
         Payment payment = paymentCommandService.createPayment(bookingId, payerId, method);
 
-        return ResponseEntity.ok(new PaymentCreateResponse(
-                payment.getId(),
-                payment.getStatus(),
-                payment.getPaymentMethod(),
-                payment.getAmount()
-        ));
+        return ResponseEntity.ok(PaymentCreateResponse.from(payment));
     }
 
     // 결제 성공 처리
@@ -62,7 +57,7 @@ public class PaymentCommandController {
                 request.getPaymentKey()
         );
 
-        return ResponseEntity.ok(toResponse(payment));
+        return ResponseEntity.ok(PaymentResponse.from(payment));
     }
 
     // 결제 실패 처리
@@ -77,19 +72,7 @@ public class PaymentCommandController {
 
         Payment payment = paymentCommandService.failPayment(paymentId, payerId);
 
-        return ResponseEntity.ok(toResponse(payment));
+        return ResponseEntity.ok(PaymentResponse.from(payment));
     }
 
-    private PaymentResponse toResponse(Payment payment) {
-        return new PaymentResponse(
-                payment.getId(),
-                payment.getBooking().getId(),
-                payment.getAmount(),
-                payment.getPaymentMethod(),
-                payment.getStatus(),
-                payment.getPaymentKey(),
-                payment.getPaidAt(),
-                payment.getCancelledAt()
-        );
-    }
 }
