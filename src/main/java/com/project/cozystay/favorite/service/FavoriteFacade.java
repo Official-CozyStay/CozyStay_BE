@@ -1,6 +1,5 @@
 package com.project.cozystay.favorite.service;
 
-import com.project.cozystay.accommodation.service.AccommodationService;
 import com.project.cozystay.favorite.domain.Favorite;
 import com.project.cozystay.favorite.dto.FavoriteCreateRequestDTO;
 import com.project.cozystay.favorite.dto.FavoriteCreateResponseDTO;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Component;
 public class FavoriteFacade {
     private final FavoriteService favoriteService;
     private final UserService userService;
-    private final AccommodationService accommodationService;
 
         public FavoriteCreateResponseDTO createFavorite(Long userId, FavoriteCreateRequestDTO request) {
             User user = userService.getUserRefOrThrow(userId);
