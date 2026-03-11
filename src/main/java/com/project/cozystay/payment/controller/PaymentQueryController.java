@@ -31,7 +31,7 @@ public class PaymentQueryController {
         Long requestUserId = principal.getId();
 
         Payment payment = paymentQueryService.getById(paymentId, requestUserId);
-        return ResponseEntity.ok(toResponse(payment));
+        return ResponseEntity.ok(PaymentResponse.from(payment));
     }
 
     // 예약 기준 결제 조회
@@ -45,19 +45,8 @@ public class PaymentQueryController {
         Long requesterUserId = principal.getId();
 
         Payment payment = paymentQueryService.getByBookingId(bookingId, requesterUserId);
-        return ResponseEntity.ok(toResponse(payment));
+        return ResponseEntity.ok(PaymentResponse.from(payment));
     }
 
-    private PaymentResponse toResponse(Payment payment) {
-        return new PaymentResponse(
-                payment.getId(),
-                payment.getBooking().getId(),
-                payment.getAmount(),
-                payment.getPaymentMethod(),
-                payment.getStatus(),
-                payment.getPaymentKey(),
-                payment.getPaidAt(),
-                payment.getCancelledAt()
-        );
-    }
+
 }
