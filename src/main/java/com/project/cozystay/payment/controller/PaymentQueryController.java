@@ -1,7 +1,6 @@
 package com.project.cozystay.payment.controller;
 
 import com.project.cozystay.auth.CustomOAuth2User;
-import com.project.cozystay.booking.exception.AuthenticationRequiredException;
 import com.project.cozystay.payment.domain.Payment;
 import com.project.cozystay.payment.dto.PaymentResponse;
 import com.project.cozystay.payment.service.PaymentQueryService;
@@ -26,12 +25,10 @@ public class PaymentQueryController {
             @PathVariable Long paymentId,
             @AuthenticationPrincipal CustomOAuth2User principal) {
 
-        if(principal == null) throw new AuthenticationRequiredException();
-
         Long requestUserId = principal.getId();
 
         Payment payment = paymentQueryService.getById(paymentId, requestUserId);
-        return ResponseEntity.ok(toResponse(payment));
+        return ResponseEntity.ok(PaymentResponse.from(payment));
     }
 
     // 예약 기준 결제 조회
@@ -40,24 +37,11 @@ public class PaymentQueryController {
             @PathVariable Long bookingId,
             @AuthenticationPrincipal CustomOAuth2User principal) {
 
-        if(principal == null) throw new AuthenticationRequiredException();
-
         Long requesterUserId = principal.getId();
 
         Payment payment = paymentQueryService.getByBookingId(bookingId, requesterUserId);
-        return ResponseEntity.ok(toResponse(payment));
+        return ResponseEntity.ok(PaymentResponse.from(payment));
     }
 
-    private PaymentResponse toResponse(Payment payment) {
-        return new PaymentResponse(
-                payment.getId(),
-                payment.getBooking().getId(),
-                payment.getAmount(),
-                payment.getPaymentMethod(),
-                payment.getStatus(),
-                payment.getPaymentKey(),
-                payment.getPaidAt(),
-                payment.getCancelledAt()
-        );
-    }
+
 }

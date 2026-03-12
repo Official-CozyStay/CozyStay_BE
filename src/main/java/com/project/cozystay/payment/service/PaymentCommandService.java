@@ -39,7 +39,11 @@ public class PaymentCommandService {
             throw new PaymentInvalidStateException("PENDING 예약만 결제 할 수 있습니다. status=" + booking.getStatus());
         }
 
-        BigDecimal amount = calculateAmount(booking);
+        BigDecimal amount = calculateAmount(
+                booking.getCheckInDate(),
+                booking.getCheckOutDate(),
+                booking.getAccommodation().getPricePerNight()
+        );
 
         // 기존 결제 조회
         Payment existing = paymentRepository.findByBooking_Id(bookingId).orElse(null);
@@ -61,16 +65,12 @@ public class PaymentCommandService {
         return paymentRepository.save(payment);
     }
 
-    private BigDecimal calculateAmount(Booking booking) {
-        LocalDate checkIn = booking.getCheckInDate();
-        LocalDate checkOut = booking.getCheckOutDate();
+    private BigDecimal calculateAmount(LocalDate checkIn, LocalDate checkOut, BigDecimal pricePerNight) {
 
         long nights = ChronoUnit.DAYS.between(checkIn, checkOut);
         if(nights <= 0){
             throw new PaymentInvalidStateException("숙박 일수가 올바르지 않습니다. checkIn=" + checkIn + ", checkOut=" + checkOut);
         }
-
-        BigDecimal pricePerNight = booking.getAccommodation().getPricePerNight();
 
         if(pricePerNight == null || pricePerNight.signum() <= 0){
             throw new PaymentInvalidStateException("숙소 가격이 올바르지 않습니다.");
