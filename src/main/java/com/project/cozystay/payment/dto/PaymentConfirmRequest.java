@@ -1,8 +1,10 @@
 package com.project.cozystay.payment.dto;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class PaymentConfirmRequest {
     private String paymentKey;
 }
