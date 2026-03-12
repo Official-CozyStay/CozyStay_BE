@@ -4,11 +4,11 @@ import com.project.cozystay.payment.domain.Payment;
 import com.project.cozystay.payment.domain.PaymentMethod;
 import com.project.cozystay.payment.domain.PaymentStatus;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 
 import java.math.BigDecimal;
 
-@Data
+@Getter
 @AllArgsConstructor
 public class PaymentCreateResponse {
     private Long paymentId;
