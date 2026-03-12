@@ -32,10 +32,6 @@ public class AccommodationRequestDTO {
 
     private String postalCode;
 
-    private BigDecimal latitude;
-
-    private BigDecimal longitude;
-
     private Integer maxGuests;
 
     private BigDecimal pricePerNight;
@@ -61,8 +57,6 @@ public class AccommodationRequestDTO {
                 .state(this.state)
                 .country(this.country)
                 .postalCode(this.postalCode)
-                .latitude(this.latitude)
-                .longitude(this.longitude)
                 .maxGuests(this.maxGuests)
                 .pricePerNight(this.pricePerNight)
                 .cleaningFee(this.cleaningFee != null ? this.cleaningFee : BigDecimal.ZERO)

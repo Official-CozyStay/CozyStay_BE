@@ -40,10 +40,6 @@ public class AccommodationFullResponseDTO {
 
     private String postalCode;
 
-    private BigDecimal latitude;
-
-    private BigDecimal longitude;
-
     private Integer maxGuests;
 
     private BigDecimal pricePerNight;
@@ -85,8 +81,6 @@ public class AccommodationFullResponseDTO {
                 .state(entity.getState())
                 .country(entity.getCountry())
                 .postalCode(entity.getPostalCode())
-                .latitude(entity.getLatitude())
-                .longitude(entity.getLongitude())
                 .maxGuests(entity.getMaxGuests())
                 .pricePerNight(entity.getPricePerNight())
                 .cleaningFee(entity.getCleaningFee())
