@@ -1,6 +1,5 @@
 package com.project.cozystay.accommodation.controller;
 
-import com.project.cozystay.accommodation.domain.Accommodation;
 import com.project.cozystay.accommodation.dto.*;
 import com.project.cozystay.accommodation.service.AccommodationService;
 import com.project.cozystay.auth.CustomOAuth2User;
@@ -27,8 +26,8 @@ public class AccommodationController {
      */
     @Operation(summary = "전체 숙소 목록 조회", description = "메인 페이지에 표시될 전체 숙소 목록을 조회합니다.")
     @GetMapping
-    public ResponseEntity<List<AccommodationResponseDTO>> getAccommodations() {
-        List<AccommodationResponseDTO> response =  accommodationService.getAllAccommodations();
+    public ResponseEntity<List<AccommodationMainResponseDTO>> getAccommodations() {
+        List<AccommodationMainResponseDTO> response =  accommodationService.getAllAccommodations();
         return ResponseEntity.ok(response);
     }
 

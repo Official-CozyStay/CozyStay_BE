@@ -31,11 +31,13 @@ public class AccommodationService {
     private final UserRepository userRepository;
     private final AccommodationReviewRepository accommodationReviewRepository;
 
+
+    //숙소 상태가 ACTIVE인 항목만 조회해서 반환
     @Transactional(readOnly = true)
-    public List<AccommodationResponseDTO> getAllAccommodations() {
+    public List<AccommodationMainResponseDTO> getAllAccommodations() {
         List<Accommodation> accommodations = accommodationRepository.findAllAccommodations();
         return accommodations.stream()
-                .map(AccommodationResponseDTO::fromEntity)
+                .map(AccommodationMainResponseDTO::fromEntity)
                 .toList();
     }
 
