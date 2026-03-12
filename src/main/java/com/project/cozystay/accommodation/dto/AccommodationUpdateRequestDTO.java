@@ -24,7 +24,6 @@ public class AccommodationUpdateRequestDTO {
     private Integer maxGuests;
     private BigDecimal pricePerNight;
     private BigDecimal cleaningFee;
-    private BigDecimal serviceFeePercentage;
     private Boolean instantBooking;
     private LocalTime checkInTime;
     private LocalTime checkOutTime;

@@ -157,8 +157,6 @@ public class Accommodation {
 
         if (dto.getCleaningFee() != null) this.cleaningFee = dto.getCleaningFee();
 
-        if (dto.getServiceFeePercentage() != null) this.serviceFeePercentage = dto.getServiceFeePercentage();
-
         if (dto.getInstantBooking() != null) this.instantBooking = dto.getInstantBooking();
 
         if (dto.getCheckInTime() != null) this.checkInTime = dto.getCheckInTime();
