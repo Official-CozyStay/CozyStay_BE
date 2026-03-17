@@ -84,12 +84,16 @@ public class PaymentCommandService {
 
     // Mock 결제 성공 처리
     @Transactional
-    public Payment confirmPayment(Long paymentId, Long payerId, String paymentKey){
-        Payment payment = paymentRepository.findByIdWithBooking(paymentId)
+    public Payment confirmPayment(String orderId, Long payerId, String paymentKey, BigDecimal amount){
+        Payment payment = paymentRepository.findByOrderIdWithBooking(orderId)
                 .orElseThrow(()-> new PaymentNotFoundException("결제를 찾을 수 없습니다."));
 
         if(!payment.getPayerId().equals(payerId)){
             throw new PaymentInvalidStateException("결제자만 결제 확정 처리를 할 수 있습니다.");
+        }
+
+        if(amount == null || payment.getAmount().compareTo(amount) != 0){
+            throw new PaymentInvalidStateException("결제 금액이 일치하지 않습니다.");
         }
 
         payment.markSuccess(paymentKey);
