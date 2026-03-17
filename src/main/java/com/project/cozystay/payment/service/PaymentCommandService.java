@@ -9,6 +9,7 @@ import com.project.cozystay.payment.domain.PaymentMethod;
 import com.project.cozystay.payment.exception.PaymentAlreadyExistsException;
 import com.project.cozystay.payment.exception.PaymentInvalidStateException;
 import com.project.cozystay.payment.exception.PaymentNotFoundException;
+import com.project.cozystay.payment.external.toss.TossPaymentClient;
 import com.project.cozystay.payment.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class PaymentCommandService {
 
     private final BookingRepository bookingRepository;
     private final PaymentRepository paymentRepository;
+    private final TossPaymentClient tossPaymentClient;
 
     // 결제 생성
     @Transactional
@@ -96,6 +98,14 @@ public class PaymentCommandService {
             throw new PaymentInvalidStateException("결제 금액이 일치하지 않습니다.");
         }
 
+        // 토스 승인 API 호출
+        try{
+            tossPaymentClient.confirmPayment(paymentKey, orderId, amount);
+        }catch(Exception e){
+            throw new PaymentInvalidStateException("토스 결제 승인에 실패했습니다.");
+        }
+
+        // 승인 성공 시
         payment.markSuccess(paymentKey);
 
         // instantBooking = true인 경우 -> 결제 성공 시 즉시 예약(CONFIRMED)
