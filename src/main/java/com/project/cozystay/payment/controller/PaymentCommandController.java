@@ -38,9 +38,8 @@ public class PaymentCommandController {
     }
 
     // 결제 성공 처리
-    @PostMapping("/{paymentId}/confirm")
+    @PostMapping("confirm")
     public ResponseEntity<PaymentResponse> confirmPayment(
-            @PathVariable Long paymentId,
             @RequestBody PaymentConfirmRequest request,
             @AuthenticationPrincipal CustomOAuth2User principal
             ){
@@ -48,9 +47,10 @@ public class PaymentCommandController {
         Long payerId = principal.getId();
 
         Payment payment = paymentCommandService.confirmPayment(
-                paymentId,
+                request.getOrderId(),
                 payerId,
-                request.getPaymentKey()
+                request.getPaymentKey(),
+                request.getAmount()
         );
 
         return ResponseEntity.ok(PaymentResponse.from(payment));
