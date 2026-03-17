@@ -6,6 +6,7 @@ import com.project.cozystay.booking.exception.BookingNotFoundException;
 import com.project.cozystay.booking.repository.BookingRepository;
 import com.project.cozystay.payment.domain.Payment;
 import com.project.cozystay.payment.domain.PaymentMethod;
+import com.project.cozystay.payment.domain.PaymentStatus;
 import com.project.cozystay.payment.exception.PaymentAlreadyExistsException;
 import com.project.cozystay.payment.exception.PaymentInvalidStateException;
 import com.project.cozystay.payment.exception.PaymentNotFoundException;
@@ -92,6 +93,10 @@ public class PaymentCommandService {
 
         if(!payment.getPayerId().equals(payerId)){
             throw new PaymentInvalidStateException("결제자만 결제 확정 처리를 할 수 있습니다.");
+        }
+
+        if(payment.getStatus() != PaymentStatus.READY){
+            throw new PaymentInvalidStateException("결제 가능한 샅애가 아닙니다. status=" + payment.getStatus());
         }
 
         if(amount == null || payment.getAmount().compareTo(amount) != 0){
