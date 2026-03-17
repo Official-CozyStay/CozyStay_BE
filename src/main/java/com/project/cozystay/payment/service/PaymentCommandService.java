@@ -55,13 +55,16 @@ public class PaymentCommandService {
                 case FAILED, CANCELLED -> {
                     // 기존 결제를 READY로 리셋
                     existing.retry(amount, method);
+                    existing.assignOrderId(generateOrderId());
                     return existing;
                 }
                 default -> throw new PaymentInvalidStateException("처리할 수 없는 결제 상태입니다. status=" + existing.getStatus());
             }
         }
 
+        // 신규 결제 생성
         Payment payment = Payment.create(booking, payerId, amount, method);
+        payment.assignOrderId(generateOrderId());
         return paymentRepository.save(payment);
     }
 
@@ -119,5 +122,9 @@ public class PaymentCommandService {
     @Transactional
     public void refundByBooking(Long bookingId){
         paymentRepository.findByBooking_Id(bookingId).ifPresent(Payment::refund);
+    }
+
+    private String generateOrderId(){
+        return "order_" + System.currentTimeMillis();
     }
 }
