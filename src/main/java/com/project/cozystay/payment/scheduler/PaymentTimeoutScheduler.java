@@ -24,7 +24,7 @@ public class PaymentTimeoutScheduler {
     @Value("${cozystay.payment.ready-timeout-minutes:15}")
     private long readyTimeoutMinutes;
 
-    // READY 결제 타임아웃 처리 (15분)
+    // READY 결제 타임아웃 처리 (9분)
     // READY 상태가 일정 시간 이상 지속되면 Payment CANCELLED + Booking CANCELLED
     // 1분마다 실행
     @Scheduled(fixedDelay = 60_000)
