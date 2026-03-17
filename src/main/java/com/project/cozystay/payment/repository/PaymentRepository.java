@@ -46,7 +46,7 @@ and p.updatedAt < :cutoff
     @Query("""
 select p
 from Payment p
-join fetch p.boking b
+join fetch p.booking b
 join fetch b.accommodation a
 where p.orderId = :orderId
 """)
