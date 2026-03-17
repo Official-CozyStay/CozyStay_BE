@@ -128,7 +128,7 @@ public class PaymentCommandService {
         paymentRepository.findByBooking_Id(bookingId).ifPresent(Payment::refund);
     }
 
-    private String generateOrderId(){
-        return "order_" + System.currentTimeMillis();
+    private String generateOrderId() {
+        return "order_" + System.currentTimeMillis() + "_" + java.util.UUID.randomUUID().toString().substring(0, 8);
     }
 }
