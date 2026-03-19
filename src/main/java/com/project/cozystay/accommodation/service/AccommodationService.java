@@ -254,12 +254,12 @@ public class AccommodationService {
     @Transactional
     public AccommodationImageCategoryResponseDTO createImageCategory(
             Long accommodationId,
-            Long hoistId,
+            Long hostId,
             AccommodationImageCategoryRequestDTO request){
         Accommodation accommodation = accommodationRepository.findById(accommodationId)
                 .orElseThrow(() -> new IllegalArgumentException("숙소를 찾을 수 없습니다."));
 
-        accommodationHostCheck(accommodation, hoistId);
+        accommodationHostCheck(accommodation, hostId);
 
         AccommodationImageCategory category = AccommodationImageCategory.create(
                 accommodation, request.getName(), request.getDisplayOrder());
