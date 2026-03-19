@@ -21,7 +21,7 @@ public class AccommodationImageCategory {
     @Column(nullable = false, length = 50)
     private String name;
 
-    @Column(name = "display_Order")
+    @Column(name = "display_order")
     private Integer displayOrder;
 
     @ManyToOne(fetch = FetchType.LAZY)
