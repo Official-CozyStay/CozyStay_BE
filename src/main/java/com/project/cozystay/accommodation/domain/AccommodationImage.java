@@ -24,13 +24,17 @@ public class AccommodationImage {
     @JoinColumn(name = "accommodation_id")
     private Accommodation accommodation;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private AccommodationImageCategory category;
+
     @Column(name = "image_url", nullable = false, length = 500)
     private String imageUrl;
 
     @Column(name = "is_primary")
     private boolean  primary = false;
 
-    private int displayOrder;
+    private Integer displayOrder;
 
     private LocalDateTime createdAt;
 
@@ -42,4 +46,6 @@ public class AccommodationImage {
     public void assignAccommodation(Accommodation accommodation){
         this.accommodation = accommodation;
     }
+
+    public void assignCategory(AccommodationImageCategory category) {this.category = category;};
 }
