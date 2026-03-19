@@ -47,5 +47,5 @@ public class AccommodationImage {
         this.accommodation = accommodation;
     }
 
-    public void assignCategory(AccommodationImageCategory category) {this.category = category;};
+    public void assignCategory(AccommodationImageCategory category) {this.category = category;}
 }
