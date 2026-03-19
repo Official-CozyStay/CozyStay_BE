@@ -49,6 +49,12 @@ public class Accommodation {
     @Column(name = "postal_code", length = 20)
     private String postalCode;
 
+    @Column(precision = 10, scale = 8)
+    private BigDecimal latitude;
+
+    @Column(precision = 11, scale = 8)
+    private BigDecimal longitude;
+
     @Column(name = "max_guests", nullable = false)
     private Integer maxGuests;
 
@@ -150,6 +156,10 @@ public class Accommodation {
         if (dto.getCountry() != null) this.country = dto.getCountry();
 
         if (dto.getPostalCode() != null) this.postalCode = dto.getPostalCode();
+
+        if (dto.getLatitude() != null) this.latitude = dto.getLatitude();
+
+        if (dto.getLongitude() != null) this.longitude = dto.getLongitude();
 
         if (dto.getMaxGuests() != null) this.maxGuests = dto.getMaxGuests();
 

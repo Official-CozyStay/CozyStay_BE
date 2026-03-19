@@ -21,6 +21,8 @@ public class AccommodationUpdateRequestDTO {
     private String state;
     private String country;
     private String postalCode;
+    private BigDecimal latitude;
+    private BigDecimal longitude;
     private Integer maxGuests;
     private BigDecimal pricePerNight;
     private BigDecimal cleaningFee;
