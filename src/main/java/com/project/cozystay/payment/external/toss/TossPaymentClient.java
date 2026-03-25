@@ -28,8 +28,8 @@ public class TossPaymentClient {
     // 결제 승인 요청 보냄
     public TossConfirmResponse confirmPayment(String paymentKey, String orderId, BigDecimal amount) {
 
-        log.info("confirmUrl={}", tossPaymentProperties.getConfirmUrl());
-        log.info("secretKey exists={}", tossPaymentProperties.getSecretKey() != null && !tossPaymentProperties.getSecretKey().isBlank());
+        log.debug("confirmUrl={}", tossPaymentProperties.getConfirmUrl());
+        log.debug("secretKey exists={}", tossPaymentProperties.getSecretKey() != null && !tossPaymentProperties.getSecretKey().isBlank());
         // Basic Authorization용 인코딩
         // Authorization: Basic bas64(secretKey:)
         String secretKey = tossPaymentProperties.getSecretKey();
