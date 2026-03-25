@@ -158,6 +158,6 @@ public class PaymentCommandService {
     }
 
     private String generateOrderId() {
-        return "order_" + System.currentTimeMillis() + "_" + java.util.UUID.randomUUID().toString().substring(0, 8);
+        return "order_" + java.util.UUID.randomUUID().toString();
     }
 }
