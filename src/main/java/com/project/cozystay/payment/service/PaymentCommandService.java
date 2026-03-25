@@ -12,6 +12,7 @@ import com.project.cozystay.payment.exception.PaymentInvalidStateException;
 import com.project.cozystay.payment.exception.PaymentNotFoundException;
 import com.project.cozystay.payment.exception.TossPaymentConfirmException;
 import com.project.cozystay.payment.external.toss.TossPaymentClient;
+import com.project.cozystay.payment.external.toss.dto.TossConfirmResponse;
 import com.project.cozystay.payment.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -88,7 +89,7 @@ public class PaymentCommandService {
         return pricePerNight.multiply(BigDecimal.valueOf(nights));
     }
 
-    // Mock 결제 성공 처리
+    // 토스 결제 승인 처리
     @Transactional
     public Payment confirmPayment(String orderId, Long payerId, String paymentKey, BigDecimal amount){
         Payment payment = paymentRepository.findByOrderIdWithBooking(orderId)
@@ -99,7 +100,7 @@ public class PaymentCommandService {
         }
 
         if(payment.getStatus() != PaymentStatus.READY){
-            throw new PaymentInvalidStateException("결제 가능한 샅애가 아닙니다. status=" + payment.getStatus());
+            throw new PaymentInvalidStateException("결제 가능한 상태가 아닙니다. status=" + payment.getStatus());
         }
 
         if(amount == null || payment.getAmount().compareTo(amount) != 0){
@@ -107,12 +108,20 @@ public class PaymentCommandService {
         }
 
         // 토스 승인 API 호출
+        TossConfirmResponse response;
         try{
-            tossPaymentClient.confirmPayment(paymentKey, orderId, amount);
+            response = tossPaymentClient.confirmPayment(paymentKey, orderId, amount);
         }catch(TossPaymentConfirmException e){
             log.warn("[PAYMENT CONFIRM FAIL] orderId={}, paymentKey={}, reason={}",
                     orderId, paymentKey, e.getMessage());
             throw new PaymentInvalidStateException("토스 결제 승인에 실패했습니다.");
+        }
+
+        if(response == null
+                || !"DONE".equals(response.getStatus())
+                || !orderId.equals(response.getOrderId())
+                || !paymentKey.equals(response.getPaymentKey())){
+            throw new PaymentInvalidStateException("유효하지 않은 결제 승인 응답입니다.");
         }
 
         // 승인 성공 시
