@@ -21,7 +21,7 @@ public class PaymentTimeoutScheduler {
 
     private final PaymentRepository paymentRepository;
 
-    @Value("${cozystay.payment.ready-timeout-minutes:15}")
+    @Value("${cozystay.payment.ready-timeout-minutes:9}")
     private long readyTimeoutMinutes;
 
     // READY 결제 타임아웃 처리 (9분)
