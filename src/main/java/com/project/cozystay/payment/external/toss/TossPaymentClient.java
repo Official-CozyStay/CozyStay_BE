@@ -5,6 +5,7 @@ import com.project.cozystay.payment.exception.TossPaymentConfirmException;
 import com.project.cozystay.payment.external.toss.dto.TossConfirmRequest;
 import com.project.cozystay.payment.external.toss.dto.TossConfirmResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
@@ -14,6 +15,7 @@ import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class TossPaymentClient {
@@ -21,13 +23,15 @@ public class TossPaymentClient {
 
     private final TossPaymentProperties tossPaymentProperties;
     // 외부 HTTP API 호출할 때 쓰는 스프링 클래스
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
 
     // 결제 승인 요청 보냄
     public TossConfirmResponse confirmPayment(String paymentKey, String orderId, BigDecimal amount) {
 
+        log.info("confirmUrl={}", tossPaymentProperties.getConfirmUrl());
+        log.info("secretKey exists={}", tossPaymentProperties.getSecretKey() != null && !tossPaymentProperties.getSecretKey().isBlank());
         // Basic Authorization용 인코딩
-        // Authorization: Basic bas64(secretKye:)
+        // Authorization: Basic bas64(secretKey:)
         String secretKey = tossPaymentProperties.getSecretKey();
 
         String encodedKey = Base64.getEncoder()
@@ -60,9 +64,5 @@ public class TossPaymentClient {
         }catch (RestClientException e){
             throw new TossPaymentConfirmException("토스 결제 승인 API 호출에 실패했습니다.", e);
         }
-
-
-
-
     }
 }
