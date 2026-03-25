@@ -114,7 +114,7 @@ public class PaymentCommandService {
         }catch(TossPaymentConfirmException e){
             log.warn("[PAYMENT CONFIRM FAIL] orderId={}, paymentKey={}, reason={}",
                     orderId, paymentKey, e.getMessage());
-            throw new PaymentInvalidStateException("토스 결제 승인에 실패했습니다.");
+            throw new PaymentInvalidStateException("토스 결제 승인에 실패했습니다.", e);
         }
 
         if(response == null
