@@ -10,9 +10,11 @@ import com.project.cozystay.payment.domain.PaymentStatus;
 import com.project.cozystay.payment.exception.PaymentAlreadyExistsException;
 import com.project.cozystay.payment.exception.PaymentInvalidStateException;
 import com.project.cozystay.payment.exception.PaymentNotFoundException;
+import com.project.cozystay.payment.exception.TossPaymentConfirmException;
 import com.project.cozystay.payment.external.toss.TossPaymentClient;
 import com.project.cozystay.payment.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +22,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PaymentCommandService {
@@ -106,7 +109,9 @@ public class PaymentCommandService {
         // 토스 승인 API 호출
         try{
             tossPaymentClient.confirmPayment(paymentKey, orderId, amount);
-        }catch(Exception e){
+        }catch(TossPaymentConfirmException e){
+            log.warn("[PAYMENT CONFIRM FAIL] orderId={}, paymentKey={}, reason={}",
+                    orderId, paymentKey, e.getMessage());
             throw new PaymentInvalidStateException("토스 결제 승인에 실패했습니다.");
         }
 
