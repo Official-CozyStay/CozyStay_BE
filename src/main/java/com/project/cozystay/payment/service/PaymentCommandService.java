@@ -58,7 +58,21 @@ public class PaymentCommandService {
         if(existing != null){
             switch(existing.getStatus()){
                 case SUCCESS -> throw new PaymentAlreadyExistsException("이미 결제 완료된 예약입니다.");
-                case READY -> throw new PaymentAlreadyExistsException("이미 결제 진행 중(READY)입니다.");
+
+                case READY -> {
+                    // 이미 생성된 READY 결제를 그대로 재사용
+                    if(existing.getAmount().compareTo(amount) != 0){
+                        throw new PaymentInvalidStateException("기존 결제 금액과 현재 결제 금액이 일치하지 않습니다.");
+                    }
+
+                    if(existing.getPaymentMethod() != method){
+                        existing.retry(amount, method);
+                        existing.assignOrderId(generateOrderId());
+                    }
+
+                    return existing;
+                }
+
                 case FAILED, CANCELLED -> {
                     // 기존 결제를 READY로 리셋
                     existing.retry(amount, method);
