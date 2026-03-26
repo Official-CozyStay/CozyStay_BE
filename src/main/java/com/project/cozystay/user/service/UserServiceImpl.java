@@ -147,9 +147,18 @@ public class UserServiceImpl implements UserService{
         return PublicUserProfileResponse.from(user);
     }
 
+    /**
+     * 연관관계를 맺고 있는 곳에서 프록시 객체만 얻기 위해 사용 (불필요한 조회 방지)
+     *
+     */
+    @Override
+    public User getUserRefOrThrow(Long userId){
 
-    // ======= 내부 공통 메서드 =======
+        return userRepository.getReferenceById(userId);
+    }
 
+
+    // ======= 내부 공통 메서드 ======
     private User getUserOrThrow(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. id=" + userId));
@@ -188,7 +197,6 @@ public class UserServiceImpl implements UserService{
                         user -> user
                 ));
     }
-
     /**
      * 내부에서만 쓰는 작은 값 객체
      */
