@@ -32,7 +32,9 @@ public class AccommodationSearchRepositoryImpl implements AccommodationSearchRep
                 .leftJoin(accommodation.images, accommodationImage).on(accommodationImage.primary.isTrue())
                 .where(
                         accommodation.status.eq(AccommodationStatus.ACTIVE), // 활성화된 숙소만
+                        provinceEq(request.getProvince()),
                         cityEq(request.getCity()),
+                        districtEq(request.getDistrict()),
                         titleContains(request.getTitle()),
                         priceBetween(request.getMinPrice(), request.getMaxPrice()),
                         isAvailable(request.getCheckInDate(), request.getCheckOutDate())
@@ -40,8 +42,16 @@ public class AccommodationSearchRepositoryImpl implements AccommodationSearchRep
                 .fetch();
     }
 
+    private BooleanExpression provinceEq(String province) {
+        return hasText(province) ? accommodation.province.eq(province) : null;
+    }
+
     private BooleanExpression cityEq(String city) {
         return hasText(city) ? accommodation.city.eq(city) : null;
+    }
+
+    private BooleanExpression districtEq(String district) {
+        return hasText(district) ? accommodation.district.eq(district) : null;
     }
 
     private BooleanExpression titleContains(String title) {

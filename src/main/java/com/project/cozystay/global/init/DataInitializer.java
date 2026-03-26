@@ -116,16 +116,25 @@ public class DataInitializer implements CommandLineRunner {
 
         for (int i = 1; i <= 50; i++) {
             User host = hosts.get(random.nextInt(hosts.size()));
-            String city = cities[random.nextInt(cities.length)];
-            AccommodationType type = types[random.nextInt(types.length)];
+            String[] provinces = {"서울특별시", "경기도", "강원도", "부산광역시", "제주특별자치도"};
+            String[] cities = {"강남구", "성남시", "강릉시", "해운대구", "제주시"};
+            String[] districts = {"신사동", "분당구", "교동", "우동", "연동"};
 
+            int randomIndex = random.nextInt(provinces.length);
+            String province = provinces[randomIndex];
+            String city = cities[randomIndex];
+            String district = districts[randomIndex];
+
+            AccommodationType type = types[random.nextInt(types.length)];
             Accommodation accommodation = Accommodation.builder()
                     .hostId(host.getId())
-                    .title(city + " Cozy Stay " + i)
-                    .description("This is a beautiful " + type.name().toLowerCase().replace("_", " ") + " in " + city + ". Perfect for your travel!")
+                    .title(city + " " + district + " Cozy Stay " + i)
+                    .description("This is a beautiful " + type.name().toLowerCase().replace("_", " ") + " in " + province + " " + city + " " + district + ". Perfect for your travel!")
                     .accommodationType(type)
-                    .address(city + " Address " + i)
+                    .address(province + " " + city + " " + district + " 상세주소 " + i)
+                    .province(province)
                     .city(city)
+                    .district(district)
                     .country("South Korea")
                     .maxGuests(random.nextInt(4) + 2)
                     .pricePerNight(BigDecimal.valueOf(50000 + random.nextInt(20) * 10000))

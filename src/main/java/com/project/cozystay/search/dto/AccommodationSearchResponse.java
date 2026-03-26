@@ -34,7 +34,9 @@ public class AccommodationSearchResponse {
         private String title;
         private String description;
         private String address;
+        private String province;
         private String city;
+        private String district;
         private BigDecimal pricePerNight;
         private String mainImageUrl;
 
@@ -44,7 +46,9 @@ public class AccommodationSearchResponse {
                     .title(accommodation.getTitle())
                     .description(accommodation.getDescription())
                     .address(accommodation.getAddress())
+                    .province(accommodation.getProvince())
                     .city(accommodation.getCity())
+                    .district(accommodation.getDistrict())
                     .pricePerNight(accommodation.getPricePerNight())
                     .mainImageUrl(imageUrl)
                     .build();

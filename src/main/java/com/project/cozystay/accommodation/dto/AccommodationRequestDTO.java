@@ -24,7 +24,11 @@ public class AccommodationRequestDTO {
 
     private String address;
 
-    private String city;
+    private String province; // 도/광역시 (예: 경기도, 서울특별시)
+
+    private String city;     // 시/군 (예: 성남시, 가평군)
+
+    private String district; // 구 (예: 분당구)
 
     private String state;
 
@@ -57,7 +61,9 @@ public class AccommodationRequestDTO {
                 .description(this.description)
                 .accommodationType(this.accommodationType)
                 .address(this.address)
+                .province(this.province)
                 .city(this.city)
+                .district(this.district)
                 .state(this.state)
                 .country(this.country)
                 .postalCode(this.postalCode)

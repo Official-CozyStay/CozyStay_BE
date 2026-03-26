@@ -32,7 +32,11 @@ public class AccommodationFullResponseDTO {
 
     private String address;
 
+    private String province;
+
     private String city;
+
+    private String district;
 
     private String state;
 
@@ -81,7 +85,9 @@ public class AccommodationFullResponseDTO {
                 .description(entity.getDescription())
                 .accommodationType(entity.getAccommodationType().name())
                 .address(entity.getAddress())
+                .province(entity.getProvince())
                 .city(entity.getCity())
+                .district(entity.getDistrict())
                 .state(entity.getState())
                 .country(entity.getCountry())
                 .postalCode(entity.getPostalCode())
