@@ -3,6 +3,7 @@ package com.project.cozystay.search.repository;
 import com.project.cozystay.accommodation.domain.AccommodationStatus;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -76,14 +77,14 @@ public class AccommodationSearchRepositoryImpl implements AccommodationSearchRep
             return null;
         }
 
-        return accommodation.id.notIn(
-                queryFactory
-                        .select(booking.accommodation.id)
-                        .from(booking)
-                        .where(
-                                (booking.checkOutDate.after(checkIn)
-                                        .and(booking.checkInDate.before(checkOut)))
-                        )
-        );
+        // NOT IN 대신 NOT EXISTS 사용
+        return JPAExpressions.selectOne()
+                .from(booking)
+                .where(
+                        booking.accommodation.id.eq(accommodation.id),
+                        booking.checkOutDate.after(checkIn),
+                        booking.checkInDate.before(checkOut)
+                )
+                .notExists();
     }
 }
