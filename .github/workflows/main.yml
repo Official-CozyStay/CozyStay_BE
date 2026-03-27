@@ -38,6 +38,7 @@ jobs:
       # 4) 도커 이미지 빌드 및 .tar 저장
       - name: Build and Save Docker Image
         run: |
+          docker logout
           docker build -t cozystay-app .
           docker save -o cozystay.tar cozystay-app
 
