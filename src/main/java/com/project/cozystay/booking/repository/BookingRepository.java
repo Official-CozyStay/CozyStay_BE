@@ -145,4 +145,21 @@ where b.id = :bookingId
 """)
     Optional<Booking> findByIdWithAccommodation(@Param("bookingId") Long bookingId);
 
+    /**
+     * 특정 기간에 이미 예약된 숙소 ID 목록을 조회합니다.
+     */
+    @Query("""
+select b.accommodation.id
+from Booking b
+where b.accommodation.id in :accommodationIds
+and b.status in :activeStatuses
+and b.checkInDate < :checkOutDate
+and b.checkOutDate > :checkInDate
+""")
+    List<Long> findBookedAccommodationIds(
+            @Param("accommodationIds") List<Long> accommodationIds,
+            @Param("activeStatuses") List<BookingStatus> activeStatuses,
+            @Param("checkInDate") LocalDate checkInDate,
+            @Param("checkOutDate") LocalDate checkOutDate
+    );
 }
