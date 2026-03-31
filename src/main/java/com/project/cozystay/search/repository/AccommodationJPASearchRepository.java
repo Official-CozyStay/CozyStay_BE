@@ -5,7 +5,7 @@ import com.querydsl.core.Tuple;
 
 import java.util.List;
 
-public interface AccommodationSearchRepository {
+public interface AccommodationJPASearchRepository {
 
     List<Tuple> search(AccommodationSearchRequest request);
 }

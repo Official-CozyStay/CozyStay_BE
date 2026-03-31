@@ -21,7 +21,7 @@ import static org.springframework.util.StringUtils.hasText;
 
 @Repository
 @RequiredArgsConstructor
-public class AccommodationSearchRepositoryImpl implements AccommodationSearchRepository {
+public class AccommodationJPASearchRepositoryImpl implements AccommodationJPASearchRepository {
 
     private final JPAQueryFactory queryFactory;
 
