@@ -1,6 +1,7 @@
 package com.project.cozystay.search.dto;
 
 import com.project.cozystay.accommodation.domain.Accommodation;
+import com.project.cozystay.search.domain.AccommodationDocument;
 import com.querydsl.core.Tuple;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,6 +22,15 @@ public class AccommodationSearchResponse {
     public static AccommodationSearchResponse from(List<Tuple> searchResults) {
         List<AccommodationInfo> accommodationInfos = searchResults.stream()
                 .map(tuple -> AccommodationInfo.from(tuple.get(accommodation), tuple.get(accommodationImage.imageUrl)))
+                .collect(Collectors.toList());
+        return AccommodationSearchResponse.builder()
+                .accommodations(accommodationInfos)
+                .build();
+    }
+
+    public static AccommodationSearchResponse fromDocuments(List<AccommodationDocument> documents) {
+        List<AccommodationInfo> accommodationInfos = documents.stream()
+                .map(AccommodationInfo::from)
                 .collect(Collectors.toList());
         return AccommodationSearchResponse.builder()
                 .accommodations(accommodationInfos)
@@ -51,6 +61,20 @@ public class AccommodationSearchResponse {
                     .district(accommodation.getDistrict())
                     .pricePerNight(accommodation.getPricePerNight())
                     .mainImageUrl(imageUrl)
+                    .build();
+        }
+
+        public static AccommodationInfo from(AccommodationDocument document) {
+            return AccommodationInfo.builder()
+                    .id(document.getId())
+                    .title(document.getTitle())
+                    .description(document.getDescription())
+                    .address(document.getAddress())
+                    .province(document.getProvince())
+                    .city(document.getCity())
+                    .district(document.getDistrict())
+                    .pricePerNight(BigDecimal.valueOf(document.getPricePerNight()))
+                    .mainImageUrl(document.getMainImageUrl())
                     .build();
         }
     }
