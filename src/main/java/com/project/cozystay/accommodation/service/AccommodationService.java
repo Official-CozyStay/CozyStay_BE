@@ -3,6 +3,7 @@ package com.project.cozystay.accommodation.service;
 
 import com.project.cozystay.accommodation.domain.*;
 import com.project.cozystay.accommodation.dto.*;
+import com.project.cozystay.accommodation.event.AccommodationEvent;
 import com.project.cozystay.accommodation.repository.AccommodationAmenityRepository;
 import com.project.cozystay.accommodation.repository.AccommodationImageRepository;
 import com.project.cozystay.accommodation.repository.AccommodationRepository;
@@ -12,6 +13,7 @@ import com.project.cozystay.user.domain.User;
 import com.project.cozystay.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +32,7 @@ public class AccommodationService {
     private final AmenityRepository amenityRepository;
     private final UserRepository userRepository;
     private final AccommodationReviewRepository accommodationReviewRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
     public List<AccommodationResponseDTO> getAllAccommodations() {
@@ -44,6 +47,9 @@ public class AccommodationService {
         Accommodation accommodation = request.toEntity(hostId);
 
         accommodationRepository.save(accommodation);
+
+        // 이벤트 발행 (ES 동기화용)
+        eventPublisher.publishEvent(new AccommodationEvent(accommodation.getId(), AccommodationEvent.OperationType.SAVE));
 
         return AccommodationResponseDTO.fromEntity(accommodation);
     }
@@ -61,6 +67,9 @@ public class AccommodationService {
         accommodation.addDetail(detail);
 
         accommodationRepository.save(accommodation);
+
+        // 상세 정보 추가 시에도 ES 동기화 이벤트 발행
+        eventPublisher.publishEvent(new AccommodationEvent(accommodation.getId(), AccommodationEvent.OperationType.SAVE));
 
         return AccommodationDetailResponseDTO.builder()
                 .message("숙소 상세 정보 등록 완료")
@@ -95,6 +104,9 @@ public class AccommodationService {
         accommodationHostCheck(accommodation, hostId);
 
         accommodation.publish();
+
+        // 상태 변경(게시) 시 ES 동기화 이벤트 발행
+        eventPublisher.publishEvent(new AccommodationEvent(accommodation.getId(), AccommodationEvent.OperationType.SAVE));
     }
 
     @Transactional
@@ -113,6 +125,9 @@ public class AccommodationService {
         }
 
         accommodationRepository.save(accommodation);
+
+        // 이미지 추가 시에도 ES 동기화 이벤트 발행
+        eventPublisher.publishEvent(new AccommodationEvent(accommodation.getId(), AccommodationEvent.OperationType.SAVE));
 
         List<Long> imageIds = newImages.stream()
                 .map(AccommodationImage::getId)
@@ -146,6 +161,9 @@ public class AccommodationService {
 
         accommodationRepository.save(accommodation);
 
+        // 편의시설 추가 시에도 ES 동기화 이벤트 발행
+        eventPublisher.publishEvent(new AccommodationEvent(accommodation.getId(), AccommodationEvent.OperationType.SAVE));
+
         return AccommodationAmenityResponseDTO.builder()
                 .accommodationId(accommodationId)
                 .count(request.size())
@@ -162,6 +180,9 @@ public class AccommodationService {
         accommodationHostCheck(accommodation, hostId);
 
         accommodationRepository.delete(accommodation);
+
+        // 삭제 시 ES 삭제 이벤트 발행
+        eventPublisher.publishEvent(new AccommodationEvent(accommodationId, AccommodationEvent.OperationType.DELETE));
 
         return AccommodationDeleteResponseDTO.builder()
                 .accommodationId(accommodationId)
@@ -181,6 +202,9 @@ public class AccommodationService {
         accommodationHostCheck(accommodation, hostId);
 
         accommodation.update(request);
+
+        // 수정 시 ES 동기화 이벤트 발행
+        eventPublisher.publishEvent(new AccommodationEvent(accommodation.getId(), AccommodationEvent.OperationType.SAVE));
 
         return AccommodationUpdateResponseDTO.builder()
                 .accommodationId(accommodation.getId())
@@ -207,6 +231,9 @@ public class AccommodationService {
 
         detail.update(request);
 
+        // 상세 정보 수정 시에도 ES 동기화 이벤트 발행
+        eventPublisher.publishEvent(new AccommodationEvent(accommodation.getId(), AccommodationEvent.OperationType.SAVE));
+
         return AccommodationDetailUpdateResponseDTO.builder()
                 .accommodationId(accommodation.getId())
                 .message("숙소 상세정보 수정 완료")
@@ -229,6 +256,9 @@ public class AccommodationService {
         }
 
         accommodationImageRepository.deleteAll(images);
+
+        // 이미지 삭제 시에도 ES 동기화 이벤트 발행 (대표 이미지가 바뀌었을 수 있음)
+        eventPublisher.publishEvent(new AccommodationEvent(accommodationId, AccommodationEvent.OperationType.SAVE));
 
         return AccommodationImageDeleteResponseDTO.builder()
                 .imageIds(imageIds)
