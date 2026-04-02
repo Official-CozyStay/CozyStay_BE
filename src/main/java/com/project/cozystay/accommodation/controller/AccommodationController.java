@@ -1,16 +1,18 @@
 package com.project.cozystay.accommodation.controller;
 
-import com.project.cozystay.accommodation.domain.Accommodation;
 import com.project.cozystay.accommodation.dto.*;
+import com.project.cozystay.accommodation.service.AccommodationImageService;
 import com.project.cozystay.accommodation.service.AccommodationService;
 import com.project.cozystay.auth.CustomOAuth2User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -21,6 +23,7 @@ import java.util.List;
 public class AccommodationController {
 
     private final AccommodationService accommodationService;
+    private final AccommodationImageService accommodationImageService;
 
     /**
      * 숙소 정보 조회 (메인 페이지)
@@ -91,14 +94,15 @@ public class AccommodationController {
      * 숙소 이미지 추가
      */
     @Operation(summary = "숙소 이미지 추가", description = "특정 숙소에 이미지를 추가합니다.")
-    @PostMapping("/images/{accommodationId}")
+    @PostMapping(value = "/images/{accommodationId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AccommodationImageResponseDTO> addImage(
             @PathVariable Long accommodationId,
-            @RequestBody List<AccommodationImageRequestDTO> request,
-            @AuthenticationPrincipal CustomOAuth2User principal
+            @AuthenticationPrincipal CustomOAuth2User principal,
+            @RequestPart("files") List<MultipartFile> files,
+            @RequestPart("metadata") String metadataJson
     ){
         Long hostId = principal.getId();
-        AccommodationImageResponseDTO response = accommodationService.addImage(accommodationId, hostId, request);
+        AccommodationImageResponseDTO response = accommodationImageService.addImage(accommodationId, hostId, files, metadataJson);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -173,7 +177,7 @@ public class AccommodationController {
             @AuthenticationPrincipal CustomOAuth2User principal
     ){
         Long hostId = principal.getId();
-        AccommodationImageDeleteResponseDTO response = accommodationService.deleteAccommodationImages(accommodationId, hostId, imageIds);
+        AccommodationImageDeleteResponseDTO response = accommodationImageService.deleteAccommodationImages(accommodationId, hostId, imageIds);
         return ResponseEntity.ok(response);
 
     }
