@@ -3,6 +3,7 @@ package com.project.cozystay.accommodation.repository;
 import com.project.cozystay.accommodation.domain.AccommodationImage;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -10,7 +11,9 @@ public interface AccommodationImageRepository extends JpaRepository <Accommodati
     @Query("""
             SELECT ai
             FROM AccommodationImage ai
-            WHERE ai.id IN :imageids AND ai.accommodation.id = :accommodationId
+            WHERE ai.id IN :imageIds AND ai.accommodation.id = :accommodationId
             """)
-    List<AccommodationImage> findAllByIdInAndAccommodationId(List<Long> imageIds, Long accommodationId);
+    List<AccommodationImage> findAllByIdInAndAccommodationId(
+            @Param("imageIds") List<Long> imageIds,
+            @Param("accommodationId") Long accommodationId);
 }
