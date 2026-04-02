@@ -42,8 +42,6 @@ public class AccommodationRequestDTO {
 
     private BigDecimal cleaningFee;
 
-    private BigDecimal serviceFeePercentage;
-
     private Boolean instantBooking;
 
     private LocalTime checkInTime;
@@ -66,7 +64,6 @@ public class AccommodationRequestDTO {
                 .maxGuests(this.maxGuests)
                 .pricePerNight(this.pricePerNight)
                 .cleaningFee(this.cleaningFee != null ? this.cleaningFee : BigDecimal.ZERO)
-                .serviceFeePercentage(this.serviceFeePercentage != null ? this.serviceFeePercentage : BigDecimal.ZERO)
                 .instantBooking(this.instantBooking != null ? this.instantBooking : false)
                 .checkInTime(this.checkInTime)
                 .checkOutTime(this.checkOutTime)
