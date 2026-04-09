@@ -1,6 +1,6 @@
 package com.project.cozystay.accommodation.controller;
 
-import com.project.cozystay.accommodation.domain.Accommodation;
+import com.project.cozystay.accommodation.domain.AccommodationImageCategory;
 import com.project.cozystay.accommodation.dto.*;
 import com.project.cozystay.accommodation.service.AccommodationService;
 import com.project.cozystay.auth.CustomOAuth2User;
@@ -27,8 +27,8 @@ public class AccommodationController {
      */
     @Operation(summary = "전체 숙소 목록 조회", description = "메인 페이지에 표시될 전체 숙소 목록을 조회합니다.")
     @GetMapping
-    public ResponseEntity<List<AccommodationResponseDTO>> getAccommodations() {
-        List<AccommodationResponseDTO> response =  accommodationService.getAllAccommodations();
+    public ResponseEntity<List<AccommodationMainResponseDTO>> getAccommodations() {
+        List<AccommodationMainResponseDTO> response =  accommodationService.getAllAccommodations();
         return ResponseEntity.ok(response);
     }
 
@@ -176,6 +176,33 @@ public class AccommodationController {
         AccommodationImageDeleteResponseDTO response = accommodationService.deleteAccommodationImages(accommodationId, hostId, imageIds);
         return ResponseEntity.ok(response);
 
+    }
+
+    /**
+     * 숙소 이미지 카테고리 추가
+     */
+    @Operation(summary = "숙소 이미지 카테고리 추가", description = "이미지의 카테고리를 추가합니다.")
+    @PostMapping("/{accommodationId}/image-categories")
+    public ResponseEntity<AccommodationImageCategoryResponseDTO> createImageCategory(
+            @PathVariable Long accommodationId,
+            @RequestBody AccommodationImageCategoryRequestDTO request,
+            @AuthenticationPrincipal CustomOAuth2User principal
+    ){
+        Long hostId = principal.getId();
+        AccommodationImageCategoryResponseDTO response = accommodationService.createImageCategory(accommodationId, hostId, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    /**
+     * 숙소 이미지 반환 (카테고리 포함)
+     */
+    @Operation(summary = "숙소 이미지 조회(카테고리 포함)", description = "숙소의 이미지를 조회합니다.(카테고리 포함")
+    @GetMapping("/{accommodationId}/image-categories")
+    public ResponseEntity<List<CategoryWithImagesDTO>> getImageCategories(
+            @PathVariable Long accommodationId
+    ){
+        List<CategoryWithImagesDTO> response = accommodationService.getImageCategories(accommodationId);
+        return ResponseEntity.ok(response);
     }
 
 }

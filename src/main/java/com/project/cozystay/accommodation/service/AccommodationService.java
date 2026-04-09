@@ -11,13 +11,13 @@ import com.project.cozystay.accommodation.repository.AmenityRepository;
 import com.project.cozystay.review.repository.AccommodationReviewRepository;
 import com.project.cozystay.user.domain.User;
 import com.project.cozystay.user.repository.UserRepository;
+import com.project.cozystay.accommodation.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,12 +33,15 @@ public class AccommodationService {
     private final UserRepository userRepository;
     private final AccommodationReviewRepository accommodationReviewRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final AccommodationImageCategoryRepository accommodationImageCategoryRepository;
 
+
+    //숙소 상태가 ACTIVE인 항목만 조회해서 반환
     @Transactional(readOnly = true)
-    public List<AccommodationResponseDTO> getAllAccommodations() {
+    public List<AccommodationMainResponseDTO> getAllAccommodations() {
         List<Accommodation> accommodations = accommodationRepository.findAllAccommodations();
         return accommodations.stream()
-                .map(AccommodationResponseDTO::fromEntity)
+                .map(AccommodationMainResponseDTO::fromEntity)
                 .toList();
     }
 
@@ -120,11 +123,23 @@ public class AccommodationService {
 
         for (AccommodationImageRequestDTO dto : request) {
             AccommodationImage image = dto.toEntity();
+
+            if (dto.getCategoryId() != null) {
+                AccommodationImageCategory category = accommodationImageCategoryRepository.findById(dto.getCategoryId())
+                        .orElseThrow(() -> new IllegalArgumentException("이미지 카테고리를 찾을 수 없습니다."));
+
+                if (!category.getAccommodation().getId().equals(accommodationId)) {
+                    throw new IllegalArgumentException("해당 숙소에 속한 이미지 카테고리가 아닙니다.");
+                }
+
+                image.assignCategory(category);
+            }
+
             accommodation.addImage(image);
             newImages.add(image);
         }
 
-        accommodationRepository.save(accommodation);
+        accommodationRepository.saveAndFlush(accommodation);
 
         // 이미지 추가 시에도 ES 동기화 이벤트 발행
         eventPublisher.publishEvent(new AccommodationEvent(accommodation.getId(), AccommodationEvent.OperationType.SAVE));
@@ -264,6 +279,35 @@ public class AccommodationService {
                 .imageIds(imageIds)
                 .message("이미지 삭제 완료")
                 .build();
+    }
+
+    @Transactional
+    public AccommodationImageCategoryResponseDTO createImageCategory(
+            Long accommodationId,
+            Long hostId,
+            AccommodationImageCategoryRequestDTO request){
+        Accommodation accommodation = accommodationRepository.findById(accommodationId)
+                .orElseThrow(() -> new IllegalArgumentException("숙소를 찾을 수 없습니다."));
+
+        accommodationHostCheck(accommodation, hostId);
+
+        AccommodationImageCategory category = AccommodationImageCategory.create(
+                accommodation, request.getName(), request.getDisplayOrder());
+
+        category = accommodationImageCategoryRepository.save(category);
+
+        return AccommodationImageCategoryResponseDTO.builder()
+                .categoryId(category.getId())
+                .name(category.getName())
+                .displayOrder(category.getDisplayOrder())
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public List<CategoryWithImagesDTO> getImageCategories(Long accommodationId) {
+        Accommodation accommodation = accommodationRepository.findByIdWithImagesAndCategories(accommodationId)
+                .orElseThrow(() -> new IllegalArgumentException("ID에 해당하는 숙소가 없습니다."));
+        return CategoryWithImagesDTO.fromAccommodation(accommodation);
     }
 
     /**

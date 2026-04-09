@@ -136,9 +136,9 @@ public class Accommodation {
 
         if (this.detail == null)
             throw new IllegalStateException("상세 정보가 없습니다.");
-
-        if (this.images.isEmpty())
-            throw new IllegalStateException("이미지가 없습니다.");
+    //TODO : S3 이미지 서버 연동 후 적용
+    //  if (this.images.isEmpty())
+    //      throw new IllegalStateException("이미지가 없습니다.");
 
         if (this.amenities.isEmpty())
             throw new IllegalStateException("편의시설 정보가 없습니다.");
@@ -176,8 +176,6 @@ public class Accommodation {
         if (dto.getPricePerNight() != null) this.pricePerNight = dto.getPricePerNight();
 
         if (dto.getCleaningFee() != null) this.cleaningFee = dto.getCleaningFee();
-
-        if (dto.getServiceFeePercentage() != null) this.serviceFeePercentage = dto.getServiceFeePercentage();
 
         if (dto.getInstantBooking() != null) this.instantBooking = dto.getInstantBooking();
 
