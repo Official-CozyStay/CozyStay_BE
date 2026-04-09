@@ -18,8 +18,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -71,12 +73,13 @@ public class SearchService {
                         .collect(Collectors.toList());
 
                 // 해당 기간에 이미 예약(PENDING, CONFIRMED)이 있는 숙소 ID들을 조회
-                List<Long> bookedIds = bookingRepository.findBookedAccommodationIds(
+                List<Long> bookedIdList = bookingRepository.findBookedAccommodationIds(
                         candidateIds,
                         Arrays.asList(BookingStatus.PENDING, BookingStatus.CONFIRMED),
                         request.getCheckInDate(),
                         request.getCheckOutDate()
                 );
+                Set<Long> bookedIds = new HashSet<>(bookedIdList);
 
                 // 예약된 숙소 제외
                 esResults = esResults.stream()
