@@ -40,6 +40,9 @@ public class AccommodationJPASearchRepositoryImpl implements AccommodationJPASea
                         priceBetween(request.getMinPrice(), request.getMaxPrice()),
                         isAvailable(request.getCheckInDate(), request.getCheckOutDate())
                 )
+                .offset((long) request.getPage() * request.getSize())
+                .limit(request.getSize())
+                .orderBy(accommodation.id.desc())
                 .fetch();
     }
 

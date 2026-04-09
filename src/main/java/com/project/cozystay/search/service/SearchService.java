@@ -10,6 +10,10 @@ import com.project.cozystay.search.repository.AccommodationJPASearchRepository;
 import com.querydsl.core.Tuple;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,7 +22,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 @Slf4j
 @Service
@@ -31,8 +34,11 @@ public class SearchService {
     private final BookingRepository bookingRepository;
 
     public AccommodationSearchResponse search(AccommodationSearchRequest request) {
-        log.info("검색 요청 수신: title={}, province={}, checkIn={}, checkOut={}", 
-                request.getTitle(), request.getProvince(), request.getCheckInDate(), request.getCheckOutDate());
+        log.info("검색 요청 수신: title={}, province={}, page={}, size={}", 
+                request.getTitle(), request.getProvince(), request.getPage(), request.getSize());
+
+        // 페이징 객체 생성 (기본 정렬: ID 내림차순 - 최신순)
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), Sort.by("id").descending());
 
         // 1. 키워드 추출
         String keyword = Stream.of(request.getTitle(), request.getProvince(), request.getCity(), request.getDistrict())
@@ -49,12 +55,11 @@ public class SearchService {
         try {
             List<AccommodationDocument> esResults;
             if (keyword != null && !keyword.isEmpty()) {
-                log.info("Elasticsearch 고도화 검색 실행: keyword={}", keyword);
-                esResults = accommodationElasticSearchRepository.searchByKeyword(keyword);
+                log.info("Elasticsearch 고도화 검색 실행: keyword={}, pageable={}", keyword, pageable);
+                esResults = accommodationElasticSearchRepository.searchByKeyword(keyword, pageable).getContent();
             } else {
-                log.info("검색어가 없어 ES 전체 데이터를 조회합니다.");
-                esResults = StreamSupport.stream(accommodationElasticSearchRepository.findAll().spliterator(), false)
-                        .collect(Collectors.toList());
+                log.info("검색어가 없어 ES 페이징 조회를 수행합니다: {}", pageable);
+                esResults = accommodationElasticSearchRepository.findAll(pageable).getContent();
             }
 
             // 3. 날짜 가용성 필터링 (Hybrid Search 전략)

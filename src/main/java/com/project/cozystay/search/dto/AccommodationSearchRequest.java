@@ -21,6 +21,10 @@ public class AccommodationSearchRequest {
     private BigDecimal maxPrice;
     private Integer numberOfBeds;
 
+    // 페이징 파라미터 추가 (기본값 설정)
+    private int page = 0;
+    private int size = 20;
+
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate checkInDate;
 
