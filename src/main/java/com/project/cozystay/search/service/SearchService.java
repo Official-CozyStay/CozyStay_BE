@@ -39,8 +39,11 @@ public class SearchService {
                 .filter(Objects::nonNull)
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
-                .findFirst()
-                .orElse(null);
+                .collect(Collectors.joining(" "));
+
+        if (keyword.isEmpty()) {
+            keyword = null;
+        }
 
         // 2. Elasticsearch 검색 시도 (우선순위 1)
         try {
