@@ -46,10 +46,15 @@ public class ElasticsearchSyncService {
             accommodationPage = accommodationRepository.findAllByStatus(AccommodationStatus.ACTIVE, pageable);
 
             List<AccommodationDocument> documents = accommodationPage.getContent().stream().map(acc -> {
+                // 대표 이미지(isPrimary=true)를 우선 선택, 없으면 첫 번째 이미지 사용
                 String mainImageUrl = acc.getImages().stream()
+                        .filter(AccommodationImage::isPrimary)
                         .findFirst()
                         .map(AccommodationImage::getImageUrl)
-                        .orElse(null);
+                        .orElseGet(() -> acc.getImages().stream()
+                                .findFirst()
+                                .map(AccommodationImage::getImageUrl)
+                                .orElse(null));
 
                 return AccommodationDocument.builder()
                         .id(acc.getId())

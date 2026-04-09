@@ -39,10 +39,15 @@ public class AccommodationEventListener {
         accommodationRepository.findById(accommodationId).ifPresent(acc -> {
             // 활성화된 숙소만 ES에 저장/업데이트
             if (acc.getStatus() == AccommodationStatus.ACTIVE) {
+                // 대표 이미지(isPrimary=true)를 우선 선택, 없으면 첫 번째 이미지 사용
                 String mainImageUrl = acc.getImages().stream()
+                        .filter(AccommodationImage::isPrimary)
                         .findFirst()
                         .map(AccommodationImage::getImageUrl)
-                        .orElse(null);
+                        .orElseGet(() -> acc.getImages().stream()
+                                .findFirst()
+                                .map(AccommodationImage::getImageUrl)
+                                .orElse(null));
 
                 AccommodationDocument document = AccommodationDocument.builder()
                         .id(acc.getId())
