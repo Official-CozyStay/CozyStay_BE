@@ -6,8 +6,12 @@ import com.project.cozystay.accommodation.domain.AccommodationStatus;
 import com.project.cozystay.accommodation.repository.AccommodationRepository;
 import com.project.cozystay.search.domain.AccommodationDocument;
 import com.project.cozystay.search.repository.AccommodationElasticSearchRepository;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,42 +25,59 @@ public class ElasticsearchSyncService {
 
     private final AccommodationRepository accommodationRepository;
     private final AccommodationElasticSearchRepository accommodationElasticSearchRepository;
+    private final EntityManager entityManager;
+
+    private static final int BATCH_SIZE = 500;
 
     /**
      * MySQL의 모든 ACTIVE 숙소 데이터를 Elasticsearch로 벌크 동기화합니다.
+     * 페이징 처리를 통해 대량 데이터 로드 시의 OOM 문제를 방지합니다.
      */
     @Transactional(readOnly = true)
     public int syncAll() {
-        log.info("Elasticsearch 전체 데이터 동기화 시작...");
+        log.info("Elasticsearch 전체 데이터 동기화 시작 (배치 사이즈: {})...", BATCH_SIZE);
 
-        List<Accommodation> accommodations = accommodationRepository.findAll().stream()
-                .filter(acc -> acc.getStatus() == AccommodationStatus.ACTIVE)
-                .collect(Collectors.toList());
+        int totalSyncedCount = 0;
+        int pageNumber = 0;
+        Page<Accommodation> accommodationPage;
 
-        List<AccommodationDocument> documents = accommodations.stream().map(acc -> {
-            String mainImageUrl = acc.getImages().stream()
-                    .findFirst()
-                    .map(AccommodationImage::getImageUrl)
-                    .orElse(null);
+        do {
+            Pageable pageable = PageRequest.of(pageNumber, BATCH_SIZE);
+            accommodationPage = accommodationRepository.findAllByStatus(AccommodationStatus.ACTIVE, pageable);
 
-            return AccommodationDocument.builder()
-                    .id(acc.getId())
-                    .title(acc.getTitle())
-                    .description(acc.getDescription())
-                    .address(acc.getAddress())
-                    .province(acc.getProvince())
-                    .city(acc.getCity())
-                    .district(acc.getDistrict())
-                    .pricePerNight(acc.getPricePerNight() != null ? acc.getPricePerNight().doubleValue() : 0.0)
-                    .mainImageUrl(mainImageUrl)
-                    .build();
-        }).collect(Collectors.toList());
+            List<AccommodationDocument> documents = accommodationPage.getContent().stream().map(acc -> {
+                String mainImageUrl = acc.getImages().stream()
+                        .findFirst()
+                        .map(AccommodationImage::getImageUrl)
+                        .orElse(null);
 
-        if (!documents.isEmpty()) {
-            accommodationElasticSearchRepository.saveAll(documents);
-        }
+                return AccommodationDocument.builder()
+                        .id(acc.getId())
+                        .title(acc.getTitle())
+                        .description(acc.getDescription())
+                        .address(acc.getAddress())
+                        .province(acc.getProvince())
+                        .city(acc.getCity())
+                        .district(acc.getDistrict())
+                        .pricePerNight(acc.getPricePerNight() != null ? acc.getPricePerNight().doubleValue() : 0.0)
+                        .mainImageUrl(mainImageUrl)
+                        .build();
+            }).collect(Collectors.toList());
 
-        log.info("Elasticsearch 전체 데이터 동기화 완료! 총 {}건", documents.size());
-        return documents.size();
+            if (!documents.isEmpty()) {
+                accommodationElasticSearchRepository.saveAll(documents);
+                totalSyncedCount += documents.size();
+                
+                // 영속성 컨텍스트에 쌓인 엔티티들을 강제로 메모리에서 비움
+                entityManager.clear();
+                
+                log.info("배치 동기화 진행 중: {}건 완료...", totalSyncedCount);
+            }
+
+            pageNumber++;
+        } while (accommodationPage.hasNext());
+
+        log.info("Elasticsearch 전체 데이터 동기화 완료! 총 {}건", totalSyncedCount);
+        return totalSyncedCount;
     }
 }
