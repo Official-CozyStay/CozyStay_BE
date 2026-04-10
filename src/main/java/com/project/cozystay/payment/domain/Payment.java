@@ -19,7 +19,8 @@ import static jakarta.persistence.FetchType.LAZY;
       name = "payments",
       uniqueConstraints ={
               @UniqueConstraint(name = "uk_payments_booking", columnNames = "booking_id"),
-              @UniqueConstraint(name = "uk_payments_payment_key", columnNames = "payment_key")
+              @UniqueConstraint(name = "uk_payments_payment_key", columnNames = "payment_key"),
+              @UniqueConstraint(name = "uk_payments_order_id", columnNames = "order_id")
       }
 )
 public class Payment extends BaseTimeEntity{
@@ -45,6 +46,9 @@ public class Payment extends BaseTimeEntity{
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_status", nullable = false, length = 20)
     private PaymentStatus status;
+
+    @Column(name = "order_id", length = 64, unique = true)
+    private String orderId;
 
     // 실제 PG 연동 시 채워질 값 (지금은 Mock)
     @Column(name= "payment_key", length = 255, unique = true)
@@ -107,11 +111,16 @@ public class Payment extends BaseTimeEntity{
         this.paymentMethod = method;
 
         // 이전 결제 시도 값 초기화
+        this.orderId = null;
         this.paymentKey = null;
         this.paidAt = null;
         this.cancelledAt = null;
 
         // 다시 결제 시작
         this.status = PaymentStatus.READY;
+    }
+
+    public void assignOrderId(String orderId){
+        this.orderId = orderId;
     }
 }
