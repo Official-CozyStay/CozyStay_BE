@@ -89,6 +89,11 @@ public class S3Service {
     }
 
     private String extractKeyFromUrl(String fileUrl) {
-        return fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
+        try {
+            String path = new java.net.URI(fileUrl).getPath();
+            return path.startsWith("/") ? path.substring(1) : path;
+        } catch (java.net.URISyntaxException e) {
+            throw new IllegalArgumentException("잘못된 URL 형식입니다.", e);
+        }
     }
 }
