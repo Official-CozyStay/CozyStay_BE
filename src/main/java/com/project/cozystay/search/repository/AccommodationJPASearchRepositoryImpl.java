@@ -6,10 +6,14 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 import com.project.cozystay.search.dto.AccommodationSearchRequest; // Added missing import
@@ -26,8 +30,8 @@ public class AccommodationJPASearchRepositoryImpl implements AccommodationJPASea
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<Tuple> search(AccommodationSearchRequest request) {
-        return queryFactory
+    public Page<Tuple> search(AccommodationSearchRequest request, List<Long> excludedIds, Pageable pageable) {
+        List<Tuple> results = queryFactory
                 .select(accommodation, accommodationImage.imageUrl)
                 .from(accommodation)
                 .leftJoin(accommodation.images, accommodationImage).on(accommodationImage.primary.isTrue())
@@ -38,12 +42,37 @@ public class AccommodationJPASearchRepositoryImpl implements AccommodationJPASea
                         districtEq(request.getDistrict()),
                         titleContains(request.getTitle()),
                         priceBetween(request.getMinPrice(), request.getMaxPrice()),
-                        isAvailable(request.getCheckInDate(), request.getCheckOutDate())
+                        isAvailable(request.getCheckInDate(), request.getCheckOutDate()),
+                        idNotIn(excludedIds)
                 )
-                .offset((long) request.getPage() * request.getSize())
-                .limit(request.getSize())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .orderBy(accommodation.id.desc())
                 .fetch();
+
+        long total = queryFactory
+                .select(accommodation.count())
+                .from(accommodation)
+                .where(
+                        accommodation.status.eq(AccommodationStatus.ACTIVE),
+                        provinceEq(request.getProvince()),
+                        cityEq(request.getCity()),
+                        districtEq(request.getDistrict()),
+                        titleContains(request.getTitle()),
+                        priceBetween(request.getMinPrice(), request.getMaxPrice()),
+                        isAvailable(request.getCheckInDate(), request.getCheckOutDate()),
+                        idNotIn(excludedIds)
+                )
+                .fetchOne();
+
+        return new PageImpl<>(results, pageable, total);
+    }
+
+    private BooleanExpression idNotIn(List<Long> excludedIds) {
+        if (excludedIds == null || excludedIds.isEmpty()) {
+            return null;
+        }
+        return accommodation.id.notIn(excludedIds);
     }
 
     private BooleanExpression provinceEq(String province) {

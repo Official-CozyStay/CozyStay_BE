@@ -16,14 +16,29 @@ public interface AccommodationElasticSearchRepository extends ElasticsearchRepos
      * - Fuzziness 1: '재주' -> '제주'와 같은 오타 교정은 유지
      */
     @Query("{" +
-            "  \"multi_match\": {" +
-            "    \"query\": \"?0\"," +
-            "    \"fields\": [\"title^3\", \"province^2\", \"city^2\", \"address^2\", \"district\"]," +
-            "    \"operator\": \"OR\"," +
-            "    \"fuzziness\": 1" +
+            "  \"bool\": {" +
+            "    \"must\": [" +
+            "      {" +
+            "        \"multi_match\": {" +
+            "          \"query\": \"?0\"," +
+            "          \"fields\": [\"title^3\", \"province^2\", \"city^2\", \"address^2\", \"district\"]," +
+            "          \"operator\": \"OR\"," +
+            "          \"fuzziness\": 1" +
+            "        }" +
+            "      }" +
+            "    ]," +
+            "    \"must_not\": [" +
+            "      {" +
+            "        \"terms\": {" +
+            "          \"id\": ?1" +
+            "        }" +
+            "      }" +
+            "    ]" +
             "  }" +
             "}")
-    Page<AccommodationDocument> searchByKeyword(String keyword, Pageable pageable);
+    Page<AccommodationDocument> searchByKeywordAndExcludeIds(String keyword, List<Long> excludedIds, Pageable pageable);
+
+    Page<AccommodationDocument> findByIdNotIn(List<Long> excludedIds, Pageable pageable);
 
     List<AccommodationDocument> findByTitleOrAddress(String title, String address);
 }

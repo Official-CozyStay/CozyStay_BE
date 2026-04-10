@@ -162,4 +162,20 @@ and b.checkOutDate > :checkInDate
             @Param("checkInDate") LocalDate checkInDate,
             @Param("checkOutDate") LocalDate checkOutDate
     );
+
+    /**
+     * 특정 기간에 이미 예약된 모든 숙소 ID 목록을 조회합니다.
+     */
+    @Query("""
+select distinct b.accommodation.id
+from Booking b
+where b.status in :activeStatuses
+and b.checkInDate < :checkOutDate
+and b.checkOutDate > :checkInDate
+""")
+    List<Long> findAllBookedAccommodationIdsByDateRange(
+            @Param("activeStatuses") List<BookingStatus> activeStatuses,
+            @Param("checkInDate") LocalDate checkInDate,
+            @Param("checkOutDate") LocalDate checkOutDate
+    );
 }

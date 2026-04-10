@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -42,7 +43,19 @@ public class SearchService {
         // 페이징 객체 생성 (기본 정렬: ID 내림차순 - 최신순)
         Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), Sort.by("id").descending());
 
-        // 1. 키워드 추출
+        // 1. 제외할 예약된 숙소 ID 조회 (날짜 조건이 있을 경우)
+        List<Long> bookedIds = Collections.emptyList();
+        if (request.getCheckInDate() != null && request.getCheckOutDate() != null) {
+            log.info("예약 필터링을 위한 숙소 ID 조회: {} ~ {}", request.getCheckInDate(), request.getCheckOutDate());
+            bookedIds = bookingRepository.findAllBookedAccommodationIdsByDateRange(
+                    Arrays.asList(BookingStatus.PENDING, BookingStatus.CONFIRMED),
+                    request.getCheckInDate(),
+                    request.getCheckOutDate()
+            );
+            log.info("제외될 예약된 숙소 수: {}건", bookedIds.size());
+        }
+
+        // 2. 키워드 추출
         String keyword = Stream.of(request.getTitle(), request.getProvince(), request.getCity(), request.getDistrict())
                 .filter(Objects::nonNull)
                 .map(String::trim)
@@ -53,49 +66,27 @@ public class SearchService {
             keyword = null;
         }
 
-        // 2. Elasticsearch 검색 시도 (우선순위 1)
+        // 3. Elasticsearch 검색 시도 (우선순위 1)
         try {
-            List<AccommodationDocument> esResults;
+            Page<AccommodationDocument> esPage;
             if (keyword != null && !keyword.isEmpty()) {
-                log.info("Elasticsearch 고도화 검색 실행: keyword={}, pageable={}", keyword, pageable);
-                esResults = accommodationElasticSearchRepository.searchByKeyword(keyword, pageable).getContent();
+                log.info("Elasticsearch 고도화 검색 실행 (필터 포함): keyword={}, excludedCount={}", keyword, bookedIds.size());
+                esPage = accommodationElasticSearchRepository.searchByKeywordAndExcludeIds(keyword, bookedIds, pageable);
+            } else if (!bookedIds.isEmpty()) {
+                log.info("검색어 없이 예약 제외 필터링만 수행합니다: excludedCount={}", bookedIds.size());
+                esPage = accommodationElasticSearchRepository.findByIdNotIn(bookedIds, pageable);
             } else {
-                log.info("검색어가 없어 ES 페이징 조회를 수행합니다: {}", pageable);
-                esResults = accommodationElasticSearchRepository.findAll(pageable).getContent();
+                log.info("검색어와 예약 필터가 없어 ES 전체 페이징 조회를 수행합니다.");
+                esPage = accommodationElasticSearchRepository.findAll(pageable);
             }
 
-            // 3. 날짜 가용성 필터링 (Hybrid Search 전략)
-            if (request.getCheckInDate() != null && request.getCheckOutDate() != null && !esResults.isEmpty()) {
-                log.info("날짜 가용성 필터링 시작: {} ~ {}", request.getCheckInDate(), request.getCheckOutDate());
-                
-                List<Long> candidateIds = esResults.stream()
-                        .map(AccommodationDocument::getId)
-                        .collect(Collectors.toList());
-
-                // 해당 기간에 이미 예약(PENDING, CONFIRMED)이 있는 숙소 ID들을 조회
-                List<Long> bookedIdList = bookingRepository.findBookedAccommodationIds(
-                        candidateIds,
-                        Arrays.asList(BookingStatus.PENDING, BookingStatus.CONFIRMED),
-                        request.getCheckInDate(),
-                        request.getCheckOutDate()
-                );
-                Set<Long> bookedIds = new HashSet<>(bookedIdList);
-
-                // 예약된 숙소 제외
-                esResults = esResults.stream()
-                        .filter(doc -> !bookedIds.contains(doc.getId()))
-                        .collect(Collectors.toList());
-                
-                log.info("가용성 필터링 완료: {}건 제외됨, 최종 {}건", bookedIds.size(), esResults.size());
-            }
-
-            return AccommodationSearchResponse.fromDocuments(esResults);
+            return AccommodationSearchResponse.fromDocuments(esPage);
 
         } catch (Exception e) {
             // 4. ES 장애 발생 시 JPA(QueryDSL)로 Fallback
             log.error("Elasticsearch 장애 발생! JPA(QueryDSL) 검색으로 전환합니다. 사유: {}", e.getMessage());
-            List<Tuple> jpaResults = accommodationJPASearchRepository.search(request);
-            return AccommodationSearchResponse.from(jpaResults);
+            Page<Tuple> jpaPage = accommodationJPASearchRepository.search(request, bookedIds, pageable);
+            return AccommodationSearchResponse.from(jpaPage);
         }
     }
 }
