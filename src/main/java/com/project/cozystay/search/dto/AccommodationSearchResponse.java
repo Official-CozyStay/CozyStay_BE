@@ -52,7 +52,7 @@ public class AccommodationSearchResponse {
         private String title;
         private String description;
         private String address;
-        private String province;
+        private String state;
         private String city;
         private String district;
         private BigDecimal pricePerNight;
@@ -64,7 +64,7 @@ public class AccommodationSearchResponse {
                     .title(accommodation.getTitle())
                     .description(accommodation.getDescription())
                     .address(accommodation.getAddress())
-                    .province(accommodation.getProvince())
+                    .state(accommodation.getState())
                     .city(accommodation.getCity())
                     .district(accommodation.getDistrict())
                     .pricePerNight(accommodation.getPricePerNight())
@@ -78,7 +78,7 @@ public class AccommodationSearchResponse {
                     .title(document.getTitle())
                     .description(document.getDescription())
                     .address(document.getAddress())
-                    .province(document.getProvince())
+                    .state(document.getState())
                     .city(document.getCity())
                     .district(document.getDistrict())
                     .pricePerNight(BigDecimal.valueOf(document.getPricePerNight()))

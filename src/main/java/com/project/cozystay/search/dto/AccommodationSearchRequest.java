@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class AccommodationSearchRequest {
-    private String province; // 도/광역시 (예: 경기도, 서울특별시)
+    private String state; // 도/광역시 (예: 경기도, 서울특별시)
 
     private String city;     // 시/군 (예: 성남시, 가평군)
 

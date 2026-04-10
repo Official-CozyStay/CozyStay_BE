@@ -13,7 +13,7 @@ public class FavoriteAccommodationResponseDTO {
 
     private Long accommodationId;
     private String title;
-    private String province;
+    private String state;
     private String city;
     private String district;
     private String country;
@@ -24,7 +24,7 @@ public class FavoriteAccommodationResponseDTO {
         return FavoriteAccommodationResponseDTO.builder()
                 .accommodationId(accommodation.getId())
                 .title(accommodation.getTitle())
-                .province(accommodation.getProvince())
+                .state(accommodation.getState())
                 .city(accommodation.getCity())
                 .district(accommodation.getDistrict())
                 .country(accommodation.getCountry())
