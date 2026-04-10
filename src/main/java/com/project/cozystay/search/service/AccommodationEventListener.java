@@ -54,7 +54,7 @@ public class AccommodationEventListener {
                         .title(acc.getTitle())
                         .description(acc.getDescription())
                         .address(acc.getAddress())
-                        .province(acc.getProvince())
+                        .state(acc.getState())
                         .city(acc.getCity())
                         .district(acc.getDistrict())
                         .pricePerNight(acc.getPricePerNight() != null ? acc.getPricePerNight().doubleValue() : 0.0)

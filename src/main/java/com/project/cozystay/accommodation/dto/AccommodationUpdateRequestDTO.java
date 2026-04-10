@@ -18,8 +18,6 @@ public class AccommodationUpdateRequestDTO {
     private AccommodationType accommodationType;
     private String address;
 
-    private String province;
-
     private String city;
 
     private String district;

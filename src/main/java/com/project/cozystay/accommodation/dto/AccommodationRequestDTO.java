@@ -1,12 +1,10 @@
 package com.project.cozystay.accommodation.dto;
 
 import com.project.cozystay.accommodation.domain.Accommodation;
-import com.project.cozystay.accommodation.domain.AccommodationStatus;
 import com.project.cozystay.accommodation.domain.AccommodationType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 
 import java.math.BigDecimal;
 import java.time.LocalTime;
@@ -23,8 +21,6 @@ public class AccommodationRequestDTO {
     private AccommodationType accommodationType;
 
     private String address;
-
-    private String province; // 도/광역시 (예: 경기도, 서울특별시)
 
     private String city;     // 시/군 (예: 성남시, 가평군)
 
@@ -48,9 +44,9 @@ public class AccommodationRequestDTO {
 
     private Boolean instantBooking;
 
-    private LocalTime checkInTime;
+    private String checkInTime;
 
-    private LocalTime checkOutTime;
+    private String checkOutTime;
 
     public Accommodation toEntity(Long hostId) {
         return Accommodation.builder()
@@ -59,7 +55,6 @@ public class AccommodationRequestDTO {
                 .description(this.description)
                 .accommodationType(this.accommodationType)
                 .address(this.address)
-                .province(this.province)
                 .city(this.city)
                 .district(this.district)
                 .state(this.state)
@@ -71,9 +66,8 @@ public class AccommodationRequestDTO {
                 .pricePerNight(this.pricePerNight)
                 .cleaningFee(this.cleaningFee != null ? this.cleaningFee : BigDecimal.ZERO)
                 .instantBooking(this.instantBooking != null ? this.instantBooking : false)
-                .checkInTime(this.checkInTime)
-                .checkOutTime(this.checkOutTime)
-                .status(AccommodationStatus.DRAFT)
+                .checkInTime(LocalTime.parse(this.checkInTime))
+                .checkOutTime(LocalTime.parse(this.checkOutTime))
                 .build();
     }
 }
