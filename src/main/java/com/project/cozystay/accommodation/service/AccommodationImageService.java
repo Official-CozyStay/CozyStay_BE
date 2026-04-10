@@ -1,8 +1,5 @@
 package com.project.cozystay.accommodation.service;
 
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.cozystay.accommodation.domain.Accommodation;
 import com.project.cozystay.accommodation.domain.AccommodationImage;
@@ -26,28 +23,14 @@ public class AccommodationImageService {
     private final AccommodationRepository accommodationRepository;
     private final AccommodationImageRepository accommodationImageRepository;
     private final S3Service s3Service;
-    private final ObjectMapper objectMapper;
 
     @Transactional
     public AccommodationImageResponseDTO addImage(
             Long accommodationId,
             Long hostId,
             List<MultipartFile> files,
-            String metadataJson) {
+            List<AccommodationImageRequestDTO> request) {
 
-        List<AccommodationImageRequestDTO> request;
-        try {
-            request = objectMapper.readValue(
-                    metadataJson,
-                    new TypeReference<List<AccommodationImageRequestDTO>>() {}
-            );
-        } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException("metadata JSON 형식이 올바르지 않습니다.", e);
-        }
-
-        if (files == null || files.isEmpty()) {
-            throw new IllegalArgumentException("업로드할 파일이 없습니다.");
-        }
         if (files.size() != request.size()) {
             throw new IllegalArgumentException("파일 개수와 메타데이터 개수가 일치해야 합니다.");
         }
