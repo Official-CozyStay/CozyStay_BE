@@ -41,7 +41,7 @@ class SearchControllerTest {
         Accommodation accommodation = Accommodation.builder()
                 .hostId(1L)
                 .title("Test Accommodation in Seoul")
-                .province("서울특별시")
+                .state("서울특별시")
                 .city("강남구")
                 .district("신사동")
                 .country("South Korea")
@@ -69,13 +69,13 @@ class SearchControllerTest {
 
         // when & then
         mockMvc.perform(get("/api/v1/search")
-                        .param("province", "서울특별시")
+                        .param("state", "서울특별시")
                         .param("city", "강남구")
                         .param("district", "신사동"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accommodations.length()", is(1)))
                 .andExpect(jsonPath("$.accommodations[0].title", is("Test Accommodation in Seoul")))
-                .andExpect(jsonPath("$.accommodations[0].province", is("서울특별시")))
+                .andExpect(jsonPath("$.accommodations[0].state", is("서울특별시")))
                 .andExpect(jsonPath("$.accommodations[0].city", is("강남구")))
                 .andExpect(jsonPath("$.accommodations[0].district", is("신사동")))
                 .andExpect(jsonPath("$.accommodations[0].mainImageUrl", is("http://example.com/primary_image.jpg")))
@@ -125,7 +125,7 @@ class SearchControllerTest {
     @Test
     void 모든_필터로_검색시_필터링된_결과를_반환해야_한다() throws Exception {
         mockMvc.perform(get("/api/v1/search")
-                        .param("province", "서울특별시")
+                        .param("state", "서울특별시")
                         .param("city", "강남구")
                         .param("minPrice", "50000")
                         .param("maxPrice", "200000")
