@@ -6,6 +6,7 @@ import com.project.cozystay.accommodation.service.AccommodationService;
 import com.project.cozystay.auth.CustomOAuth2User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -98,11 +99,11 @@ public class AccommodationController {
     public ResponseEntity<AccommodationImageResponseDTO> addImage(
             @PathVariable Long accommodationId,
             @AuthenticationPrincipal CustomOAuth2User principal,
-            @RequestPart("files") List<MultipartFile> files,
-            @RequestPart("metadata") String metadataJson
+            @RequestPart("files") @NotEmpty List<MultipartFile> files,
+            @RequestPart("metadata") @NotEmpty List<AccommodationImageRequestDTO> metadata
     ){
         Long hostId = principal.getId();
-        AccommodationImageResponseDTO response = accommodationImageService.addImage(accommodationId, hostId, files, metadataJson);
+        AccommodationImageResponseDTO response = accommodationImageService.addImage(accommodationId, hostId, files, metadata);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
