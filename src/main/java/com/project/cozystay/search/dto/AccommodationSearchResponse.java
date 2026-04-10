@@ -6,6 +6,8 @@ import com.querydsl.core.Tuple;
 import lombok.Builder;
 import lombok.Getter;
 
+import org.springframework.data.domain.Page;
+
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,22 +20,28 @@ import static com.project.cozystay.accommodation.domain.QAccommodationImage.acco
 public class AccommodationSearchResponse {
 
     private List<AccommodationInfo> accommodations;
+    private long totalElements;
+    private int totalPages;
 
-    public static AccommodationSearchResponse from(List<Tuple> searchResults) {
-        List<AccommodationInfo> accommodationInfos = searchResults.stream()
+    public static AccommodationSearchResponse from(Page<Tuple> searchResults) {
+        List<AccommodationInfo> accommodationInfos = searchResults.getContent().stream()
                 .map(tuple -> AccommodationInfo.from(tuple.get(accommodation), tuple.get(accommodationImage.imageUrl)))
                 .collect(Collectors.toList());
         return AccommodationSearchResponse.builder()
                 .accommodations(accommodationInfos)
+                .totalElements(searchResults.getTotalElements())
+                .totalPages(searchResults.getTotalPages())
                 .build();
     }
 
-    public static AccommodationSearchResponse fromDocuments(List<AccommodationDocument> documents) {
-        List<AccommodationInfo> accommodationInfos = documents.stream()
+    public static AccommodationSearchResponse fromDocuments(Page<AccommodationDocument> documents) {
+        List<AccommodationInfo> accommodationInfos = documents.getContent().stream()
                 .map(AccommodationInfo::from)
                 .collect(Collectors.toList());
         return AccommodationSearchResponse.builder()
                 .accommodations(accommodationInfos)
+                .totalElements(documents.getTotalElements())
+                .totalPages(documents.getTotalPages())
                 .build();
     }
 
