@@ -83,7 +83,9 @@ public class S3Service {
     }
 
     private String getFileUrl(String fileName) {
-        return "https://" + bucket + ".s3." + region + ".amazonaws.com/" + fileName;
+        return s3Client.utilities()
+                .getUrl(builder -> builder.bucket(bucket).key(fileName))
+                .toString();
     }
 
     private String extractKeyFromUrl(String fileUrl) {
