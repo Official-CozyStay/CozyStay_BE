@@ -37,8 +37,8 @@ public class SearchService {
     private final BookingRepository bookingRepository;
 
     public AccommodationSearchResponse search(AccommodationSearchRequest request) {
-        log.info("검색 요청 수신: title={}, province={}, page={}, size={}", 
-                request.getTitle(), request.getProvince(), request.getPage(), request.getSize());
+        log.info("검색 요청 수신: title={}, state={}, page={}, size={}", 
+                request.getTitle(), request.getState(), request.getPage(), request.getSize());
 
         // 페이징 객체 생성 (기본 정렬: ID 내림차순 - 최신순)
         Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), Sort.by("id").descending());
@@ -56,7 +56,7 @@ public class SearchService {
         }
 
         // 2. 키워드 추출
-        String keyword = Stream.of(request.getTitle(), request.getProvince(), request.getCity(), request.getDistrict())
+        String keyword = Stream.of(request.getTitle(), request.getState(), request.getCity(), request.getDistrict())
                 .filter(Objects::nonNull)
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
