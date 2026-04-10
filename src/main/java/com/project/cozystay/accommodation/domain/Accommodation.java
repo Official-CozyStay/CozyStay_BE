@@ -38,9 +38,6 @@ public class Accommodation {
     private String address;
 
     @Column(nullable = false, length = 50)
-    private String province; // 도/광역시 (예: 경기도, 서울특별시)
-
-    @Column(nullable = false, length = 50)
     private String city;     // 시/군 (예: 성남시, 가평군)
 
     @Column(nullable = false, length = 50)
@@ -154,8 +151,6 @@ public class Accommodation {
         if (dto.getAccommodationType() != null) this.accommodationType = dto.getAccommodationType();
 
         if (dto.getAddress() != null) this.address = dto.getAddress();
-
-        if (dto.getProvince() != null) this.province = dto.getProvince();
 
         if (dto.getCity() != null) this.city = dto.getCity();
 
