@@ -37,7 +37,7 @@ public class AccommodationJPASearchRepositoryImpl implements AccommodationJPASea
                 .leftJoin(accommodation.images, accommodationImage).on(accommodationImage.primary.isTrue())
                 .where(
                         accommodation.status.eq(AccommodationStatus.ACTIVE), // 활성화된 숙소만
-                        provinceEq(request.getProvince()),
+                        stateEq(request.getState()),
                         cityEq(request.getCity()),
                         districtEq(request.getDistrict()),
                         titleContains(request.getTitle()),
@@ -55,7 +55,7 @@ public class AccommodationJPASearchRepositoryImpl implements AccommodationJPASea
                 .from(accommodation)
                 .where(
                         accommodation.status.eq(AccommodationStatus.ACTIVE),
-                        provinceEq(request.getProvince()),
+                        stateEq(request.getState()),
                         cityEq(request.getCity()),
                         districtEq(request.getDistrict()),
                         titleContains(request.getTitle()),
@@ -75,8 +75,8 @@ public class AccommodationJPASearchRepositoryImpl implements AccommodationJPASea
         return accommodation.id.notIn(excludedIds);
     }
 
-    private BooleanExpression provinceEq(String province) {
-        return hasText(province) ? accommodation.province.eq(province) : null;
+    private BooleanExpression stateEq(String state) {
+        return hasText(state) ? accommodation.state.eq(state) : null;
     }
 
     private BooleanExpression cityEq(String city) {

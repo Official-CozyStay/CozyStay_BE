@@ -21,7 +21,7 @@ public interface AccommodationElasticSearchRepository extends ElasticsearchRepos
             "      {" +
             "        \"multi_match\": {" +
             "          \"query\": \"?0\"," +
-            "          \"fields\": [\"title^3\", \"province^2\", \"city^2\", \"address^2\", \"district\"]," +
+            "          \"fields\": [\"title^3\", \"city^2\", \"state\", \"district\"]," +
             "          \"operator\": \"OR\"," +
             "          \"fuzziness\": 1" +
             "        }" +
