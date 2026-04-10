@@ -28,4 +28,12 @@ LEFT JOIN FETCH am.amenity
 WHERE a.id = :id
 """)
     Optional<Accommodation> findDetailById(Long id);
+
+    @Query("""
+        SELECT DISTINCT a FROM Accommodation a
+        LEFT JOIN FETCH a.images i
+        LEFT JOIN FETCH i.category
+        WHERE a.id = :id
+        """)
+    Optional<Accommodation> findByIdWithImagesAndCategories(Long id);
 }

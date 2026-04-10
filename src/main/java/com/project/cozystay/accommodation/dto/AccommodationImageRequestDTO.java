@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class AccommodationImageRequestDTO {
     private Integer displayOrder;
     private Boolean isPrimary;
+    private Long categoryId;
 
     public AccommodationImage toEntity() {
         return AccommodationImage.builder()
