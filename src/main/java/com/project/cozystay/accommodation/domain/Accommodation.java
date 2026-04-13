@@ -79,6 +79,14 @@ public class Accommodation {
     @Column(name = "check_out_time")
     private LocalTime checkOutTime;
 
+    @Column(name = "average_rating")
+    @Builder.Default
+    private Double averageRating = 0.0;
+
+    @Column(name = "review_count")
+    @Builder.Default
+    private Integer reviewCount = 0;
+
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
@@ -177,6 +185,11 @@ public class Accommodation {
         if (dto.getCheckInTime() != null) this.checkInTime = dto.getCheckInTime();
 
         if (dto.getCheckOutTime() != null) this.checkOutTime = dto.getCheckOutTime();
+    }
+
+    public void updateReviewStats(Double averageRating, Integer reviewCount) {
+        this.averageRating = averageRating;
+        this.reviewCount = reviewCount;
     }
 
 }

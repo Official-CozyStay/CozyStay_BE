@@ -37,10 +37,17 @@ public class AccommodationDocument {
     
     private String mainImageUrl;
 
+    private Double latitude;
+    private Double longitude;
+    private Double averageRating;
+    private Integer reviewCount;
+
     @Builder
     public AccommodationDocument(Long id, String title, String description, String address,
                                  String state, String city, String district,
-                                 double pricePerNight, String mainImageUrl) {
+                                 double pricePerNight, String mainImageUrl,
+                                 Double latitude, Double longitude,
+                                 Double averageRating, Integer reviewCount) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -50,5 +57,9 @@ public class AccommodationDocument {
         this.district = district;
         this.pricePerNight = pricePerNight;
         this.mainImageUrl = mainImageUrl;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.averageRating = averageRating;
+        this.reviewCount = reviewCount;
     }
 }

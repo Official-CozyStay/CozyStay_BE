@@ -66,6 +66,10 @@ public class ElasticsearchSyncService {
                         .district(acc.getDistrict())
                         .pricePerNight(acc.getPricePerNight() != null ? acc.getPricePerNight().doubleValue() : 0.0)
                         .mainImageUrl(mainImageUrl)
+                        .latitude(acc.getLatitude() != null ? acc.getLatitude().doubleValue() : null)
+                        .longitude(acc.getLongitude() != null ? acc.getLongitude().doubleValue() : null)
+                        .averageRating(acc.getAverageRating())
+                        .reviewCount(acc.getReviewCount())
                         .build();
             }).collect(Collectors.toList());
 

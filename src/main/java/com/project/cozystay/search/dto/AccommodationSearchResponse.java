@@ -57,6 +57,10 @@ public class AccommodationSearchResponse {
         private String district;
         private BigDecimal pricePerNight;
         private String mainImageUrl;
+        private Double latitude;
+        private Double longitude;
+        private Double averageRating;
+        private Integer reviewCount;
 
         public static AccommodationInfo from(Accommodation accommodation, String imageUrl) {
             return AccommodationInfo.builder()
@@ -69,6 +73,10 @@ public class AccommodationSearchResponse {
                     .district(accommodation.getDistrict())
                     .pricePerNight(accommodation.getPricePerNight())
                     .mainImageUrl(imageUrl)
+                    .latitude(accommodation.getLatitude() != null ? accommodation.getLatitude().doubleValue() : null)
+                    .longitude(accommodation.getLongitude() != null ? accommodation.getLongitude().doubleValue() : null)
+                    .averageRating(accommodation.getAverageRating())
+                    .reviewCount(accommodation.getReviewCount())
                     .build();
         }
 
@@ -83,6 +91,10 @@ public class AccommodationSearchResponse {
                     .district(document.getDistrict())
                     .pricePerNight(BigDecimal.valueOf(document.getPricePerNight()))
                     .mainImageUrl(document.getMainImageUrl())
+                    .latitude(document.getLatitude())
+                    .longitude(document.getLongitude())
+                    .averageRating(document.getAverageRating())
+                    .reviewCount(document.getReviewCount())
                     .build();
         }
     }
