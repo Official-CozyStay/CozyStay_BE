@@ -194,7 +194,7 @@ public class AccommodationController {
             @AuthenticationPrincipal CustomOAuth2User principal
     ){
         Long hostId = principal.getId();
-        AccommodationImageCategoryResponseDTO response = accommodationService.createImageCategory(accommodationId, hostId, request);
+        AccommodationImageCategoryResponseDTO response = accommodationImageService.createImageCategory(accommodationId, hostId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

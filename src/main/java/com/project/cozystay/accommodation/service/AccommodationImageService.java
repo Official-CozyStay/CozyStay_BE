@@ -3,10 +3,7 @@ package com.project.cozystay.accommodation.service;
 import com.project.cozystay.accommodation.domain.Accommodation;
 import com.project.cozystay.accommodation.domain.AccommodationImage;
 import com.project.cozystay.accommodation.domain.AccommodationImageCategory;
-import com.project.cozystay.accommodation.dto.AccommodationImageDeleteResponseDTO;
-import com.project.cozystay.accommodation.dto.AccommodationImageRequestDTO;
-import com.project.cozystay.accommodation.dto.AccommodationImageResponseDTO;
-import com.project.cozystay.accommodation.dto.CategoryWithImagesDTO;
+import com.project.cozystay.accommodation.dto.*;
 import com.project.cozystay.accommodation.repository.AccommodationImageCategoryRepository;
 import com.project.cozystay.accommodation.repository.AccommodationImageRepository;
 import com.project.cozystay.accommodation.repository.AccommodationRepository;
@@ -106,6 +103,29 @@ public class AccommodationImageService {
                 .message("이미지 삭제 완료")
                 .build();
     }
+
+    @Transactional
+    public AccommodationImageCategoryResponseDTO createImageCategory(
+            Long accommodationId,
+            Long hostId,
+            AccommodationImageCategoryRequestDTO request){
+        Accommodation accommodation = accommodationRepository.findById(accommodationId)
+                .orElseThrow(() -> new IllegalArgumentException("숙소를 찾을 수 없습니다."));
+
+        accommodationHostCheck(accommodation, hostId);
+
+        AccommodationImageCategory category = AccommodationImageCategory.create(
+                accommodation, request.getName(), request.getDisplayOrder());
+
+        category = accommodationImageCategoryRepository.save(category);
+
+        return AccommodationImageCategoryResponseDTO.builder()
+                .categoryId(category.getId())
+                .name(category.getName())
+                .displayOrder(category.getDisplayOrder())
+                .build();
+    }
+
 
     @Transactional(readOnly = true)
     public List<CategoryWithImagesDTO> getImageCategories(Long accommodationId) {

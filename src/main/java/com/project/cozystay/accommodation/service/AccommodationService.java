@@ -176,28 +176,6 @@ public class AccommodationService {
     }
 
 
-    @Transactional
-    public AccommodationImageCategoryResponseDTO createImageCategory(
-            Long accommodationId,
-            Long hostId,
-            AccommodationImageCategoryRequestDTO request){
-        Accommodation accommodation = accommodationRepository.findById(accommodationId)
-                .orElseThrow(() -> new IllegalArgumentException("숙소를 찾을 수 없습니다."));
-
-        accommodationHostCheck(accommodation, hostId);
-
-        AccommodationImageCategory category = AccommodationImageCategory.create(
-                accommodation, request.getName(), request.getDisplayOrder());
-
-        category = accommodationImageCategoryRepository.save(category);
-
-        return AccommodationImageCategoryResponseDTO.builder()
-                .categoryId(category.getId())
-                .name(category.getName())
-                .displayOrder(category.getDisplayOrder())
-                .build();
-    }
-
     /**
      * 숙소의 주인과 요청한 사람이 맞는지 비교하는 공통 메서드
      */
