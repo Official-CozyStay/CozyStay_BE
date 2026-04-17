@@ -140,6 +140,19 @@ public class Accommodation {
         this.status = AccommodationStatus.ACTIVE;
     }
 
+    public void markDelete(){
+        if(this.status == AccommodationStatus.DELETED){
+            throw new IllegalStateException("이미 삭제된 숙소입니다.");
+        }
+        this.status = AccommodationStatus.DELETED;
+    }
+
+    public void validateActiveAccommodation(){
+        if (this.status != AccommodationStatus.ACTIVE) {
+            throw new IllegalStateException("활성화된 숙소가 아닙니다.");
+        }
+    }
+
     public void update(AccommodationUpdateRequestDTO dto){
         if (dto.getTitle() != null) this.title = dto.getTitle();
 
