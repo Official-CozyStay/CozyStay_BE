@@ -20,6 +20,12 @@ configurations {
 	}
 }
 
+dependencyManagement {
+	imports {
+		mavenBom "io.awspring.cloud:spring-cloud-aws-dependencies:3.3.0"
+	}
+}
+
 repositories {
 	mavenCentral()
 }
@@ -69,6 +75,9 @@ dependencies {
 
 	// Swagger (OpenAPI 3)
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5'
+
+	// AWS S3
+	implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
 
 	// ElasticSearch
 	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'

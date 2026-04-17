@@ -40,4 +40,15 @@ and p.updatedAt < :cutoff
 """)
     List<Payment> findTimeoutTargetWithBooking(@Param("status")PaymentStatus status,
                                                @Param("cutoff") LocalDateTime cutoff);
+
+    Optional<Payment> findByOrderId(String orderId);
+
+    @Query("""
+select p
+from Payment p
+join fetch p.booking b
+join fetch b.accommodation a
+where p.orderId = :orderId
+""")
+    Optional<Payment> findByOrderIdWithBooking(@Param("orderId")String orderId);
 }

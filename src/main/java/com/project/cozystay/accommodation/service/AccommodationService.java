@@ -27,8 +27,6 @@ import java.util.List;
 public class AccommodationService {
 
     private final AccommodationRepository accommodationRepository;
-    private final AccommodationImageRepository accommodationImageRepository;
-    private final AccommodationAmenityRepository accommodationAmenityRepository;
     private final AmenityRepository amenityRepository;
     private final UserRepository userRepository;
     private final AccommodationReviewRepository accommodationReviewRepository;
@@ -110,49 +108,6 @@ public class AccommodationService {
 
         // 상태 변경(게시) 시 ES 동기화 이벤트 발행
         eventPublisher.publishEvent(new AccommodationEvent(accommodation.getId(), AccommodationEvent.OperationType.SAVE));
-    }
-
-    @Transactional
-    public AccommodationImageResponseDTO addImage(Long accommodationId, Long hostId, List<AccommodationImageRequestDTO> request) {
-        Accommodation accommodation = accommodationRepository.findById(accommodationId)
-                .orElseThrow(() -> new IllegalArgumentException("ID에 해당하는 숙소가 없습니다"));
-
-        accommodationHostCheck(accommodation, hostId);
-
-        List<AccommodationImage> newImages = new ArrayList<>();
-
-        for (AccommodationImageRequestDTO dto : request) {
-            AccommodationImage image = dto.toEntity();
-
-            if (dto.getCategoryId() != null) {
-                AccommodationImageCategory category = accommodationImageCategoryRepository.findById(dto.getCategoryId())
-                        .orElseThrow(() -> new IllegalArgumentException("이미지 카테고리를 찾을 수 없습니다."));
-
-                if (!category.getAccommodation().getId().equals(accommodationId)) {
-                    throw new IllegalArgumentException("해당 숙소에 속한 이미지 카테고리가 아닙니다.");
-                }
-
-                image.assignCategory(category);
-            }
-
-            accommodation.addImage(image);
-            newImages.add(image);
-        }
-
-        accommodationRepository.saveAndFlush(accommodation);
-
-        // 이미지 추가 시에도 ES 동기화 이벤트 발행
-        eventPublisher.publishEvent(new AccommodationEvent(accommodation.getId(), AccommodationEvent.OperationType.SAVE));
-
-        List<Long> imageIds = newImages.stream()
-                .map(AccommodationImage::getId)
-                .toList();
-
-        return AccommodationImageResponseDTO.builder()
-                .message("이미지 등록 완료")
-                .accommodationId(accommodationId)
-                .imageId(imageIds)
-                .build();
     }
 
     @Transactional
@@ -255,31 +210,6 @@ public class AccommodationService {
                 .build();
     }
 
-    @Transactional
-    public AccommodationImageDeleteResponseDTO deleteAccommodationImages(
-            Long accommodationId, Long hostId, List<Long> imageIds
-    ){
-        Accommodation accommodation = accommodationRepository.findById(accommodationId)
-                .orElseThrow(() -> new IllegalArgumentException("ID에 해당하는 숙소가 없습니다."));
-
-        accommodationHostCheck(accommodation, hostId);
-
-        List<AccommodationImage> images = accommodationImageRepository.findAllByIdInAndAccommodationId(imageIds, accommodationId);
-
-        if (images.size() != imageIds.size()){
-            throw new IllegalArgumentException("일부 이미지가 존재하지 않거나 해당 숙소에 속하지 않습니다.");
-        }
-
-        accommodationImageRepository.deleteAll(images);
-
-        // 이미지 삭제 시에도 ES 동기화 이벤트 발행 (대표 이미지가 바뀌었을 수 있음)
-        eventPublisher.publishEvent(new AccommodationEvent(accommodationId, AccommodationEvent.OperationType.SAVE));
-
-        return AccommodationImageDeleteResponseDTO.builder()
-                .imageIds(imageIds)
-                .message("이미지 삭제 완료")
-                .build();
-    }
 
     @Transactional
     public AccommodationImageCategoryResponseDTO createImageCategory(
@@ -317,5 +247,10 @@ public class AccommodationService {
         if (!accommodation.getHostId().equals(hostId)){
             throw new IllegalStateException("숙소의 소유자만 수정할 수 있습니다.");
         }
+    }
+
+    private Accommodation getAccommodation(Long accommodationId){
+        return accommodationRepository.findById(accommodationId)
+                .orElseThrow(() -> new IllegalArgumentException("ID에 해당하는 숙소가 없습니다."));
     }
 }

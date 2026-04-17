@@ -10,14 +10,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AccommodationImageRequestDTO {
-    private String imageUrl;
     private Integer displayOrder;
     private Boolean isPrimary;
     private Long categoryId;
 
     public AccommodationImage toEntity() {
         return AccommodationImage.builder()
-                .imageUrl(this.imageUrl)
                 .displayOrder(this.displayOrder)
                 .primary(this.isPrimary != null ? this.isPrimary : false)
                 .build();

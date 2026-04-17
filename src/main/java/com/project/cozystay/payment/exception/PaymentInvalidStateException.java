@@ -5,4 +5,8 @@ public class PaymentInvalidStateException extends RuntimeException{
     public PaymentInvalidStateException(String message){
         super(message);
     }
+
+    public PaymentInvalidStateException(String message, Throwable cause){
+        super(message, cause);
+    }
 }
