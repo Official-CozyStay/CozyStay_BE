@@ -68,6 +68,7 @@ public class AccommodationService {
     @Transactional(readOnly = true)
     public AccommodationFullResponseDTO getAccommodationDetail(Long accommodationId) {
         Accommodation accommodation = getAccommodation(accommodationId);
+        accommodation.validateActiveAccommodation();
 
         User host = userRepository.findById(accommodation.getHostId())
                 .orElseThrow(()-> new IllegalArgumentException("호스트 유저가 없습니다."));
@@ -119,14 +120,12 @@ public class AccommodationService {
                 .build();
     }
 
-    //Cascade 설정에 의해 연관관계를 맺고 있는 테이블도 함께 삭제
     @Transactional
     public AccommodationDeleteResponseDTO deleteAccommodation(Long accommodationId, Long hostId){
         Accommodation accommodation = getAccommodation(accommodationId);
 
         accommodationHostCheck(accommodation, hostId);
-
-        accommodationRepository.delete(accommodation);
+        accommodation.markDelete();
 
         return AccommodationDeleteResponseDTO.builder()
                 .accommodationId(accommodationId)
@@ -203,6 +202,7 @@ public class AccommodationService {
     public List<CategoryWithImagesDTO> getImageCategories(Long accommodationId) {
         Accommodation accommodation = accommodationRepository.findByIdWithImagesAndCategories(accommodationId)
                 .orElseThrow(() -> new IllegalArgumentException("ID에 해당하는 숙소가 없습니다."));
+
         return CategoryWithImagesDTO.fromAccommodation(accommodation);
     }
 
