@@ -198,14 +198,6 @@ public class AccommodationService {
                 .build();
     }
 
-    @Transactional(readOnly = true)
-    public List<CategoryWithImagesDTO> getImageCategories(Long accommodationId) {
-        Accommodation accommodation = accommodationRepository.findByIdWithImagesAndCategories(accommodationId)
-                .orElseThrow(() -> new IllegalArgumentException("ID에 해당하는 숙소가 없습니다."));
-
-        return CategoryWithImagesDTO.fromAccommodation(accommodation);
-    }
-
     /**
      * 숙소의 주인과 요청한 사람이 맞는지 비교하는 공통 메서드
      */

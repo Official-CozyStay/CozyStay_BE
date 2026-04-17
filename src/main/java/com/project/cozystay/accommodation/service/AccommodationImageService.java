@@ -6,6 +6,7 @@ import com.project.cozystay.accommodation.domain.AccommodationImageCategory;
 import com.project.cozystay.accommodation.dto.AccommodationImageDeleteResponseDTO;
 import com.project.cozystay.accommodation.dto.AccommodationImageRequestDTO;
 import com.project.cozystay.accommodation.dto.AccommodationImageResponseDTO;
+import com.project.cozystay.accommodation.dto.CategoryWithImagesDTO;
 import com.project.cozystay.accommodation.repository.AccommodationImageCategoryRepository;
 import com.project.cozystay.accommodation.repository.AccommodationImageRepository;
 import com.project.cozystay.accommodation.repository.AccommodationRepository;
@@ -104,6 +105,14 @@ public class AccommodationImageService {
                 .imageIds(imageIds)
                 .message("이미지 삭제 완료")
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public List<CategoryWithImagesDTO> getImageCategories(Long accommodationId) {
+        Accommodation accommodation = accommodationRepository.findByIdWithImagesAndCategories(accommodationId)
+                .orElseThrow(() -> new IllegalArgumentException("ID에 해당하는 숙소가 없습니다."));
+
+        return CategoryWithImagesDTO.fromAccommodation(accommodation);
     }
 
     private void accommodationHostCheck(Accommodation accommodation, Long hostId) {

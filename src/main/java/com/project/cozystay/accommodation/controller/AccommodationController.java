@@ -206,7 +206,7 @@ public class AccommodationController {
     public ResponseEntity<List<CategoryWithImagesDTO>> getImageCategories(
             @PathVariable Long accommodationId
     ){
-        List<CategoryWithImagesDTO> response = accommodationService.getImageCategories(accommodationId);
+        List<CategoryWithImagesDTO> response = accommodationImageService.getImageCategories(accommodationId);
         return ResponseEntity.ok(response);
     }
 
