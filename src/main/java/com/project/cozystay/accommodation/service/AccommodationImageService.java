@@ -1,11 +1,12 @@
 package com.project.cozystay.accommodation.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.cozystay.accommodation.domain.Accommodation;
 import com.project.cozystay.accommodation.domain.AccommodationImage;
+import com.project.cozystay.accommodation.domain.AccommodationImageCategory;
 import com.project.cozystay.accommodation.dto.AccommodationImageDeleteResponseDTO;
 import com.project.cozystay.accommodation.dto.AccommodationImageRequestDTO;
 import com.project.cozystay.accommodation.dto.AccommodationImageResponseDTO;
+import com.project.cozystay.accommodation.repository.AccommodationImageCategoryRepository;
 import com.project.cozystay.accommodation.repository.AccommodationImageRepository;
 import com.project.cozystay.accommodation.repository.AccommodationRepository;
 import com.project.cozystay.common.service.S3Service;
@@ -22,6 +23,7 @@ import java.util.List;
 public class AccommodationImageService {
     private final AccommodationRepository accommodationRepository;
     private final AccommodationImageRepository accommodationImageRepository;
+    private final AccommodationImageCategoryRepository accommodationImageCategoryRepository;
     private final S3Service s3Service;
 
     @Transactional
@@ -49,6 +51,15 @@ public class AccommodationImageService {
                     .displayOrder(dto.getDisplayOrder() != null ? dto.getDisplayOrder() : 0)
                     .primary(Boolean.TRUE.equals(dto.getIsPrimary()))
                     .build();
+
+            if (dto.getCategoryId() != null) {
+                AccommodationImageCategory category = accommodationImageCategoryRepository
+                        .findByIdAndAccommodation_Id(dto.getCategoryId(), accommodationId)
+                        .orElseThrow(() -> new IllegalArgumentException("해당 숙소에 속한 이미지 카테고리를 찾을 수 없습니다."));
+
+                image.assignCategory(category);
+            }
+
             accommodation.addImage(image);
             newImages.add(image);
         }
