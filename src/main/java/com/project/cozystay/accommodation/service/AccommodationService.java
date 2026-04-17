@@ -48,7 +48,6 @@ public class AccommodationService {
 
     @Transactional
     public AccommodationDetailResponseDTO addAccommodationDetail(Long accommodationId, Long hostId, AccommodationDetailRequestDTO request) {
-
         Accommodation accommodation = getAccommodation(accommodationId);
 
         accommodationHostCheck(accommodation, hostId);
@@ -67,7 +66,10 @@ public class AccommodationService {
 
     @Transactional(readOnly = true)
     public AccommodationFullResponseDTO getAccommodationDetail(Long accommodationId) {
-        Accommodation accommodation = getAccommodation(accommodationId);
+
+        Accommodation accommodation = accommodationRepository.findDetailById(accommodationId)
+                .orElseThrow(() -> new IllegalArgumentException("ID에 해당하는 숙소가 없습니다."));
+
         accommodation.validateActiveAccommodation();
 
         User host = userRepository.findById(accommodation.getHostId())
