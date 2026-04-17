@@ -3,6 +3,9 @@ package com.project.cozystay.accommodation.service;
 
 import com.project.cozystay.accommodation.domain.*;
 import com.project.cozystay.accommodation.dto.*;
+import com.project.cozystay.accommodation.event.AccommodationEvent;
+import com.project.cozystay.accommodation.repository.AccommodationAmenityRepository;
+import com.project.cozystay.accommodation.repository.AccommodationImageRepository;
 import com.project.cozystay.accommodation.repository.AccommodationRepository;
 import com.project.cozystay.accommodation.repository.AmenityRepository;
 import com.project.cozystay.review.repository.AccommodationReviewRepository;
@@ -11,9 +14,11 @@ import com.project.cozystay.user.repository.UserRepository;
 import com.project.cozystay.accommodation.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -25,6 +30,7 @@ public class AccommodationService {
     private final AmenityRepository amenityRepository;
     private final UserRepository userRepository;
     private final AccommodationReviewRepository accommodationReviewRepository;
+    private final ApplicationEventPublisher eventPublisher;
     private final AccommodationImageCategoryRepository accommodationImageCategoryRepository;
 
 
@@ -43,13 +49,17 @@ public class AccommodationService {
 
         accommodationRepository.save(accommodation);
 
+        // 이벤트 발행 (ES 동기화용)
+        eventPublisher.publishEvent(new AccommodationEvent(accommodation.getId(), AccommodationEvent.OperationType.SAVE));
+
         return AccommodationResponseDTO.fromEntity(accommodation);
     }
 
     @Transactional
     public AccommodationDetailResponseDTO addAccommodationDetail(Long accommodationId, Long hostId, AccommodationDetailRequestDTO request) {
 
-        Accommodation accommodation = getAccommodation(accommodationId);
+        Accommodation accommodation = accommodationRepository.findById(accommodationId)
+                .orElseThrow(() -> new IllegalArgumentException("ID에 해당하는 숙소가 없습니다."));
 
         accommodationHostCheck(accommodation, hostId);
 
@@ -59,6 +69,9 @@ public class AccommodationService {
 
         accommodationRepository.save(accommodation);
 
+        // 상세 정보 추가 시에도 ES 동기화 이벤트 발행
+        eventPublisher.publishEvent(new AccommodationEvent(accommodation.getId(), AccommodationEvent.OperationType.SAVE));
+
         return AccommodationDetailResponseDTO.builder()
                 .message("숙소 상세 정보 등록 완료")
                 .accommodationId(accommodationId)
@@ -67,7 +80,8 @@ public class AccommodationService {
 
     @Transactional(readOnly = true)
     public AccommodationFullResponseDTO getAccommodationDetail(Long accommodationId) {
-        Accommodation accommodation = getAccommodation(accommodationId);
+        Accommodation accommodation = accommodationRepository.findDetailById(accommodationId)
+                .orElseThrow(() -> new IllegalArgumentException("ID에 해당하는 숙소가 없습니다"));
 
         User host = userRepository.findById(accommodation.getHostId())
                 .orElseThrow(()-> new IllegalArgumentException("호스트 유저가 없습니다."));
@@ -85,16 +99,21 @@ public class AccommodationService {
 
     @Transactional
     public void publish(Long accommodationId, Long hostId){
-        Accommodation accommodation = getAccommodation(accommodationId);
+        Accommodation accommodation = accommodationRepository.findDetailById(accommodationId)
+                .orElseThrow(() -> new IllegalArgumentException("ID에 해당하는 숙소가 없습니다."));
 
         accommodationHostCheck(accommodation, hostId);
 
         accommodation.publish();
+
+        // 상태 변경(게시) 시 ES 동기화 이벤트 발행
+        eventPublisher.publishEvent(new AccommodationEvent(accommodation.getId(), AccommodationEvent.OperationType.SAVE));
     }
 
     @Transactional
     public AccommodationAmenityResponseDTO addAmenities(Long accommodationId, Long hostId, List<AccommodationAmenityRequestDTO> request){
-        Accommodation accommodation = getAccommodation(accommodationId);
+        Accommodation accommodation = accommodationRepository.findById(accommodationId)
+                .orElseThrow(() -> new IllegalArgumentException("ID에 해당하는 숙소가 없습니다"));
 
         accommodationHostCheck(accommodation, hostId);
 
@@ -112,6 +131,9 @@ public class AccommodationService {
 
         accommodationRepository.save(accommodation);
 
+        // 편의시설 추가 시에도 ES 동기화 이벤트 발행
+        eventPublisher.publishEvent(new AccommodationEvent(accommodation.getId(), AccommodationEvent.OperationType.SAVE));
+
         return AccommodationAmenityResponseDTO.builder()
                 .accommodationId(accommodationId)
                 .count(request.size())
@@ -122,11 +144,15 @@ public class AccommodationService {
     //Cascade 설정에 의해 연관관계를 맺고 있는 테이블도 함께 삭제
     @Transactional
     public AccommodationDeleteResponseDTO deleteAccommodation(Long accommodationId, Long hostId){
-        Accommodation accommodation = getAccommodation(accommodationId);
+        Accommodation accommodation = accommodationRepository.findById(accommodationId)
+                .orElseThrow(() -> new IllegalArgumentException("ID에 해당하는 숙소가 없습니다"));
 
         accommodationHostCheck(accommodation, hostId);
 
         accommodationRepository.delete(accommodation);
+
+        // 삭제 시 ES 삭제 이벤트 발행
+        eventPublisher.publishEvent(new AccommodationEvent(accommodationId, AccommodationEvent.OperationType.DELETE));
 
         return AccommodationDeleteResponseDTO.builder()
                 .accommodationId(accommodationId)
@@ -140,11 +166,15 @@ public class AccommodationService {
             Long hostId,
             AccommodationUpdateRequestDTO request
     ){
-        Accommodation accommodation = getAccommodation(accommodationId);
+        Accommodation accommodation = accommodationRepository.findById(accommodationId)
+                .orElseThrow(() -> new IllegalArgumentException("ID에 해당하는 숙소가 없습니다."));
 
         accommodationHostCheck(accommodation, hostId);
 
         accommodation.update(request);
+
+        // 수정 시 ES 동기화 이벤트 발행
+        eventPublisher.publishEvent(new AccommodationEvent(accommodation.getId(), AccommodationEvent.OperationType.SAVE));
 
         return AccommodationUpdateResponseDTO.builder()
                 .accommodationId(accommodation.getId())
@@ -158,7 +188,8 @@ public class AccommodationService {
             Long hostId,
             AccommodationDetailUpdateRequestDTO request
     ){
-        Accommodation accommodation = getAccommodation(accommodationId);
+        Accommodation accommodation = accommodationRepository.findById(accommodationId)
+                .orElseThrow(()-> new IllegalArgumentException("ID에 해당하는 숙소가 없습니다."));
 
         accommodationHostCheck(accommodation, hostId);
 
@@ -169,6 +200,9 @@ public class AccommodationService {
         }
 
         detail.update(request);
+
+        // 상세 정보 수정 시에도 ES 동기화 이벤트 발행
+        eventPublisher.publishEvent(new AccommodationEvent(accommodation.getId(), AccommodationEvent.OperationType.SAVE));
 
         return AccommodationDetailUpdateResponseDTO.builder()
                 .accommodationId(accommodation.getId())

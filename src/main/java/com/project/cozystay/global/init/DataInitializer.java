@@ -111,22 +111,37 @@ public class DataInitializer implements CommandLineRunner {
 
         // 3. Accommodations 생성 (50개)
         List<Accommodation> accommodations = new ArrayList<>();
-        String[] cities = {"Seoul", "Busan", "Jeju", "Incheon", "Daegu", "Gwangju", "Daejeon"};
         AccommodationType[] types = AccommodationType.values();
 
         for (int i = 1; i <= 50; i++) {
             User host = hosts.get(random.nextInt(hosts.size()));
-            String city = cities[random.nextInt(cities.length)];
+            String[] states = {"서울특별시", "경기도", "강원도", "부산광역시", "제주특별자치도", "전라남도", "경상북도"};
+            String[] cities = {"강남구", "성남시", "강릉시", "해운대구", "제주시", "여수시", "경주시"};
+            String[] districts = {"신사동", "분당구", "교동", "우동", "연동", "학동", "황남동"};
+
+            int randomIndex = random.nextInt(states.length);
+            String state = states[randomIndex];
+            String city = cities[randomIndex];
+            String district = districts[randomIndex];
+
             AccommodationType type = types[random.nextInt(types.length)];
+            String typeName = switch(type) {
+                case ENTIRE_PLACE -> "독채 숙소";
+                case PRIVATE_ROOM -> "개인실";
+                case SHARED_ROOM -> "다인실";
+                default -> "편안한 숙소";
+            };
 
             Accommodation accommodation = Accommodation.builder()
                     .hostId(host.getId())
-                    .title(city + " Cozy Stay " + i)
-                    .description("This is a beautiful " + type.name().toLowerCase().replace("_", " ") + " in " + city + ". Perfect for your travel!")
+                    .title(city + " " + district + "의 포근한 " + typeName + " " + i)
+                    .description(state + " " + city + " " + district + "에 위치한 아름다운 " + typeName + "입니다. 여행객분들을 위한 완벽한 휴식처가 될 것입니다!")
                     .accommodationType(type)
-                    .address(city + " Address " + i)
+                    .address(state + " " + city + " " + district + " 상세주소 " + i + "번지")
+                    .state(state)
                     .city(city)
-                    .country("South Korea")
+                    .district(district)
+                    .country("대한민국")
                     .maxGuests(random.nextInt(4) + 2)
                     .pricePerNight(BigDecimal.valueOf(50000 + random.nextInt(20) * 10000))
                     .cleaningFee(BigDecimal.valueOf(10000))
@@ -228,7 +243,7 @@ public class DataInitializer implements CommandLineRunner {
                             BigDecimal.valueOf(5),
                             BigDecimal.valueOf(5),
                             BigDecimal.valueOf(5),
-                            "Great place! I enjoyed my stay."
+                            "정말 멋진 숙소였어요! 편안하게 잘 쉬다 갑니다."
                     );
                     
                     AccommodationReview review = AccommodationReview.of(
@@ -248,7 +263,7 @@ public class DataInitializer implements CommandLineRunner {
                                 host,
                                 guest,
                                 BigDecimal.valueOf(5),
-                                "The guest was very clean and polite."
+                                "매너가 아주 좋으신 게스트분이셨습니다. 깨끗하게 사용해주셔서 감사합니다."
                         );
                         userReviewRepository.save(userReview);
                     }
@@ -260,9 +275,9 @@ public class DataInitializer implements CommandLineRunner {
                     Conversation conversation = Conversation.create(acc.getId(), host.getId(), guest.getId());
                     conversation = conversationRepository.save(conversation);
 
-                    Message msg1 = Message.create(conversation.getId(), guest.getId(), "Hello, I have a question about the room.");
+                    Message msg1 = Message.create(conversation.getId(), guest.getId(), "안녕하세요, 숙소 관련해서 문의드리고 싶습니다.");
                     messageRepository.save(msg1);
-                    Message msg2 = Message.create(conversation.getId(), host.getId(), "Sure, feel free to ask!");
+                    Message msg2 = Message.create(conversation.getId(), host.getId(), "안녕하세요! 무엇이든 편하게 물어보세요.");
                     messageRepository.save(msg2);
                 }
             }
@@ -271,7 +286,7 @@ public class DataInitializer implements CommandLineRunner {
             int favFolderCount = random.nextInt(2) + 1;
             for (int f = 1; f <= favFolderCount; f++) {
                 Favorite favorite = Favorite.builder()
-                        .name("My Wishlist " + f)
+                        .name("나의 위시리스트 " + f)
                         .user(guest)
                         .isPrivate(random.nextBoolean())
                         .build();
@@ -295,16 +310,16 @@ public class DataInitializer implements CommandLineRunner {
 
     private List<Amenity> createAmenities() {
         String[][] amenityData = {
-                {"Wi-Fi", "wifi", "Essential"},
-                {"Kitchen", "kitchen", "Essential"},
-                {"Air Conditioning", "ac", "Essential"},
-                {"Dedicated Workspace", "work", "Essential"},
-                {"TV", "tv", "Entertainment"},
-                {"Washer", "washer", "Laundry"},
-                {"Free Parking", "parking", "Transport"},
-                {"Pool", "pool", "Luxury"},
-                {"Hot Tub", "hottub", "Luxury"},
-                {"Crib", "crib", "Family"}
+                {"무선 인터넷", "wifi", "필수 품목"},
+                {"주방", "kitchen", "필수 품목"},
+                {"에어컨", "ac", "필수 품목"},
+                {"업무 전용 공간", "work", "필수 품목"},
+                {"TV", "tv", "엔터테인먼트"},
+                {"세탁기", "washer", "세탁"},
+                {"무료 주차", "parking", "교통"},
+                {"수영장", "pool", "럭셔리"},
+                {"욕조", "hottub", "럭셔리"},
+                {"아기 침대", "crib", "가족"}
         };
 
         List<Amenity> list = new ArrayList<>();

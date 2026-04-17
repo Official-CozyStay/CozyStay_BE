@@ -37,8 +37,11 @@ public class Accommodation {
     @Column(nullable = false)
     private String address;
 
-    @Column(nullable = false, length = 100)
-    private String city;
+    @Column(nullable = false, length = 50)
+    private String city;     // 시/군 (예: 성남시, 가평군)
+
+    @Column(nullable = false, length = 50)
+    private String district; // 구 (예: 분당구)
 
     @Column(length = 100)
     private String state;
@@ -75,6 +78,14 @@ public class Accommodation {
 
     @Column(name = "check_out_time")
     private LocalTime checkOutTime;
+
+    @Column(name = "average_rating")
+    @Builder.Default
+    private Double averageRating = 0.0;
+
+    @Column(name = "review_count")
+    @Builder.Default
+    private Integer reviewCount = 0;
 
     @Column(updatable = false)
     private LocalDateTime createdAt;
@@ -151,6 +162,8 @@ public class Accommodation {
 
         if (dto.getCity() != null) this.city = dto.getCity();
 
+        if (dto.getDistrict() != null) this.district = dto.getDistrict();
+
         if (dto.getState() != null) this.state = dto.getState();
 
         if (dto.getCountry() != null) this.country = dto.getCountry();
@@ -172,6 +185,11 @@ public class Accommodation {
         if (dto.getCheckInTime() != null) this.checkInTime = dto.getCheckInTime();
 
         if (dto.getCheckOutTime() != null) this.checkOutTime = dto.getCheckOutTime();
+    }
+
+    public void updateReviewStats(Double averageRating, Integer reviewCount) {
+        this.averageRating = averageRating;
+        this.reviewCount = reviewCount;
     }
 
 }

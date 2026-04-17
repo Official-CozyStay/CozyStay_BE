@@ -17,7 +17,11 @@ public class AccommodationUpdateRequestDTO {
     private String description;
     private AccommodationType accommodationType;
     private String address;
+
     private String city;
+
+    private String district;
+
     private String state;
     private String country;
     private String postalCode;
