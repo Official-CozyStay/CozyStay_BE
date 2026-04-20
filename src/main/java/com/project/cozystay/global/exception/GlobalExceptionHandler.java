@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -41,8 +42,8 @@ public class GlobalExceptionHandler {
     }
 
     /* ===================== 401 UNAUTHORIZED ===================== */
-    @ExceptionHandler(AuthenticationRequiredException.class)
-    public ResponseEntity<ErrorResponse> handleAuthRequired(AuthenticationRequiredException e){
+    @ExceptionHandler({AuthenticationRequiredException.class, BadCredentialsException.class})
+    public ResponseEntity<ErrorResponse> handleUnauthorized(Exception e){
         log.warn("Unauthorized [{}]: {}", e.getClass().getSimpleName(), e.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new ErrorResponse(e.getMessage()));
