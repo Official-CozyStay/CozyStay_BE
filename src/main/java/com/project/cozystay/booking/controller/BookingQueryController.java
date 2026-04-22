@@ -33,13 +33,12 @@ public class BookingQueryController {
     @Operation(summary = "내 예약 목록 조회", description = "로그인한 사용자의 모든 예약 목록을 조회합니다.")
     @GetMapping
     public ResponseEntity<List<BookingResponse>> getMyBookings(
-            @AuthenticationPrincipal CustomOAuth2User user,
-            @RequestParam(required = false)BookingStatus status
-            ){
+            @AuthenticationPrincipal CustomOAuth2User user
+    ){
         if(user == null){
             throw new AuthenticationRequiredException();
         }
-        List<BookingResponse> response = bookingQueryService.getMyBookings(user.getId(), status);
+        List<BookingResponse> response = bookingQueryService.getMyBookings(user.getId());
         return ResponseEntity.ok(response);
     }
 

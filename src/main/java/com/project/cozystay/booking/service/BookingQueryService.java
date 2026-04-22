@@ -16,14 +16,10 @@ public class BookingQueryService {
 
     private final BookingRepository bookingRepository;
 
-    public List<BookingResponse> getMyBookings(Long guestId, BookingStatus status){
+    public List<BookingResponse> getMyBookings(Long guestId){
         List<Booking> bookings;
-        if(status == null){
-            bookings = bookingRepository.findByGuestIdOrderByCreatedAtDesc(guestId);
-        }
-        else{
-            bookings = bookingRepository.findByGuestIdAndStatusOrderByCreatedAtDesc(guestId, status);
-        }
+
+        bookings = bookingRepository.findByGuestIdAndStatusOrderByCreatedAtDesc(guestId, BookingStatus.COMPLETED);
 
         return bookings.stream()
                 .map(this::toResponse)
