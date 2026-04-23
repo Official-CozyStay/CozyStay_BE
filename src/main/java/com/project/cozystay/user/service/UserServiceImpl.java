@@ -12,6 +12,7 @@ import com.project.cozystay.user.exception.UserNameAlreadyExistsException;
 import com.project.cozystay.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -63,26 +64,30 @@ public class UserServiceImpl implements UserService{
     @Override
     public SignInResponse signIn(SignInRequest signInRequest) {
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(signInRequest.username(), signInRequest.password())
-        );
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(signInRequest.username(), signInRequest.password())
+            );
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        User user = userDetails.getUser();
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+            User user = userDetails.getUser();
 
-        String accessToken = jwtProvider.createAccessToken(user.getId(), user.getUserRole());
-        String refreshToken = jwtProvider.createRefreshToken(user.getId());
+            String accessToken = jwtProvider.createAccessToken(user.getId(), user.getUserRole());
+            String refreshToken = jwtProvider.createRefreshToken(user.getId());
 
-        return SignInResponse.builder()
-                .userId(user.getId())
-                .nickName(user.getNickName())
-                .role(user.getUserRole().name())
-                .grantType("Bearer")
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
+            return SignInResponse.builder()
+                    .userId(user.getId())
+                    .nickName(user.getNickName())
+                    .role(user.getUserRole().name())
+                    .grantType("Bearer")
+                    .accessToken(accessToken)
+                    .refreshToken(refreshToken)
+                    .build();
+        } catch (BadCredentialsException e) {
+            throw new BadCredentialsException("ID 또는 비밀번호가 틀립니다.");
+        }
     }
 
     @Override
