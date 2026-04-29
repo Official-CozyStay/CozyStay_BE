@@ -112,6 +112,8 @@ public class AccommodationImageService {
         Accommodation accommodation = accommodationRepository.findById(accommodationId)
                 .orElseThrow(() -> new IllegalArgumentException("숙소를 찾을 수 없습니다."));
 
+        accommodation.validateNotDeletedAccommodation();
+
         accommodationHostCheck(accommodation, hostId);
 
         AccommodationImageCategory category = AccommodationImageCategory.create(

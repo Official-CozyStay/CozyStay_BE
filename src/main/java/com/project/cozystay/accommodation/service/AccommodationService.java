@@ -50,6 +50,8 @@ public class AccommodationService {
     public AccommodationDetailResponseDTO addAccommodationDetail(Long accommodationId, Long hostId, AccommodationDetailRequestDTO request) {
         Accommodation accommodation = getAccommodation(accommodationId);
 
+        accommodation.validateNotDeletedAccommodation();
+
         accommodationHostCheck(accommodation, hostId);
 
         AccommodationDetail detail = request.toEntity();
