@@ -153,6 +153,12 @@ public class Accommodation {
         }
     }
 
+    public void validateNotDeletedAccommodation(){
+        if (this.status == AccommodationStatus.DELETED) {
+            throw new IllegalStateException("삭제된 숙소 입니다");
+        }
+    }
+
     public void update(AccommodationUpdateRequestDTO dto){
         if (dto.getTitle() != null) this.title = dto.getTitle();
 
