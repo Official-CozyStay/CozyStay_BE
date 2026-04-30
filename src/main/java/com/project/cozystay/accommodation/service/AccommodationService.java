@@ -116,10 +116,12 @@ public class AccommodationService {
 
     @Transactional
     public AccommodationAmenityResponseDTO addAmenities(Long accommodationId, Long hostId, List<AccommodationAmenityRequestDTO> request){
-        Accommodation accommodation = accommodationRepository.findById(accommodationId)
-                .orElseThrow(() -> new IllegalArgumentException("ID에 해당하는 숙소가 없습니다"));
+        Accommodation accommodation = getAccommodation(accommodationId);
+
+        accommodation.validateNotDeletedAccommodation();
 
         accommodationHostCheck(accommodation, hostId);
+
 
         int addCount = 0;
 
@@ -152,11 +154,15 @@ public class AccommodationService {
                 .build();
     }
 
+    //TODO : 숙소 삭제 (DB)에 대한 고민 필요
     @Transactional
     public AccommodationDeleteResponseDTO deleteAccommodation(Long accommodationId, Long hostId){
         Accommodation accommodation = getAccommodation(accommodationId);
 
         accommodationHostCheck(accommodation, hostId);
+
+        accommodation.validateNotDeletedAccommodation();
+
         accommodation.markDelete();
 
         // 삭제 시 ES 삭제 이벤트 발행
@@ -195,8 +201,7 @@ public class AccommodationService {
             Long hostId,
             AccommodationDetailUpdateRequestDTO request
     ){
-        Accommodation accommodation = accommodationRepository.findById(accommodationId)
-                .orElseThrow(()-> new IllegalArgumentException("ID에 해당하는 숙소가 없습니다."));
+        Accommodation accommodation = getAccommodation(accommodationId);
 
         accommodationHostCheck(accommodation, hostId);
 
