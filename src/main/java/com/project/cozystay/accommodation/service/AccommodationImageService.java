@@ -44,15 +44,11 @@ public class AccommodationImageService {
         for (int i = 0; i < files.size(); i++) {
             String url = s3Service.uploadFile(files.get(i));
             AccommodationImageRequestDTO dto = request.get(i);
-            AccommodationImage image = AccommodationImage.builder()
-                    .imageUrl(url)
-                    .displayOrder(dto.getDisplayOrder() != null ? dto.getDisplayOrder() : 0)
-                    .primary(Boolean.TRUE.equals(dto.getIsPrimary()))
-                    .build();
+            AccommodationImage image = AccommodationImage.create(url, dto.displayOrder(), dto.isPrimary());
 
-            if (dto.getCategoryId() != null) {
+            if (dto.categoryId() != null) {
                 AccommodationImageCategory category = accommodationImageCategoryRepository
-                        .findByIdAndAccommodation_Id(dto.getCategoryId(), accommodationId)
+                        .findByIdAndAccommodation_Id(dto.categoryId(), accommodationId)
                         .orElseThrow(() -> new IllegalArgumentException("해당 숙소에 속한 이미지 카테고리를 찾을 수 없습니다."));
 
                 image.assignCategory(category);
@@ -117,7 +113,7 @@ public class AccommodationImageService {
         accommodationHostCheck(accommodation, hostId);
 
         AccommodationImageCategory category = AccommodationImageCategory.create(
-                accommodation, request.getName(), request.getDisplayOrder());
+                accommodation, request.name(), request.displayOrder());
 
         category = accommodationImageCategoryRepository.save(category);
 

@@ -39,7 +39,7 @@ public class AccommodationService {
 
     @Transactional
     public AccommodationResponseDTO createAccommodation(AccommodationRequestDTO request, Long hostId) {
-        Accommodation accommodation = request.toEntity(hostId);
+        Accommodation accommodation = Accommodation.create(hostId, request);
 
         accommodationRepository.save(accommodation);
 
@@ -54,7 +54,7 @@ public class AccommodationService {
 
         accommodationHostCheck(accommodation, hostId);
 
-        AccommodationDetail detail = request.toEntity();
+        AccommodationDetail detail = AccommodationDetail.create(request);
 
         accommodation.addDetail(detail);
 
@@ -102,15 +102,11 @@ public class AccommodationService {
         Accommodation accommodation = getAccommodation(accommodationId);
 
         accommodationHostCheck(accommodation, hostId);
-
         for (AccommodationAmenityRequestDTO dto : request) {
-            Amenity amenity = amenityRepository.findByName(dto.getName())
-                    .orElseGet(() -> amenityRepository.save(dto.toEntity()));
+            Amenity amenity = amenityRepository.findByName(dto.name())
+                    .orElseGet(() -> amenityRepository.save(Amenity.create(dto)));
 
-            AccommodationAmenity joinEntity = AccommodationAmenity.builder()
-                    .accommodation(accommodation)
-                    .amenity(amenity)
-                    .build();
+            AccommodationAmenity joinEntity = AccommodationAmenity.create(accommodation, amenity);
 
             accommodation.addAmenity(joinEntity);
         }
