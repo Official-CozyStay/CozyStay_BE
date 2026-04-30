@@ -26,6 +26,7 @@ public class AccommodationService {
     private final UserRepository userRepository;
     private final AccommodationReviewRepository accommodationReviewRepository;
     private final AccommodationImageCategoryRepository accommodationImageCategoryRepository;
+    private final AccommodationAmenityRepository accommodationAmenityRepository;
 
 
     //숙소 상태가 ACTIVE인 항목만 조회해서 반환
@@ -102,21 +103,32 @@ public class AccommodationService {
         Accommodation accommodation = getAccommodation(accommodationId);
 
         accommodationHostCheck(accommodation, hostId);
+
+        int addCount = 0;
+
         for (AccommodationAmenityRequestDTO dto : request) {
             Amenity amenity = amenityRepository.findByName(dto.name())
                     .orElseGet(() -> amenityRepository.save(Amenity.create(dto)));
 
+            if (accommodationAmenityRepository.existsByAccommodation_IdAndAmenity_Id(
+                    accommodationId,
+                    amenity.getId()
+            )) {
+                continue;
+            }
+
             AccommodationAmenity joinEntity = AccommodationAmenity.create(accommodation, amenity);
 
             accommodation.addAmenity(joinEntity);
+            addCount++;
         }
 
         accommodationRepository.save(accommodation);
 
         return AccommodationAmenityResponseDTO.builder()
                 .accommodationId(accommodationId)
-                .count(request.size())
-                .message("편의시설 등록 완료")
+                .count(addCount)
+                .message(addCount == 0? "새로 등록된 편의시설이 없습니다." : "편의시설 등록 완료")
                 .build();
     }
 
