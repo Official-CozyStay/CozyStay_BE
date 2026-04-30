@@ -102,15 +102,26 @@ public class PaymentCommandService {
             throw new PaymentInvalidStateException("결제 금액이 일치하지 않습니다.");
         }
 
-        // 토스 승인 API 호출
         TossConfirmResponse tossResponse;
-        try{
-            tossResponse = tossPaymentClient.confirmPayment(paymentKey, orderId, amount);
-        }catch(TossPaymentConfirmException e){
+        // 토스 승인 API 호출
+        try {
+            tossResponse = tossPaymentClient.confirmPayment(
+                    payment.getOrderId(),
+                    paymentKey,
+                    amount
+            );
+        } catch (TossPaymentConfirmException e) {
             log.warn("[PAYMENT CONFIRM FAIL] orderId={}, paymentKey={}, reason={}",
                     orderId, paymentKey, e.getMessage());
             payment.markFailed();
             throw e;
+        }
+
+        if(tossResponse == null
+            || !"DONE".equals(tossResponse.getStatus())
+            || !payment.getOrderId().equals(tossResponse.getOrderId())
+            || !paymentKey.equals(tossResponse.getPaymentKey())){
+            throw new PaymentInvalidStateException("유효하지 않은 결제 승인 응답입니다.");
         }
 
         // 승인 성공 시
