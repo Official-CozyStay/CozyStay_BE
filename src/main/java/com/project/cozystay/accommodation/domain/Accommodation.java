@@ -38,8 +38,11 @@ public class Accommodation {
     @Column(nullable = false)
     private String address;
 
-    @Column(nullable = false, length = 100)
-    private String city;
+    @Column(nullable = false, length = 50)
+    private String city;     // 시/군 (예: 성남시, 가평군)
+
+    @Column(nullable = false, length = 50)
+    private String district; // 구 (예: 분당구)
 
     @Column(length = 100)
     private String state;
@@ -79,6 +82,14 @@ public class Accommodation {
 
     @Column(name = "check_out_time")
     private LocalTime checkOutTime;
+
+    @Column(name = "average_rating")
+    @Builder.Default
+    private Double averageRating = 0.0;
+
+    @Column(name = "review_count")
+    @Builder.Default
+    private Integer reviewCount = 0;
 
     @Column(updatable = false)
     private LocalDateTime createdAt;
@@ -171,6 +182,7 @@ public class Accommodation {
                 .accommodationType(request.accommodationType())
                 .address(request.address())
                 .city(request.city())
+                .district(request.district())
                 .state(request.state())
                 .country(request.country())
                 .postalCode(request.postalCode())
@@ -192,6 +204,7 @@ public class Accommodation {
         if (dto.accommodationType() != null) this.accommodationType = dto.accommodationType();
         if (dto.address() != null) this.address = dto.address();
         if (dto.city() != null) this.city = dto.city();
+        if (dto.district() != null) this.district = dto.district();
         if (dto.state() != null) this.state = dto.state();
         if (dto.country() != null) this.country = dto.country();
         if (dto.postalCode() != null) this.postalCode = dto.postalCode();
@@ -204,4 +217,10 @@ public class Accommodation {
         if (dto.checkInTime() != null) this.checkInTime = dto.checkInTime();
         if (dto.checkOutTime() != null) this.checkOutTime = dto.checkOutTime();
     }
+
+    public void updateReviewStats(Double averageRating, Integer reviewCount) {
+        this.averageRating = averageRating;
+        this.reviewCount = reviewCount;
+    }
+
 }

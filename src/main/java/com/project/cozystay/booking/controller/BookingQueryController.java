@@ -30,7 +30,7 @@ public class BookingQueryController {
     private final BookingQueryService bookingQueryService;
 
     // 내 예약 목록
-    @Operation(summary = "내 예약 목록 조회", description = "로그인한 사용자의 모든 예약 목록을 조회합니다.")
+    @Operation(summary = "내 예약 목록 조회", description = "사용자의 예약 목록을 status 기준으로 조회합니다.")
     @GetMapping
     public ResponseEntity<List<BookingResponse>> getMyBookings(
             @AuthenticationPrincipal CustomOAuth2User user,

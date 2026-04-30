@@ -40,9 +40,11 @@ class SearchControllerTest {
         // given
         Accommodation accommodation = Accommodation.builder()
                 .hostId(1L)
-                .title("Test Accommodation in Test City")
-                .city("TestCity")
-                .country("TestCountry")
+                .title("Test Accommodation in Seoul")
+                .state("서울특별시")
+                .city("강남구")
+                .district("신사동")
+                .country("South Korea")
                 .address("Test Address")
                 .accommodationType(AccommodationType.ENTIRE_PLACE)
                 .pricePerNight(new BigDecimal("100.00"))
@@ -67,10 +69,15 @@ class SearchControllerTest {
 
         // when & then
         mockMvc.perform(get("/api/v1/search")
-                        .param("city", "TestCity"))
+                        .param("state", "서울특별시")
+                        .param("city", "강남구")
+                        .param("district", "신사동"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accommodations.length()", is(1)))
-                .andExpect(jsonPath("$.accommodations[0].title", is("Test Accommodation in Test City")))
+                .andExpect(jsonPath("$.accommodations[0].title", is("Test Accommodation in Seoul")))
+                .andExpect(jsonPath("$.accommodations[0].state", is("서울특별시")))
+                .andExpect(jsonPath("$.accommodations[0].city", is("강남구")))
+                .andExpect(jsonPath("$.accommodations[0].district", is("신사동")))
                 .andExpect(jsonPath("$.accommodations[0].mainImageUrl", is("http://example.com/primary_image.jpg")))
                 .andDo(print());
     }
@@ -83,10 +90,8 @@ class SearchControllerTest {
 
     @Test
     void 도시로_검색시_필터링된_결과를_반환해야_한다() throws Exception {
-        // This test assumes you have some test data in your database.
-        // For example, an accommodation in "Seoul".
         mockMvc.perform(get("/api/v1/search")
-                        .param("city", "Seoul"))
+                        .param("city", "Gangnam"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accommodations").isArray());
     }
@@ -120,7 +125,8 @@ class SearchControllerTest {
     @Test
     void 모든_필터로_검색시_필터링된_결과를_반환해야_한다() throws Exception {
         mockMvc.perform(get("/api/v1/search")
-                        .param("city", "Seoul")
+                        .param("state", "서울특별시")
+                        .param("city", "강남구")
                         .param("minPrice", "50000")
                         .param("maxPrice", "200000")
                         .param("numberOfBeds", "2")

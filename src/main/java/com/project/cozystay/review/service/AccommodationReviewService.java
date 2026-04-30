@@ -72,6 +72,9 @@ public class AccommodationReviewService {
 
         accommodationReviewRepository.save(review);
 
+        // 숙소 평점 및 리뷰 수 업데이트
+        updateAccommodationStats(booking.getAccommodation().getId());
+
         guest.increaseReviewCount(); // 리뷰 카운트 +1
 
         return new AccommodationReviewResponse(
@@ -133,6 +136,9 @@ public class AccommodationReviewService {
         BigDecimal ratingOverall = calculateRating(request);
         review.update(request, ratingOverall);
 
+        // 숙소 평점 및 리뷰 수 업데이트
+        updateAccommodationStats(review.getAccommodation().getId());
+
         // TODO 응답 형식 변경 고려
         return new ReviewResponse("리뷰를 수정하였습니다");
     }
@@ -145,9 +151,21 @@ public class AccommodationReviewService {
         AccommodationReview review = accommodationReviewRepository.findById(reviewId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 리뷰가 존재하지 않습니다."));
 
+        Long accommodationId = review.getAccommodation().getId();
         accommodationReviewRepository.delete(review);
 
+        // 숙소 평점 및 리뷰 수 업데이트
+        updateAccommodationStats(accommodationId);
+
         return new ReviewResponse("리뷰를 삭제하였습니다");
+    }
+
+    private void updateAccommodationStats(Long accommodationId) {
+        Accommodation accommodation = accommodationRepository.findById(accommodationId)
+                .orElseThrow(() -> new IllegalArgumentException("숙소를 찾을 수 없습니다."));
+
+        var summary = accommodationReviewRepository.getReviewSummary(accommodationId);
+        accommodation.updateReviewStats(summary.getAverage(), summary.getCount().intValue());
     }
 
 

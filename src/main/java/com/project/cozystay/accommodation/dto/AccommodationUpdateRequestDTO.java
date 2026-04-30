@@ -11,6 +11,7 @@ public record AccommodationUpdateRequestDTO(
         AccommodationType accommodationType,
         String address,
         String city,
+        String district,
         String state,
         String country,
         String postalCode,
