@@ -115,7 +115,9 @@ public class PaymentCommandService {
 
         // 승인 성공 시
         payment.markSuccess(tossResponse.getPaymentKey());
-        payment.getBooking().confirmByHost();
+        if(Boolean.TRUE.equals(payment.getBooking().getAccommodation().getInstantBooking())){
+            payment.getBooking().confirmByHost();
+        }
 
         return payment;
     }
