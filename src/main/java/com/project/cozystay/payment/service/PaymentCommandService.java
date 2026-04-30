@@ -106,8 +106,8 @@ public class PaymentCommandService {
         // 토스 승인 API 호출
         try {
             tossResponse = tossPaymentClient.confirmPayment(
-                    payment.getOrderId(),
                     paymentKey,
+                    payment.getOrderId(),
                     amount
             );
         } catch (TossPaymentConfirmException e) {
