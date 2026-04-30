@@ -30,6 +30,7 @@ public class PaymentCommandService {
     private final BookingRepository bookingRepository;
     private final PaymentRepository paymentRepository;
     private final TossPaymentClient tossPaymentClient;
+    private final PaymentFailureService paymentFailureService;
 
     // 결제 생성
     @Transactional
@@ -113,7 +114,7 @@ public class PaymentCommandService {
         } catch (TossPaymentConfirmException e) {
             log.warn("[PAYMENT CONFIRM FAIL] orderId={}, paymentKey={}, reason={}",
                     orderId, paymentKey, e.getMessage());
-            payment.markFailed();
+            paymentFailureService.markFailed(payment.getId());
             throw e;
         }
 
