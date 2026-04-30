@@ -1,6 +1,7 @@
 package com.project.cozystay.accommodation.domain;
 
 
+import com.project.cozystay.accommodation.dto.AccommodationAmenityRequestDTO;
 import jakarta.persistence.Entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -30,5 +31,11 @@ public class Amenity {
     @Column(length = 50)
     private String category;
 
-
+    public static Amenity create(AccommodationAmenityRequestDTO request) {
+        return Amenity.builder()
+                .name(request.name())
+                .icon(request.icon())
+                .category(request.category())
+                .build();
+    }
 }
