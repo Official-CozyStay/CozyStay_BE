@@ -1,7 +1,6 @@
 package com.project.cozystay.favorite.dto;
 
 import com.project.cozystay.favorite.domain.Favorite;
-import com.project.cozystay.favorite.domain.FavoriteAccommodation;
 import lombok.*;
 
 import java.util.List;
@@ -16,18 +15,17 @@ public class FavoriteDetailResponseDTO {
     private boolean isPrivate;
     private List<FavoriteAccommodationResponseDTO> accommodations;
 
-    public static FavoriteDetailResponseDTO from(Favorite favorite) {
+    public static FavoriteDetailResponseDTO from(
+            Favorite favorite,
+            List<FavoriteAccommodationResponseDTO> accommodations
+    ) {
         return FavoriteDetailResponseDTO.builder()
                 .favoriteId(favorite.getId())
                 .name(favorite.getName())
                 .description(favorite.getDescription())
                 .isPrivate(favorite.isPrivate())
-                .accommodations(
-                        favorite.getFavoriteAccommodations().stream()
-                                .map(FavoriteAccommodation::getAccommodation)
-                                .map(FavoriteAccommodationResponseDTO::from)
-                                .toList()
-                )
+                .accommodations(accommodations)
                 .build();
     }
+
 }

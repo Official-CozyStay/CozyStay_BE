@@ -4,6 +4,7 @@ import com.project.cozystay.accommodation.domain.Accommodation;
 import com.project.cozystay.accommodation.repository.AccommodationRepository;
 import com.project.cozystay.favorite.domain.Favorite;
 import com.project.cozystay.favorite.domain.FavoriteAccommodation;
+import com.project.cozystay.favorite.dto.FavoriteAccommodationResponseDTO;
 import com.project.cozystay.favorite.dto.FavoriteDetailResponseDTO;
 import com.project.cozystay.favorite.dto.FavoriteResponseDTO;
 import com.project.cozystay.favorite.dto.FavoriteUpdateRequestDTO;
@@ -65,10 +66,16 @@ public class FavoriteService {
 
     @Transactional(readOnly = true)
     public FavoriteDetailResponseDTO getFavoriteDetail(Long userId, Long favoriteId){
-        Favorite favorite = favoriteRepository.findDetailByIdAndUserId(favoriteId, userId)
+        Favorite favorite = favoriteRepository.findByIdAndUser_Id(favoriteId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("즐겨찾기 목록을 찾을 수 없습니다."));
 
-        return FavoriteDetailResponseDTO.from(favorite);
+        List<FavoriteAccommodationResponseDTO> accommodations =
+                favoriteAccommodationRepository.findAccommodationProjectionsByFavoriteId(favoriteId)
+                        .stream()
+                        .map(FavoriteAccommodationResponseDTO::from)
+                        .toList();
+
+        return FavoriteDetailResponseDTO.from(favorite, accommodations);
     }
 
     @Transactional
