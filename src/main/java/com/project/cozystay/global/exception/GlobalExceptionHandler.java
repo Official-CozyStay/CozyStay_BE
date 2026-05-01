@@ -4,9 +4,12 @@ import com.project.cozystay.booking.exception.*;
 import com.project.cozystay.booking.guest.exception.*;
 import com.project.cozystay.comment.exception.CommentNotFoundException;
 import com.project.cozystay.payment.exception.PaymentAccessDeniedException;
+import com.project.cozystay.review.exception.ReviewCreationNotAllowedException;
+import com.project.cozystay.review.exception.ReviewNotFoundException;
 import com.project.cozystay.review.exception.ReviewUpdateNotAllowedException;
 import com.project.cozystay.user.exception.UserEmailAlreadyExistsException;
 import com.project.cozystay.user.exception.UserNameAlreadyExistsException;
+import com.project.cozystay.user.exception.UserNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -59,7 +62,8 @@ public class GlobalExceptionHandler {
 
     /* ===================== 404 NOT FOUND ===================== */
     @ExceptionHandler({AccommodationNotFoundException.class, BookingNotFoundException.class,
-            BookingGuestNotFoundException.class, CommentNotFoundException.class})
+            BookingGuestNotFoundException.class, CommentNotFoundException.class,
+            UserNotFoundException.class, ReviewNotFoundException.class})
     public ResponseEntity<ErrorResponse> handleNotFound(RuntimeException e){
         log.warn("NotFound [{}]: {}", e.getClass().getSimpleName(), e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -73,6 +77,7 @@ public class GlobalExceptionHandler {
             BookingGuestDuplicateInvitationException.class, BookingGuestCancelNotAllowedException.class,
             BookingGuestResponseForbiddenException.class, BookingGuestResponseNotAllowedException.class,
             BookingDecisionNotAllowedException.class, ReviewUpdateNotAllowedException.class,
+            ReviewCreationNotAllowedException.class, ReviewAlreadyExistsException.class,
             InstantBookingDecisionNotAllowedException.class,
             UserEmailAlreadyExistsException.class, UserNameAlreadyExistsException.class
     })

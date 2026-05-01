@@ -4,6 +4,8 @@ import com.project.cozystay.accommodation.domain.Accommodation;
 import com.project.cozystay.accommodation.repository.AccommodationRepository;
 import com.project.cozystay.booking.domain.Booking;
 import com.project.cozystay.booking.domain.BookingStatus;
+import com.project.cozystay.booking.exception.AccommodationNotFoundException;
+import com.project.cozystay.booking.exception.BookingNotFoundException;
 import com.project.cozystay.booking.exception.ReviewAlreadyExistsException;
 import com.project.cozystay.booking.repository.BookingRepository;
 import com.project.cozystay.comment.dto.CommentResponseDTO;
@@ -11,21 +13,20 @@ import com.project.cozystay.review.domain.AccommodationReview;
 import com.project.cozystay.review.dto.AccommodationReviewCreateRequest;
 import com.project.cozystay.review.dto.AccommodationReviewResponse;
 import com.project.cozystay.review.dto.ReviewResponse;
+import com.project.cozystay.review.exception.ReviewCreationNotAllowedException;
+import com.project.cozystay.review.exception.ReviewNotFoundException;
 import com.project.cozystay.review.exception.ReviewUpdateNotAllowedException;
 import com.project.cozystay.review.repository.AccommodationReviewRepository;
 import com.project.cozystay.user.domain.User;
+import com.project.cozystay.user.exception.UserNotFoundException;
 import com.project.cozystay.user.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -47,10 +48,10 @@ public class AccommodationReviewService {
     @Transactional
     public AccommodationReviewResponse createAccommodationReview(Long guestId, AccommodationReviewCreateRequest request) {
         User guest = userRepository.findById(guestId)
-                .orElseThrow(() -> new EntityNotFoundException("게스트가 존재하지 않습니다. ID: " + guestId));
+                .orElseThrow(() -> new UserNotFoundException(guestId));
 
         Booking booking = bookingRepository.findById(request.bookingId())
-                .orElseThrow(() -> new EntityNotFoundException("예약이 존재하지 않습니다. ID: " + request.bookingId()));
+                .orElseThrow(() -> new BookingNotFoundException(request.bookingId()));
 
         // 중복 리뷰 생성 방지
         if (accommodationReviewRepository.existsByBooking_Id(request.bookingId())) {
@@ -64,7 +65,7 @@ public class AccommodationReviewService {
 
         // 예약 상태가 COMPLETED 인지 확인
         if (booking.getStatus() != BookingStatus.COMPLETED) {
-            throw new IllegalStateException("체크아웃이 완료된 예약에 대해서만 리뷰를 작성할 수 있습니다.");
+            throw new ReviewCreationNotAllowedException("체크아웃이 완료된 예약에 대해서만 리뷰를 작성할 수 있습니다.");
         }
 
         BigDecimal ratingOverall = calculateRating(request);
@@ -98,7 +99,7 @@ public class AccommodationReviewService {
     public List<AccommodationReviewResponse> getAccommodationReviews(Long accId){
 
         if (!accommodationRepository.existsById(accId)) {
-            throw new IllegalArgumentException("존재하지 않는 숙소입니다. id=" + accId);
+            throw new AccommodationNotFoundException(accId);
         }
 
         List<AccommodationReview> accommodationReviewList = accommodationReviewRepository.findByAccommodation_Id(accId);
@@ -127,7 +128,7 @@ public class AccommodationReviewService {
     public ReviewResponse updateAccommodationReview(Long reviewId, AccommodationReviewCreateRequest request){
 
         AccommodationReview review = accommodationReviewRepository.findById(reviewId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 리뷰가 존재하지 않습니다."));
+                .orElseThrow(() -> new ReviewNotFoundException(reviewId));
 
         if(review.getComment() != null){
             throw new ReviewUpdateNotAllowedException("답글이 달린 리뷰는 수정할 수 없습니다.");
@@ -149,7 +150,7 @@ public class AccommodationReviewService {
     public ReviewResponse deleteAccommodationReview(Long reviewId){
 
         AccommodationReview review = accommodationReviewRepository.findById(reviewId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 리뷰가 존재하지 않습니다."));
+                .orElseThrow(() -> new ReviewNotFoundException(reviewId));
 
         Long accommodationId = review.getAccommodation().getId();
         accommodationReviewRepository.delete(review);
@@ -162,7 +163,7 @@ public class AccommodationReviewService {
 
     private void updateAccommodationStats(Long accommodationId) {
         Accommodation accommodation = accommodationRepository.findById(accommodationId)
-                .orElseThrow(() -> new IllegalArgumentException("숙소를 찾을 수 없습니다."));
+                .orElseThrow(() -> new AccommodationNotFoundException(accommodationId));
 
         var summary = accommodationReviewRepository.getReviewSummary(accommodationId);
         accommodation.updateReviewStats(summary.getAverage(), summary.getCount().intValue());
@@ -211,9 +212,7 @@ public class AccommodationReviewService {
     public AccommodationReviewResponse getAccommodationReviewByGuest(Long guestId, Long accId){
 
         AccommodationReview review = accommodationReviewRepository.findByGuestAndAccommodation(guestId, accId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "작성하신 리뷰를 찾을 수 없습니다. id=" + accId
-                ));
+                .orElseThrow(() -> new ReviewNotFoundException("작성하신 리뷰를 찾을 수 없습니다. id=" + accId));
 
         return new AccommodationReviewResponse(
                 review.getId(),
