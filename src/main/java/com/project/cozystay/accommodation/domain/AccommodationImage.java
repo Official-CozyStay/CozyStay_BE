@@ -48,4 +48,16 @@ public class AccommodationImage {
     }
 
     public void assignCategory(AccommodationImageCategory category) {this.category = category;}
+
+    public static AccommodationImage create(
+            String imageUrl,
+            Integer displayOrder,
+            Boolean primary
+    ) {
+        return AccommodationImage.builder()
+                .imageUrl(imageUrl)
+                .displayOrder(displayOrder)
+                .primary(primary != null ? primary : false)
+                .build();
+    }
 }

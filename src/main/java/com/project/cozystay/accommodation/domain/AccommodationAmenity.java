@@ -1,6 +1,5 @@
 package com.project.cozystay.accommodation.domain;
 
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -37,5 +36,12 @@ public class AccommodationAmenity {
 
     void assignAccommodation(Accommodation accommodation){
         this.accommodation = accommodation;
+    }
+
+    public static AccommodationAmenity create(Accommodation accommodation, Amenity amenity) {
+        return AccommodationAmenity.builder()
+                .accommodation(accommodation)
+                .amenity(amenity)
+                .build();
     }
 }
