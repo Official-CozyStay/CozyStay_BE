@@ -4,6 +4,7 @@ import com.project.cozystay.booking.exception.*;
 import com.project.cozystay.booking.guest.exception.*;
 import com.project.cozystay.comment.exception.CommentNotFoundException;
 import com.project.cozystay.payment.exception.PaymentAccessDeniedException;
+import com.project.cozystay.review.exception.ReviewAlreadyExistsException;
 import com.project.cozystay.review.exception.ReviewCreationNotAllowedException;
 import com.project.cozystay.review.exception.ReviewNotFoundException;
 import com.project.cozystay.review.exception.ReviewUpdateNotAllowedException;

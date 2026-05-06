@@ -1,23 +1,24 @@
 package com.project.cozystay.review.service;
 
 import com.project.cozystay.booking.domain.Booking;
-import com.project.cozystay.booking.exception.ReviewAlreadyExistsException;
+import com.project.cozystay.booking.exception.BookingNotFoundException;
 import com.project.cozystay.booking.repository.BookingRepository;
 import com.project.cozystay.comment.dto.CommentResponseDTO;
 import com.project.cozystay.review.domain.UserReview;
 import com.project.cozystay.review.dto.ReviewResponse;
 import com.project.cozystay.review.dto.UserReviewCreateRequest;
 import com.project.cozystay.review.dto.UserReviewResponse;
+import com.project.cozystay.review.exception.ReviewAlreadyExistsException;
+import com.project.cozystay.review.exception.ReviewNotFoundException;
 import com.project.cozystay.review.exception.ReviewUpdateNotAllowedException;
 import com.project.cozystay.review.repository.UserReviewRepository;
 import com.project.cozystay.user.domain.User;
+import com.project.cozystay.user.exception.UserNotFoundException;
 import com.project.cozystay.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Objects;
@@ -37,17 +38,17 @@ public class UserReviewService {
     public UserReviewResponse createUserReview(Long hostId, UserReviewCreateRequest request) {
 
         if(userReviewRepository.existsByTargetGuestIdAndReviewerHostId(request.targetGuestId(), hostId)){
-            throw new IllegalArgumentException("이미 작성한 리뷰입니다.");
+            throw new ReviewAlreadyExistsException("이미 해당 게스트에 대해 작성하신 리뷰가 존재합니다.");
         }
 
         User reviewerHost = userRepository.findById(hostId)
-                .orElseThrow(() -> new IllegalArgumentException("호스트가 존재하지 않습니다."));
+                .orElseThrow(() -> new UserNotFoundException(hostId));
 
         User targetGuest = userRepository.findById(request.targetGuestId())
-                .orElseThrow(() -> new IllegalArgumentException("게스트가 존재하지 않습니다."));
+                .orElseThrow(() -> new UserNotFoundException(request.targetGuestId()));
 
         Booking booking = bookingRepository.findById(request.bookingId())
-                .orElseThrow(() -> new IllegalArgumentException("예약이 존재하지 않습니다."));
+                .orElseThrow(() -> new BookingNotFoundException(request.bookingId()));
 
         // 중복 리뷰 생성 방지
         if (userReviewRepository.existsByBooking_Id(request.bookingId())) {
@@ -80,7 +81,7 @@ public class UserReviewService {
     public List<UserReviewResponse> getUserReviews(Long targetUserId){
 
         if (!userRepository.existsById(targetUserId)) {
-            throw new IllegalArgumentException("존재하지 않는 사용자입니다. id=" + targetUserId);
+            throw new UserNotFoundException(targetUserId);
         }
 
         List<UserReview> userReviewList = userReviewRepository.findByTargetGuestId(targetUserId);
@@ -103,7 +104,7 @@ public class UserReviewService {
     public ReviewResponse updateUserReview(Long reviewId, UserReviewCreateRequest request){
 
         UserReview userReview = userReviewRepository.findById(reviewId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 리뷰가 존재하지 않습니다."));
+                .orElseThrow(() -> new ReviewNotFoundException(reviewId));
 
         if(userReview.getComment() != null){
             throw new ReviewUpdateNotAllowedException("답글이 달린 리뷰는 수정할 수 없습니다.");
@@ -119,7 +120,7 @@ public class UserReviewService {
     public ReviewResponse deleteUserReview(Long reviewId){
 
         UserReview userReview = userReviewRepository.findById(reviewId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 리뷰가 존재하지 않습니다."));
+                .orElseThrow(() -> new ReviewNotFoundException(reviewId));
 
         userReviewRepository.delete(userReview);
 
@@ -148,9 +149,7 @@ public class UserReviewService {
     public UserReviewResponse getUserReviewByHost(Long targetGuestId, Long reviewerHostId){
 
         UserReview review = userReviewRepository.findByTargetGuestIdAndReviewerHostId(targetGuestId, reviewerHostId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "해당 사용자에 대해서 작성하신 리뷰를 찾을 수 없습니다. id=" + targetGuestId
-                ));
+                .orElseThrow(() -> new ReviewNotFoundException("해당 사용자에 대해서 작성하신 리뷰를 찾을 수 없습니다. (대상 게스트 ID: " + targetGuestId + ")"));
 
         return new UserReviewResponse(
                 review.getTargetGuest().getId(),

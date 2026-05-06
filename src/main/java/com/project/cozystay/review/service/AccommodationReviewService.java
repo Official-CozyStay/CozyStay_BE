@@ -6,16 +6,17 @@ import com.project.cozystay.booking.domain.Booking;
 import com.project.cozystay.booking.domain.BookingStatus;
 import com.project.cozystay.booking.exception.AccommodationNotFoundException;
 import com.project.cozystay.booking.exception.BookingNotFoundException;
-import com.project.cozystay.booking.exception.ReviewAlreadyExistsException;
 import com.project.cozystay.booking.repository.BookingRepository;
 import com.project.cozystay.comment.dto.CommentResponseDTO;
 import com.project.cozystay.review.domain.AccommodationReview;
 import com.project.cozystay.review.dto.AccommodationReviewCreateRequest;
 import com.project.cozystay.review.dto.AccommodationReviewResponse;
 import com.project.cozystay.review.dto.ReviewResponse;
+import com.project.cozystay.review.exception.ReviewAlreadyExistsException;
 import com.project.cozystay.review.exception.ReviewCreationNotAllowedException;
 import com.project.cozystay.review.exception.ReviewNotFoundException;
 import com.project.cozystay.review.exception.ReviewUpdateNotAllowedException;
+
 import com.project.cozystay.review.repository.AccommodationReviewRepository;
 import com.project.cozystay.user.domain.User;
 import com.project.cozystay.user.exception.UserNotFoundException;
