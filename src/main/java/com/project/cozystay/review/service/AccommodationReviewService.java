@@ -212,7 +212,7 @@ public class AccommodationReviewService {
     public AccommodationReviewResponse getAccommodationReviewByGuest(Long guestId, Long accId){
 
         AccommodationReview review = accommodationReviewRepository.findByGuestAndAccommodation(guestId, accId)
-                .orElseThrow(() -> new ReviewNotFoundException("작성하신 리뷰를 찾을 수 없습니다. id=" + accId));
+                .orElseThrow(() -> new ReviewNotFoundException("해당 숙소에 대해 작성하신 리뷰를 찾을 수 없습니다. (숙소 ID: " + accId + ")"));
 
         return new AccommodationReviewResponse(
                 review.getId(),
