@@ -20,8 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
+
 
 @Slf4j
 @Service
@@ -31,6 +30,7 @@ public class PaymentCommandService {
     private final BookingRepository bookingRepository;
     private final PaymentRepository paymentRepository;
     private final TossPaymentClient tossPaymentClient;
+    private final PaymentFailureService paymentFailureService;
 
     // 결제 생성
     @Transactional
@@ -46,11 +46,7 @@ public class PaymentCommandService {
             throw new PaymentInvalidStateException("PENDING 예약만 결제 할 수 있습니다. status=" + booking.getStatus());
         }
 
-        BigDecimal amount = calculateAmount(
-                booking.getCheckInDate(),
-                booking.getCheckOutDate(),
-                booking.getAccommodation().getPricePerNight()
-        );
+        BigDecimal amount = booking.getTotalPrice();
 
         // 기존 결제 조회
         Payment existing = paymentRepository.findByBooking_Id(bookingId).orElse(null);
@@ -89,20 +85,6 @@ public class PaymentCommandService {
         return paymentRepository.save(payment);
     }
 
-    private BigDecimal calculateAmount(LocalDate checkIn, LocalDate checkOut, BigDecimal pricePerNight) {
-
-        long nights = ChronoUnit.DAYS.between(checkIn, checkOut);
-        if(nights <= 0){
-            throw new PaymentInvalidStateException("숙박 일수가 올바르지 않습니다. checkIn=" + checkIn + ", checkOut=" + checkOut);
-        }
-
-        if(pricePerNight == null || pricePerNight.signum() <= 0){
-            throw new PaymentInvalidStateException("숙소 가격이 올바르지 않습니다.");
-        }
-
-        return pricePerNight.multiply(BigDecimal.valueOf(nights));
-    }
-
     // 토스 결제 승인 처리
     @Transactional
     public Payment confirmPayment(String orderId, Long payerId, String paymentKey, BigDecimal amount){
@@ -121,36 +103,38 @@ public class PaymentCommandService {
             throw new PaymentInvalidStateException("결제 금액이 일치하지 않습니다.");
         }
 
+        TossConfirmResponse tossResponse;
         // 토스 승인 API 호출
-        TossConfirmResponse response;
-        try{
-            response = tossPaymentClient.confirmPayment(paymentKey, orderId, amount);
-        }catch(TossPaymentConfirmException e){
+        try {
+            tossResponse = tossPaymentClient.confirmPayment(
+                    paymentKey,
+                    payment.getOrderId(),
+                    amount
+            );
+        } catch (TossPaymentConfirmException e) {
             log.warn("[PAYMENT CONFIRM FAIL] orderId={}, paymentKey={}, reason={}",
                     orderId, paymentKey, e.getMessage());
-            throw new PaymentInvalidStateException("토스 결제 승인에 실패했습니다.", e);
+            paymentFailureService.markFailed(payment.getId());
+            throw e;
         }
 
-        if(response == null
-                || !"DONE".equals(response.getStatus())
-                || !orderId.equals(response.getOrderId())
-                || !paymentKey.equals(response.getPaymentKey())){
+        if(tossResponse == null
+            || !"DONE".equals(tossResponse.getStatus())
+            || !payment.getOrderId().equals(tossResponse.getOrderId())
+            || !paymentKey.equals(tossResponse.getPaymentKey())){
             throw new PaymentInvalidStateException("유효하지 않은 결제 승인 응답입니다.");
         }
 
         // 승인 성공 시
-        payment.markSuccess(paymentKey);
-
-        // instantBooking = true인 경우 -> 결제 성공 시 즉시 예약(CONFIRMED)
-        Booking booking = payment.getBooking();
-        if(Boolean.TRUE.equals(booking.getAccommodation().getInstantBooking())){
-            booking.confirmByHost();
+        payment.markSuccess(tossResponse.getPaymentKey());
+        if(Boolean.TRUE.equals(payment.getBooking().getAccommodation().getInstantBooking())){
+            payment.getBooking().confirmByHost();
         }
 
         return payment;
     }
 
-    // Mock 결제 실패 처리
+    // 결제 실패 처리
     @Transactional
     public Payment failPayment(Long paymentId, Long payerId){
         Payment payment = paymentRepository.findByIdWithBooking(paymentId)
