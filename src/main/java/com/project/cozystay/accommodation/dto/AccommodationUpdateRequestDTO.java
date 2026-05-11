@@ -32,8 +32,12 @@ public record AccommodationUpdateRequestDTO(
 
         String postalCode,
 
+        @jakarta.validation.constraints.DecimalMin(value = "-90.0", message = "위도는 -90.0 이상이어야 합니다.")
+        @jakarta.validation.constraints.DecimalMax(value = "90.0", message = "위도는 90.0 이하이어야 합니다.")
         BigDecimal latitude,
 
+        @jakarta.validation.constraints.DecimalMin(value = "-180.0", message = "경도는 -180.0 이상이어야 합니다.")
+        @jakarta.validation.constraints.DecimalMax(value = "180.0", message = "경도는 180.0 이하이어야 합니다.")
         BigDecimal longitude,
 
         @Min(value = 1, message = "최대 인원수는 1명 이상이어야 합니다.")
@@ -47,8 +51,10 @@ public record AccommodationUpdateRequestDTO(
 
         Boolean instantBooking,
 
+        @com.fasterxml.jackson.annotation.JsonFormat(shape = com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
         LocalTime checkInTime,
 
+        @com.fasterxml.jackson.annotation.JsonFormat(shape = com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
         LocalTime checkOutTime
 ) {
 }
