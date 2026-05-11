@@ -145,9 +145,6 @@ public class Accommodation {
     //  if (this.images.isEmpty())
     //      throw new IllegalStateException("이미지가 없습니다.");
 
-        if (this.amenities.isEmpty())
-            throw new IllegalStateException("편의시설 정보가 없습니다.");
-
         this.status = AccommodationStatus.ACTIVE;
     }
 
