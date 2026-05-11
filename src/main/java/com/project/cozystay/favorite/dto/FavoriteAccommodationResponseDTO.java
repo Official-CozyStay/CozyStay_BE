@@ -1,7 +1,6 @@
 package com.project.cozystay.favorite.dto;
 
-import com.project.cozystay.accommodation.domain.Accommodation;
-import com.project.cozystay.accommodation.domain.AccommodationImage;
+import com.project.cozystay.favorite.repository.projection.FavoriteAccommodationProjection;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -20,23 +19,16 @@ public class FavoriteAccommodationResponseDTO {
     private BigDecimal pricePerNight;
     private String imageUrl;
 
-    public static FavoriteAccommodationResponseDTO from(Accommodation accommodation){
+    public static FavoriteAccommodationResponseDTO from(FavoriteAccommodationProjection projection) {
         return FavoriteAccommodationResponseDTO.builder()
-                .accommodationId(accommodation.getId())
-                .title(accommodation.getTitle())
-                .state(accommodation.getState())
-                .city(accommodation.getCity())
-                .district(accommodation.getDistrict())
-                .country(accommodation.getCountry())
-                .pricePerNight(accommodation.getPricePerNight())
-                .imageUrl(
-                        accommodation.getImages().stream()
-                                .filter(AccommodationImage::isPrimary) //대표 이미지가 있다면 사용
-                                .findFirst()
-                                .or(() -> accommodation.getImages().stream().findFirst()) //대표 이미지가 없다면 가장 첫 번째 이미지 사용
-                                .map(AccommodationImage::getImageUrl)
-                                .orElse(null)
-                )
+                .accommodationId(projection.accommodationId())
+                .title(projection.title())
+                .state(projection.state())
+                .city(projection.city())
+                .district(projection.district())
+                .country(projection.country())
+                .pricePerNight(projection.pricePerNight())
+                .imageUrl(projection.imageUrl())
                 .build();
     }
 }

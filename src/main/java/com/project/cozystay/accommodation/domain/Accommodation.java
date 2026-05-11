@@ -1,4 +1,5 @@
 package com.project.cozystay.accommodation.domain;
+import com.project.cozystay.accommodation.dto.AccommodationRequestDTO;
 import com.project.cozystay.accommodation.dto.AccommodationUpdateRequestDTO;
 import jakarta.persistence.*;
 import lombok.*;
@@ -65,12 +66,15 @@ public class Accommodation {
     private BigDecimal pricePerNight;
 
     @Column(name = "cleaning_fee", precision = 10, scale = 2)
+    @Builder.Default
     private BigDecimal cleaningFee =  BigDecimal.ZERO;
 
     @Column(name = "service_fee_percentage", precision =5, scale = 2)
+    @Builder.Default
     private BigDecimal serviceFeePercentage = BigDecimal.ZERO;
 
     @Column(name = "instant_booking")
+    @Builder.Default
     private Boolean instantBooking = false;
 
     @Column(name = "check_in_time")
@@ -148,40 +152,67 @@ public class Accommodation {
         this.status = AccommodationStatus.ACTIVE;
     }
 
-    public void update(AccommodationUpdateRequestDTO dto){
-        if (dto.getTitle() != null) this.title = dto.getTitle();
+    public void markDelete(){
+        if(this.status == AccommodationStatus.DELETED){
+            throw new IllegalStateException("이미 삭제된 숙소입니다.");
+        }
+        this.status = AccommodationStatus.DELETED;
+    }
 
-        if (dto.getDescription() != null) this.description = dto.getDescription();
+    public void validateActiveAccommodation(){
+        if (this.status != AccommodationStatus.ACTIVE) {
+            throw new IllegalStateException("활성화된 숙소가 아닙니다.");
+        }
+    }
 
-        if (dto.getAccommodationType() != null) this.accommodationType = dto.getAccommodationType();
+    public void validateNotDeletedAccommodation(){
+        if (this.status == AccommodationStatus.DELETED) {
+            throw new IllegalStateException("삭제된 숙소 입니다");
+        }
+    }
 
-        if (dto.getAddress() != null) this.address = dto.getAddress();
+    public static Accommodation create(Long hostId, AccommodationRequestDTO request) {
+        return Accommodation.builder()
+                .hostId(hostId)
+                .title(request.title())
+                .description(request.description())
+                .accommodationType(request.accommodationType())
+                .address(request.address())
+                .city(request.city())
+                .district(request.district())
+                .state(request.state())
+                .country(request.country())
+                .postalCode(request.postalCode())
+                .latitude(request.latitude())
+                .longitude(request.longitude())
+                .maxGuests(request.maxGuests())
+                .pricePerNight(request.pricePerNight())
+                .cleaningFee(request.cleaningFee() != null ? request.cleaningFee() : BigDecimal.ZERO)
+                .instantBooking(request.instantBooking() != null ? request.instantBooking() : false)
+                .checkInTime(request.checkInTime())
+                .checkOutTime(request.checkOutTime())
+                .status(AccommodationStatus.DRAFT)
+                .build();
+    }
 
-        if (dto.getCity() != null) this.city = dto.getCity();
-
-        if (dto.getDistrict() != null) this.district = dto.getDistrict();
-
-        if (dto.getState() != null) this.state = dto.getState();
-
-        if (dto.getCountry() != null) this.country = dto.getCountry();
-
-        if (dto.getPostalCode() != null) this.postalCode = dto.getPostalCode();
-
-        if (dto.getLatitude() != null) this.latitude = dto.getLatitude();
-
-        if (dto.getLongitude() != null) this.longitude = dto.getLongitude();
-
-        if (dto.getMaxGuests() != null) this.maxGuests = dto.getMaxGuests();
-
-        if (dto.getPricePerNight() != null) this.pricePerNight = dto.getPricePerNight();
-
-        if (dto.getCleaningFee() != null) this.cleaningFee = dto.getCleaningFee();
-
-        if (dto.getInstantBooking() != null) this.instantBooking = dto.getInstantBooking();
-
-        if (dto.getCheckInTime() != null) this.checkInTime = dto.getCheckInTime();
-
-        if (dto.getCheckOutTime() != null) this.checkOutTime = dto.getCheckOutTime();
+    public void update(AccommodationUpdateRequestDTO dto) {
+        if (dto.title() != null) this.title = dto.title();
+        if (dto.description() != null) this.description = dto.description();
+        if (dto.accommodationType() != null) this.accommodationType = dto.accommodationType();
+        if (dto.address() != null) this.address = dto.address();
+        if (dto.city() != null) this.city = dto.city();
+        if (dto.district() != null) this.district = dto.district();
+        if (dto.state() != null) this.state = dto.state();
+        if (dto.country() != null) this.country = dto.country();
+        if (dto.postalCode() != null) this.postalCode = dto.postalCode();
+        if (dto.latitude() != null) this.latitude = dto.latitude();
+        if (dto.longitude() != null) this.longitude = dto.longitude();
+        if (dto.maxGuests() != null) this.maxGuests = dto.maxGuests();
+        if (dto.pricePerNight() != null) this.pricePerNight = dto.pricePerNight();
+        if (dto.cleaningFee() != null) this.cleaningFee = dto.cleaningFee();
+        if (dto.instantBooking() != null) this.instantBooking = dto.instantBooking();
+        if (dto.checkInTime() != null) this.checkInTime = dto.checkInTime();
+        if (dto.checkOutTime() != null) this.checkOutTime = dto.checkOutTime();
     }
 
     public void updateReviewStats(Double averageRating, Integer reviewCount) {

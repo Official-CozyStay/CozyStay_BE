@@ -1,11 +1,10 @@
 package com.project.cozystay.accommodation.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.cozystay.accommodation.domain.Accommodation;
 import com.project.cozystay.accommodation.domain.AccommodationImage;
-import com.project.cozystay.accommodation.dto.AccommodationImageDeleteResponseDTO;
-import com.project.cozystay.accommodation.dto.AccommodationImageRequestDTO;
-import com.project.cozystay.accommodation.dto.AccommodationImageResponseDTO;
+import com.project.cozystay.accommodation.domain.AccommodationImageCategory;
+import com.project.cozystay.accommodation.dto.*;
+import com.project.cozystay.accommodation.repository.AccommodationImageCategoryRepository;
 import com.project.cozystay.accommodation.repository.AccommodationImageRepository;
 import com.project.cozystay.accommodation.repository.AccommodationRepository;
 import com.project.cozystay.common.service.S3Service;
@@ -22,6 +21,7 @@ import java.util.List;
 public class AccommodationImageService {
     private final AccommodationRepository accommodationRepository;
     private final AccommodationImageRepository accommodationImageRepository;
+    private final AccommodationImageCategoryRepository accommodationImageCategoryRepository;
     private final S3Service s3Service;
 
     @Transactional
@@ -44,11 +44,16 @@ public class AccommodationImageService {
         for (int i = 0; i < files.size(); i++) {
             String url = s3Service.uploadFile(files.get(i));
             AccommodationImageRequestDTO dto = request.get(i);
-            AccommodationImage image = AccommodationImage.builder()
-                    .imageUrl(url)
-                    .displayOrder(dto.getDisplayOrder() != null ? dto.getDisplayOrder() : 0)
-                    .primary(Boolean.TRUE.equals(dto.getIsPrimary()))
-                    .build();
+            AccommodationImage image = AccommodationImage.create(url, dto.displayOrder(), dto.isPrimary());
+
+            if (dto.categoryId() != null) {
+                AccommodationImageCategory category = accommodationImageCategoryRepository
+                        .findByIdAndAccommodation_Id(dto.categoryId(), accommodationId)
+                        .orElseThrow(() -> new IllegalArgumentException("해당 숙소에 속한 이미지 카테고리를 찾을 수 없습니다."));
+
+                image.assignCategory(category);
+            }
+
             accommodation.addImage(image);
             newImages.add(image);
         }
@@ -93,6 +98,39 @@ public class AccommodationImageService {
                 .imageIds(imageIds)
                 .message("이미지 삭제 완료")
                 .build();
+    }
+
+    @Transactional
+    public AccommodationImageCategoryResponseDTO createImageCategory(
+            Long accommodationId,
+            Long hostId,
+            AccommodationImageCategoryRequestDTO request){
+        Accommodation accommodation = accommodationRepository.findById(accommodationId)
+                .orElseThrow(() -> new IllegalArgumentException("숙소를 찾을 수 없습니다."));
+
+        accommodation.validateNotDeletedAccommodation();
+
+        accommodationHostCheck(accommodation, hostId);
+
+        AccommodationImageCategory category = AccommodationImageCategory.create(
+                accommodation, request.name(), request.displayOrder());
+
+        category = accommodationImageCategoryRepository.save(category);
+
+        return AccommodationImageCategoryResponseDTO.builder()
+                .categoryId(category.getId())
+                .name(category.getName())
+                .displayOrder(category.getDisplayOrder())
+                .build();
+    }
+
+
+    @Transactional(readOnly = true)
+    public List<CategoryWithImagesDTO> getImageCategories(Long accommodationId) {
+        Accommodation accommodation = accommodationRepository.findByIdWithImagesAndCategories(accommodationId)
+                .orElseThrow(() -> new IllegalArgumentException("ID에 해당하는 숙소가 없습니다."));
+
+        return CategoryWithImagesDTO.fromAccommodation(accommodation);
     }
 
     private void accommodationHostCheck(Accommodation accommodation, Long hostId) {

@@ -1,6 +1,5 @@
 package com.project.cozystay.accommodation.dto;
 
-import com.project.cozystay.accommodation.domain.Accommodation;
 import com.project.cozystay.accommodation.domain.AccommodationType;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;

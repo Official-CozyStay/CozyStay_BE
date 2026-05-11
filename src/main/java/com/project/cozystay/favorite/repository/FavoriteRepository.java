@@ -15,23 +15,10 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
             FROM Favorite f
             LEFT JOIN FETCH f.favoriteAccommodations fa
             LEFT JOIN FETCH fa.accommodation a
-            LEFT JOIN FETCH a.images
             WHERE f.user.id = :userId
             """)
     List<Favorite> findAllByUser_Id(@Param("userId") Long userId);
 
     Optional<Favorite> findByIdAndUser_Id(Long favoriteId, Long userId);
 
-    @Query("""
-            SELECT DISTINCT f
-            FROM Favorite f
-            LEFT JOIN FETCH f.favoriteAccommodations fa
-            LEFT JOIN FETCH fa.accommodation a
-            LEFT JOIN FETCH a.images
-            WHERE f.id = :favoriteId AND f.user.id = :userId
-            """)
-    Optional<Favorite> findDetailByIdAndUserId(
-            @Param("favoriteId") Long favoriteId,
-            @Param("userId") Long userId
-    );
 }

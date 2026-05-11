@@ -5,4 +5,8 @@ import com.project.cozystay.accommodation.domain.AccommodationAmenityId;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface AccommodationAmenityRepository extends JpaRepository <AccommodationAmenity, AccommodationAmenityId> {
+    boolean existsByAccommodation_IdAndAmenity_Id(
+            Long accommodationId,
+            Integer amenityId
+    );
 }

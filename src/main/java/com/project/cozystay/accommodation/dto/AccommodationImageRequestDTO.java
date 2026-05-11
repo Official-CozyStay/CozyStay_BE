@@ -1,23 +1,13 @@
 package com.project.cozystay.accommodation.dto;
 
+import jakarta.validation.constraints.NotNull;
 
-import com.project.cozystay.accommodation.domain.AccommodationImage;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+public record AccommodationImageRequestDTO(
+        @NotNull
+        Integer displayOrder,
 
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
-public class AccommodationImageRequestDTO {
-    private Integer displayOrder;
-    private Boolean isPrimary;
-    private Long categoryId;
+        Boolean isPrimary,
 
-    public AccommodationImage toEntity() {
-        return AccommodationImage.builder()
-                .displayOrder(this.displayOrder)
-                .primary(this.isPrimary != null ? this.isPrimary : false)
-                .build();
-    }
+        Long categoryId
+) {
 }
