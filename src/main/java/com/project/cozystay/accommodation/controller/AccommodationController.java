@@ -22,6 +22,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/accommodations")
+@org.springframework.validation.annotation.Validated
 public class AccommodationController {
 
     private final AccommodationService accommodationService;
@@ -100,8 +101,8 @@ public class AccommodationController {
     public ResponseEntity<AccommodationImageResponseDTO> addImage(
             @PathVariable Long accommodationId,
             @AuthenticationPrincipal CustomOAuth2User principal,
-            @RequestPart("files") @NotEmpty List<MultipartFile> files,
-            @RequestPart("metadata") @NotEmpty List<AccommodationImageRequestDTO> metadata
+            @RequestPart("files") @NotEmpty(message = "이미지 파일은 최소 1개 이상이어야 합니다.") List<MultipartFile> files,
+            @RequestPart("metadata") @NotEmpty(message = "이미지 메타데이터는 필수입니다.") List<@Valid AccommodationImageRequestDTO> metadata
     ){
         Long hostId = principal.getId();
         AccommodationImageResponseDTO response = accommodationImageService.addImage(accommodationId, hostId, files, metadata);
@@ -115,7 +116,7 @@ public class AccommodationController {
     @PostMapping("/amenities/{accommodationId}")
     public ResponseEntity<AccommodationAmenityResponseDTO> addAmenities(
             @PathVariable Long accommodationId,
-            @RequestBody List<AccommodationAmenityRequestDTO> request,
+            @RequestBody @NotEmpty(message = "편의시설 목록은 비어있을 수 없습니다.") List<@Valid AccommodationAmenityRequestDTO> request,
             @AuthenticationPrincipal CustomOAuth2User principal
     ){
         Long hostId = principal.getId();
@@ -191,7 +192,7 @@ public class AccommodationController {
     @PostMapping("/{accommodationId}/image-categories")
     public ResponseEntity<AccommodationImageCategoryResponseDTO> createImageCategory(
             @PathVariable Long accommodationId,
-            @RequestBody AccommodationImageCategoryRequestDTO request,
+            @RequestBody @Valid AccommodationImageCategoryRequestDTO request,
             @AuthenticationPrincipal CustomOAuth2User principal
     ){
         Long hostId = principal.getId();
