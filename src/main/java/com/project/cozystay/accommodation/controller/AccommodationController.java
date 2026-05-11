@@ -6,6 +6,7 @@ import com.project.cozystay.accommodation.service.AccommodationService;
 import com.project.cozystay.auth.CustomOAuth2User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -43,7 +44,7 @@ public class AccommodationController {
     @PostMapping
     public ResponseEntity<AccommodationResponseDTO> createAccommodation(
             @AuthenticationPrincipal CustomOAuth2User principal,
-            @RequestBody AccommodationRequestDTO request
+            @RequestBody @Valid AccommodationRequestDTO request
     ) {
         Long hostId = principal.getId();
         AccommodationResponseDTO response = accommodationService.createAccommodation(request, hostId);
@@ -57,7 +58,7 @@ public class AccommodationController {
     @PostMapping("/details/{accommodationId}")
     public ResponseEntity<AccommodationDetailResponseDTO> addAccommodationDetail(
             @PathVariable Long accommodationId,
-            @RequestBody AccommodationDetailRequestDTO request,
+            @RequestBody @Valid AccommodationDetailRequestDTO request,
             @AuthenticationPrincipal CustomOAuth2User principal
     ) {
         Long hostId = principal.getId();
@@ -143,7 +144,7 @@ public class AccommodationController {
     @PatchMapping("/{accommodationId}")
     public ResponseEntity<AccommodationUpdateResponseDTO> updateAccommodation(
             @PathVariable Long accommodationId,
-            @RequestBody AccommodationUpdateRequestDTO request,
+            @RequestBody @Valid AccommodationUpdateRequestDTO request,
             @AuthenticationPrincipal CustomOAuth2User principal
 
     ){
@@ -159,7 +160,7 @@ public class AccommodationController {
     @PatchMapping("/{accommodationId}/details")
     public ResponseEntity<AccommodationDetailUpdateResponseDTO> updateAccommodationDetail(
             @PathVariable Long accommodationId,
-            @RequestBody AccommodationDetailUpdateRequestDTO request,
+            @RequestBody @Valid AccommodationDetailUpdateRequestDTO request,
             @AuthenticationPrincipal CustomOAuth2User principal
     ){
         Long hostId = principal.getId();
