@@ -1,5 +1,6 @@
 package com.project.cozystay.accommodation.dto;
 
+import com.project.cozystay.accommodation.domain.Accommodation;
 import com.project.cozystay.accommodation.domain.AccommodationType;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
@@ -34,8 +35,10 @@ public record AccommodationRequestDTO(
 
     String postalCode,
 
+    @NotNull(message = "위도는 필수입니다.")
     BigDecimal latitude,
 
+    @NotNull(message = "경도는 필수입니다.")
     BigDecimal longitude,
 
     @NotNull(message = "최대 인원수는 필수입니다.")
@@ -46,23 +49,16 @@ public record AccommodationRequestDTO(
     @DecimalMin(value = "0.0", message = "가격은 0원 이상이어야 합니다.")
     BigDecimal pricePerNight,
 
+    @DecimalMin(value = "0.0", message = "청소비는 0원 이상이어야 합니다.")
     BigDecimal cleaningFee,
 
     Boolean instantBooking,
 
-    String checkInTime,
+    LocalTime checkInTime,
 
-    String checkOutTime
+    LocalTime checkOutTime
 ) {
     public Accommodation toEntity(Long hostId) {
-        LocalTime parsedCheckIn = (checkInTime != null && !checkInTime.isBlank())
-                ? LocalTime.parse(checkInTime)
-                : LocalTime.of(15, 0);
-
-        LocalTime parsedCheckOut = (checkOutTime != null && !checkOutTime.isBlank())
-                ? LocalTime.parse(checkOutTime)
-                : LocalTime.of(11, 0);
-
         return Accommodation.builder()
                 .hostId(hostId)
                 .title(title)
@@ -80,8 +76,8 @@ public record AccommodationRequestDTO(
                 .pricePerNight(pricePerNight)
                 .cleaningFee(cleaningFee != null ? cleaningFee : BigDecimal.ZERO)
                 .instantBooking(instantBooking != null ? instantBooking : false)
-                .checkInTime(parsedCheckIn)
-                .checkOutTime(parsedCheckOut)
+                .checkInTime(checkInTime != null ? checkInTime : LocalTime.of(15, 0))
+                .checkOutTime(checkOutTime != null ? checkOutTime : LocalTime.of(11, 0))
                 .build();
     }
 }
