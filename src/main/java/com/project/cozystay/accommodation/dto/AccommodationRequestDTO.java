@@ -6,88 +6,81 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalTime;
 
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
-public class AccommodationRequestDTO {
-
+public record AccommodationRequestDTO(
     @NotBlank(message = "숙소 제목은 필수입니다.")
-    private String title;
+    String title,
 
-    private String description;
+    String description,
 
     @NotNull(message = "숙소 타입은 필수입니다.")
-    private AccommodationType accommodationType;
+    AccommodationType accommodationType,
 
     @NotBlank(message = "주소는 필수입니다.")
-    private String address;
+    String address,
 
     @NotBlank(message = "도시는 필수입니다.")
-    private String city;     // 시/군 (예: 성남시, 가평군)
+    String city,
 
     @NotBlank(message = "구/군은 필수입니다.")
-    private String district; // 구 (예: 분당구)
+    String district,
 
-    private String state;
+    String state,
 
     @NotBlank(message = "국가는 필수입니다.")
-    private String country;
+    String country,
 
-    private String postalCode;
+    String postalCode,
 
-    private BigDecimal latitude;
+    BigDecimal latitude,
 
-    private BigDecimal longitude;
+    BigDecimal longitude,
 
     @NotNull(message = "최대 인원수는 필수입니다.")
     @Min(value = 1, message = "최대 인원수는 1명 이상이어야 합니다.")
-    private Integer maxGuests;
+    Integer maxGuests,
 
     @NotNull(message = "1박당 가격은 필수입니다.")
     @DecimalMin(value = "0.0", message = "가격은 0원 이상이어야 합니다.")
-    private BigDecimal pricePerNight;
+    BigDecimal pricePerNight,
 
-    private BigDecimal cleaningFee;
+    BigDecimal cleaningFee,
 
-    private Boolean instantBooking;
+    Boolean instantBooking,
 
-    private String checkInTime;
+    String checkInTime,
 
-    private String checkOutTime;
-
+    String checkOutTime
+) {
     public Accommodation toEntity(Long hostId) {
-        LocalTime parsedCheckIn = (this.checkInTime != null && !this.checkInTime.isBlank())
-                ? LocalTime.parse(this.checkInTime)
-                : LocalTime.of(15, 0); // 기본 체크인 15:00
+        LocalTime parsedCheckIn = (checkInTime != null && !checkInTime.isBlank())
+                ? LocalTime.parse(checkInTime)
+                : LocalTime.of(15, 0);
 
-        LocalTime parsedCheckOut = (this.checkOutTime != null && !this.checkOutTime.isBlank())
-                ? LocalTime.parse(this.checkOutTime)
-                : LocalTime.of(11, 0); // 기본 체크아웃 11:00
+        LocalTime parsedCheckOut = (checkOutTime != null && !checkOutTime.isBlank())
+                ? LocalTime.parse(checkOutTime)
+                : LocalTime.of(11, 0);
 
         return Accommodation.builder()
                 .hostId(hostId)
-                .title(this.title)
-                .description(this.description)
-                .accommodationType(this.accommodationType)
-                .address(this.address)
-                .city(this.city)
-                .district(this.district)
-                .state(this.state)
-                .country(this.country)
-                .postalCode(this.postalCode)
-                .latitude(this.latitude)
-                .longitude(this.longitude)
-                .maxGuests(this.maxGuests)
-                .pricePerNight(this.pricePerNight)
-                .cleaningFee(this.cleaningFee != null ? this.cleaningFee : BigDecimal.ZERO)
-                .instantBooking(this.instantBooking != null ? this.instantBooking : false)
+                .title(title)
+                .description(description)
+                .accommodationType(accommodationType)
+                .address(address)
+                .city(city)
+                .district(district)
+                .state(state)
+                .country(country)
+                .postalCode(postalCode)
+                .latitude(latitude)
+                .longitude(longitude)
+                .maxGuests(maxGuests)
+                .pricePerNight(pricePerNight)
+                .cleaningFee(cleaningFee != null ? cleaningFee : BigDecimal.ZERO)
+                .instantBooking(instantBooking != null ? instantBooking : false)
                 .checkInTime(parsedCheckIn)
                 .checkOutTime(parsedCheckOut)
                 .build();
