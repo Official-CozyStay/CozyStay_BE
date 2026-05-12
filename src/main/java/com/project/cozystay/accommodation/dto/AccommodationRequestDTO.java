@@ -1,5 +1,6 @@
 package com.project.cozystay.accommodation.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.project.cozystay.accommodation.domain.Accommodation;
 import com.project.cozystay.accommodation.domain.AccommodationType;
 import jakarta.validation.constraints.*;
@@ -25,6 +26,7 @@ public record AccommodationRequestDTO(
     @NotBlank(message = "구/군은 필수입니다.")
     String district,
 
+    @NotBlank(message = "시/도는 필수입니다.")
     String state,
 
     @NotBlank(message = "국가는 필수입니다.")
@@ -55,10 +57,10 @@ public record AccommodationRequestDTO(
 
     Boolean instantBooking,
 
-    @com.fasterxml.jackson.annotation.JsonFormat(shape = com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
+    @JsonFormat(shape = com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING, pattern = "HH:mm")
     LocalTime checkInTime,
 
-    @com.fasterxml.jackson.annotation.JsonFormat(shape = com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
+    @JsonFormat(shape = com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING, pattern = "HH:mm")
     LocalTime checkOutTime
 ) {
     public Accommodation toEntity(Long hostId) {
