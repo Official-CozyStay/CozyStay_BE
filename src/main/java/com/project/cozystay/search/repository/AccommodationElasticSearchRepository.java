@@ -5,7 +5,7 @@ import org.springframework.data.elasticsearch.repository.ElasticsearchRepository
 import java.util.List;
 
 /**
- * 숙소의 기본 CRUD 담당
+ * 숙소 검색의 기본 CRUD 담당
  */
 public interface AccommodationElasticSearchRepository extends ElasticsearchRepository<AccommodationDocument, Long>, AccommodationElasticSearchRepositoryCustom {
 
