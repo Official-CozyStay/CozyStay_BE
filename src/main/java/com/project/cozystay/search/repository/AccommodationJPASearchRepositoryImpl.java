@@ -1,6 +1,7 @@
 package com.project.cozystay.search.repository;
 
 import com.project.cozystay.accommodation.domain.AccommodationStatus;
+import com.project.cozystay.booking.domain.BookingStatus;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
@@ -109,11 +110,13 @@ public class AccommodationJPASearchRepositoryImpl implements AccommodationJPASea
             return null;
         }
 
-        // NOT IN 대신 NOT EXISTS 사용
+        List<BookingStatus> activeStatuses = List.of(BookingStatus.PENDING, BookingStatus.CONFIRMED);
+
         return JPAExpressions.selectOne()
                 .from(booking)
                 .where(
                         booking.accommodation.id.eq(accommodation.id),
+                        booking.status.in(activeStatuses),
                         booking.checkOutDate.after(checkIn),
                         booking.checkInDate.before(checkOut)
                 )
