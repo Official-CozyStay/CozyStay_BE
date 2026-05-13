@@ -15,14 +15,8 @@ import com.project.cozystay.booking.repository.BookingRepository;
 import com.project.cozystay.user.domain.User;
 import com.project.cozystay.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.util.UriComponentsBuilder;
-
-import java.security.SecureRandom;
-import java.time.LocalDateTime;
-import java.util.Base64;
 import java.util.EnumSet;
 
 @RequiredArgsConstructor
