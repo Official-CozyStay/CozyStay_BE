@@ -22,6 +22,9 @@ public interface BookingGuestRepository extends JpaRepository<BookingGuest, Long
     // 같은 예약에 같은 이메일 중복 초대 방지
     boolean existsByBooking_IdAndGuestEmail(Long bookingId, String guestEmail);
 
+    // 예약 중복 초대 방지 (회원 ID 기준)
+    boolean existsByBooking_IdAndGuestUserId(Long bookingId, Long guestUserId);
+
     // 게스트 조회
     List<BookingGuest> findAllByBooking_IdOrderByInvitedAtAsc(Long bookingId);
 

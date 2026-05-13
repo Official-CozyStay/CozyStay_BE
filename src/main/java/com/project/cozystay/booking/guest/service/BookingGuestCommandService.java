@@ -45,8 +45,10 @@ public class BookingGuestCommandService {
             throw new BookingGuestInvitationNotAllowedException("현재 예약 상태에서는 동반자를 초대할 수 없습니다.");
         }
 
+        // 이메일 공백 방지
+        String guestEmail = request.getGuestEmail().trim();
         // 입력받은 이메일로 가입 회원 조회
-        User invitedUser = userRepository.findByEmail(request.getGuestEmail())
+        User invitedUser = userRepository.findByEmail(guestEmail)
                 .orElseThrow(() -> new BookingGuestInvitationNotAllowedException("가입된 회원만 초대할 수 있습니다."));
 
         // 자기 자신 초대 방지
@@ -54,9 +56,9 @@ public class BookingGuestCommandService {
             throw new BookingGuestInvitationNotAllowedException("본인은 초대할 수 없습니다.");
         }
 
-        // 중복 초대 방지 (같은 booking에 같은 이메일)
-        if(bookingGuestRepository.existsByBooking_IdAndGuestEmail(bookingId, request.getGuestEmail())){
-            throw new BookingGuestDuplicateInvitationException("이미 초대된 이메일입니다.");
+        // 중복 초대 방지 (같은 booking에 같은 회원)
+        if(bookingGuestRepository.existsByBooking_IdAndGuestUserId(bookingId, invitedUser.getId())){
+            throw new BookingGuestDuplicateInvitationException("이미 초대된 회원입니다.");
         }
 
         // 인원 제한
