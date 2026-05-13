@@ -12,6 +12,8 @@ import com.project.cozystay.booking.guest.exception.BookingGuestInvitationNotAll
 import com.project.cozystay.booking.guest.exception.BookingGuestLimitExceededException;
 import com.project.cozystay.booking.guest.repository.BookingGuestRepository;
 import com.project.cozystay.booking.repository.BookingRepository;
+import com.project.cozystay.user.domain.User;
+import com.project.cozystay.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -32,16 +34,7 @@ public class BookingGuestCommandService {
 
     private final BookingRepository bookingRepository;
     private final BookingGuestRepository bookingGuestRepository;
-
-    private final InvitationEmailSender invitationEmailSender;
-
-    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
-
-    @Value("${cozystay.mail.invitation-page-url}")
-    private String invitationPageUrl;
-
-    @Value("${cozystay.mail.token-expire-hours:48}")
-    private long tokenExpireHours = 48;
+    private final UserRepository userRepository;
 
     @Transactional
     public BookingGuestCreateResponse invite(Long bookingId, Long inviterUserId, BookingGuestCreateRequest request) {
@@ -53,9 +46,18 @@ public class BookingGuestCommandService {
             throw new BookingGuestInvitationNotAllowedException("예약자 본인만 동반자를 초대할 수 있습니다.");
         }
 
-        // 상태 체크
+        // 예약 상태 체크
         if(NOT_INVITABLE_STATUSES.contains(booking.getStatus())) {
             throw new BookingGuestInvitationNotAllowedException("현재 예약 상태에서는 동반자를 초대할 수 없습니다.");
+        }
+
+        // 입력받은 이메일로 가입 회원 조회
+        User invitedUser = userRepository.findByEmail(request.getGuestEmail())
+                .orElseThrow(() -> new BookingGuestInvitationNotAllowedException("가입된 회원만 초대할 수 있습니다."));
+
+        // 자기 자신 초대 방지
+        if(invitedUser.getId().equals(inviterUserId)){
+            throw new BookingGuestInvitationNotAllowedException("본인은 초대할 수 없습니다.");
         }
 
         // 중복 초대 방지 (같은 booking에 같은 이메일)
@@ -63,7 +65,7 @@ public class BookingGuestCommandService {
             throw new BookingGuestDuplicateInvitationException("이미 초대된 이메일입니다.");
         }
 
-        // 정원 제한
+        // 인원 제한
         // booking.guestCount = 총 인원수, 동반자 최대 = guestCount-1
         int totalGuests = booking.getNumberOfGuests();
         long currentInvited = bookingGuestRepository.countByBooking_IdAndInvitationStatusNot(bookingId, InvitationStatus.DECLINED);
@@ -73,61 +75,20 @@ public class BookingGuestCommandService {
             throw new BookingGuestLimitExceededException("동반자 초대 가능 인원을 초과했습니다.");
         }
 
-        BookingGuest bookingGuest;
-
-        if(request.getGuestUserId() != null) {
-            // 회원 초대
-            bookingGuest = BookingGuest.invite(
-                    booking,
-                    request.getGuestUserId(),
-                    null,
-                    request.getGuestEmail(),
-                    request.getGuestPhone()
-            );
-
-            BookingGuest saved = bookingGuestRepository.save(bookingGuest);
-            return new BookingGuestCreateResponse(
-                    saved.getId(),
-                    saved.getInvitationStatus(),
-                    saved.getInvitedAt());
-        }
-
-        // 비회원 초대
-        if(request.getGuestName() == null || request.getGuestName().isBlank()){
-            throw new BookingGuestInvitationNotAllowedException("비회원 초대 시 이름은 필수입니다.");
-        }
-
-        bookingGuest = BookingGuest.invite(
+        // 회원 초대만 생성
+        BookingGuest bookingGuest = BookingGuest.invite(
                 booking,
-                null, // guestUserId 없음
-                request.getGuestName(),
-                request.getGuestEmail(),
-                request.getGuestPhone()
+                invitedUser.getId(),
+                null,
+                invitedUser.getEmail(),
+                null
         );
 
-        // 비회원만 토큰 발급 + 이메일 발송
-        String token = generateToken();
-        bookingGuest.issueInvitationToken(token, LocalDateTime.now().plusHours(tokenExpireHours));
-
         BookingGuest saved = bookingGuestRepository.save(bookingGuest);
-
-        // 링크 구성 (프론트에서 토큰 받아서 API 호출하도록)
-        String invitationPageLink = UriComponentsBuilder.fromHttpUrl(invitationPageUrl)
-                .pathSegment(token)
-                .toUriString();
-
-
-        invitationEmailSender.send(saved.getGuestEmail(), saved.getGuestName(), invitationPageLink);
 
         return new BookingGuestCreateResponse(
                 saved.getId(),
                 saved.getInvitationStatus(),
                 saved.getInvitedAt());
-    }
-
-    private String generateToken(){
-        byte[] bytes = new byte[32];
-        SECURE_RANDOM.nextBytes(bytes);
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }
 }
