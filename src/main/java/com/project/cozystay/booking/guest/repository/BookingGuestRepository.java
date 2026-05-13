@@ -77,4 +77,31 @@ from BookingGuest bg
 where bg.invitationToken = :invitationToken
 """)
     Optional<BookingGuest> findByInvitationTokenForUpdate(@Param("invitationToken") String invitationToken);
+
+    // 내가 예약자로서 초대한 동반자 목록
+    @Query("""
+select bg
+from BookingGuest bg
+join fetch bg.booking b
+where b.guestId = :userId
+and bg.invitationStatus = :status
+""")
+    List<BookingGuest> findGuestsInvitedByMe(
+            @Param("userId") Long userId,
+            @Param("status") InvitationStatus status
+    );
+
+    // 내가 동반자로 초대받은 예약 목록
+    @Query("""
+select bg
+from BookingGuest bg
+join fetch bg.booking b
+where bg.guestUserId = :userId
+and bg.invitationStatus = :status
+""")
+    List<BookingGuest> findInvitationsForMe(
+            @Param("userId") Long userId,
+            @Param("status") InvitationStatus status
+    );
+
 }
