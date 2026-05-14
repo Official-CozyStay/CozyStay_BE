@@ -1,7 +1,6 @@
 package com.project.cozystay.accommodation.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.project.cozystay.accommodation.domain.Accommodation;
 import com.project.cozystay.accommodation.domain.AccommodationType;
 import jakarta.validation.constraints.*;
 
@@ -57,32 +56,10 @@ public record AccommodationRequestDTO(
 
     Boolean instantBooking,
 
-    @JsonFormat(shape = com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING, pattern = "HH:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
     LocalTime checkInTime,
 
-    @JsonFormat(shape = com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING, pattern = "HH:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
     LocalTime checkOutTime
 ) {
-    public Accommodation toEntity(Long hostId) {
-        return Accommodation.builder()
-                .hostId(hostId)
-                .title(title)
-                .description(description)
-                .accommodationType(accommodationType)
-                .address(address)
-                .city(city)
-                .district(district)
-                .state(state)
-                .country(country)
-                .postalCode(postalCode)
-                .latitude(latitude)
-                .longitude(longitude)
-                .maxGuests(maxGuests)
-                .pricePerNight(pricePerNight)
-                .cleaningFee(cleaningFee != null ? cleaningFee : BigDecimal.ZERO)
-                .instantBooking(instantBooking != null ? instantBooking : false)
-                .checkInTime(checkInTime != null ? checkInTime : LocalTime.of(15, 0))
-                .checkOutTime(checkOutTime != null ? checkOutTime : LocalTime.of(11, 0))
-                .build();
-    }
 }
