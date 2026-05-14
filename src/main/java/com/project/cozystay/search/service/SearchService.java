@@ -44,7 +44,7 @@ public class SearchService {
         if (request.getCheckInDate() != null && request.getCheckOutDate() != null) {
             log.info("예약 필터링을 위한 숙소 ID 조회: {} ~ {}", request.getCheckInDate(), request.getCheckOutDate());
             bookedIds = bookingRepository.findAllBookedAccommodationIdsByDateRange(
-                    Arrays.asList(BookingStatus.PENDING, BookingStatus.CONFIRMED),
+                    BookingStatus.getActiveStatuses(),
                     request.getCheckInDate(),
                     request.getCheckOutDate()
             );

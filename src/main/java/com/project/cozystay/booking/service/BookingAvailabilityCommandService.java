@@ -71,7 +71,7 @@ public class BookingAvailabilityCommandService {
 
             boolean hasOverlap = bookingRepository.existsActiveBookingOverlapping(
                     accommodationId,
-                    List.of(BookingStatus.PENDING, BookingStatus.CONFIRMED),
+                    BookingStatus.getActiveStatuses(),
                     startInclusive,
                     endExclusive
             );
