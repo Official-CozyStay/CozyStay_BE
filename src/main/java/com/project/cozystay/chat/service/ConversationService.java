@@ -1,5 +1,6 @@
 package com.project.cozystay.chat.service;
 
+import com.project.cozystay.accommodation.service.AccommodationService;
 import com.project.cozystay.chat.domain.Conversation;
 import com.project.cozystay.chat.dto.ConversationCreateRequestDTO;
 import com.project.cozystay.chat.dto.ConversationCreateResponseDTO;
@@ -15,13 +16,16 @@ import java.util.List;
 public class ConversationService {
 
     private final ConversationRepository conversationRepository;
+    private final AccommodationService accommodationService;
 
     public ConversationCreateResponseDTO createOrGetConversation(
             ConversationCreateRequestDTO request,
             Long guestId
     ) {
-        Long hostId = request.getHostId();
         Long accommodationId = request.getAccommodationId();
+        Long requestHostId = request.getHostId();
+
+        Long hostId = accommodationService.accommodationHostCheck(accommodationId, requestHostId);
 
         Conversation conversation = conversationRepository
                 .findByAccommodationIdAndHostIdAndGuestId(accommodationId, hostId, guestId)

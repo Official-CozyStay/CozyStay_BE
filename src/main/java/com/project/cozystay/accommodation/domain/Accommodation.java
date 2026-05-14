@@ -174,6 +174,13 @@ public class Accommodation {
         }
     }
 
+    public void validateHost(Long requestHostId){
+        if(!this.hostId.equals(requestHostId)){
+            throw new IllegalStateException("요청한 HostId와 숙소의 소유자가 다릅니다.");
+        }
+    }
+
+
     public static Accommodation create(Long hostId, AccommodationRequestDTO request) {
         return Accommodation.builder()
                 .hostId(hostId)

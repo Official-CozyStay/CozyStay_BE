@@ -222,10 +222,18 @@ public class AccommodationService {
                 .build();
     }
 
-
     /**
-     * 숙소의 주인과 요청한 사람이 맞는지 비교하는 공통 메서드
+     * 외부 비즈니스 로직에서 숙소의 주인과 요청한 사람이 맞는지 검증 후, hostId를 반환하는 메서드
      */
+    @Transactional(readOnly = true)
+    public Long accommodationHostCheck(Long requestAccommodationId, Long requestHostId){
+        Accommodation accommodation = getAccommodation(requestAccommodationId);
+        accommodation.validateHost(requestHostId);
+        return accommodation.getHostId();
+    }
+
+
+    //Todo : Accommodation 도메인 내에서 검증하도록 수정
     private void accommodationHostCheck(Accommodation accommodation, Long hostId){
         if (!accommodation.getHostId().equals(hostId)){
             throw new IllegalStateException("숙소의 소유자만 수정할 수 있습니다.");
