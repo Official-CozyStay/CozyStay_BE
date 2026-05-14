@@ -226,10 +226,9 @@ public class AccommodationService {
      * 외부 비즈니스 로직에서 숙소의 주인과 요청한 사람이 맞는지 검증 후, hostId를 반환하는 메서드
      */
     @Transactional(readOnly = true)
-    public Long accommodationHostCheck(Long requestAccommodationId, Long requestHostId){
+    public void accommodationHostCheck(Long requestAccommodationId, Long requestHostId){
         Accommodation accommodation = getAccommodation(requestAccommodationId);
         accommodation.validateHost(requestHostId);
-        return accommodation.getHostId();
     }
 
 

@@ -7,6 +7,7 @@ import com.project.cozystay.chat.dto.ConversationCreateResponseDTO;
 import com.project.cozystay.chat.repository.ConversationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,6 +19,7 @@ public class ConversationService {
     private final ConversationRepository conversationRepository;
     private final AccommodationService accommodationService;
 
+    @Transactional
     public ConversationCreateResponseDTO createOrGetConversation(
             ConversationCreateRequestDTO request,
             Long guestId
@@ -25,12 +27,12 @@ public class ConversationService {
         Long accommodationId = request.getAccommodationId();
         Long requestHostId = request.getHostId();
 
-        Long hostId = accommodationService.accommodationHostCheck(accommodationId, requestHostId);
+        accommodationService.accommodationHostCheck(accommodationId, requestHostId);
 
         Conversation conversation = conversationRepository
-                .findByAccommodationIdAndHostIdAndGuestId(accommodationId, hostId, guestId)
+                .findByAccommodationIdAndHostIdAndGuestId(accommodationId, requestHostId, guestId)
                 .orElseGet(() -> conversationRepository.save(
-                        Conversation.create(accommodationId, hostId, guestId)
+                        Conversation.create(accommodationId, requestHostId, guestId)
                 ));
 
         return ConversationCreateResponseDTO.builder()
