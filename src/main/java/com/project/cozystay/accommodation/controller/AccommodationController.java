@@ -6,12 +6,14 @@ import com.project.cozystay.accommodation.service.AccommodationService;
 import com.project.cozystay.auth.CustomOAuth2User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,6 +23,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/accommodations")
+@Validated
 public class AccommodationController {
 
     private final AccommodationService accommodationService;
@@ -43,7 +46,7 @@ public class AccommodationController {
     @PostMapping
     public ResponseEntity<AccommodationResponseDTO> createAccommodation(
             @AuthenticationPrincipal CustomOAuth2User principal,
-            @RequestBody AccommodationRequestDTO request
+            @RequestBody @Valid AccommodationRequestDTO request
     ) {
         Long hostId = principal.getId();
         AccommodationResponseDTO response = accommodationService.createAccommodation(request, hostId);
@@ -57,7 +60,7 @@ public class AccommodationController {
     @PostMapping("/details/{accommodationId}")
     public ResponseEntity<AccommodationDetailResponseDTO> addAccommodationDetail(
             @PathVariable Long accommodationId,
-            @RequestBody AccommodationDetailRequestDTO request,
+            @RequestBody @Valid AccommodationDetailRequestDTO request,
             @AuthenticationPrincipal CustomOAuth2User principal
     ) {
         Long hostId = principal.getId();
@@ -99,8 +102,8 @@ public class AccommodationController {
     public ResponseEntity<AccommodationImageResponseDTO> addImage(
             @PathVariable Long accommodationId,
             @AuthenticationPrincipal CustomOAuth2User principal,
-            @RequestPart("files") @NotEmpty List<MultipartFile> files,
-            @RequestPart("metadata") @NotEmpty List<AccommodationImageRequestDTO> metadata
+            @RequestPart("files") @NotEmpty(message = "이미지 파일은 최소 1개 이상이어야 합니다.") List<MultipartFile> files,
+            @RequestPart("metadata") @NotEmpty(message = "이미지 메타데이터는 필수입니다.") List<@Valid AccommodationImageRequestDTO> metadata
     ){
         Long hostId = principal.getId();
         AccommodationImageResponseDTO response = accommodationImageService.addImage(accommodationId, hostId, files, metadata);
@@ -114,7 +117,7 @@ public class AccommodationController {
     @PostMapping("/amenities/{accommodationId}")
     public ResponseEntity<AccommodationAmenityResponseDTO> addAmenities(
             @PathVariable Long accommodationId,
-            @RequestBody List<AccommodationAmenityRequestDTO> request,
+            @RequestBody @NotEmpty(message = "편의시설 목록은 비어있을 수 없습니다.") List<@Valid AccommodationAmenityRequestDTO> request,
             @AuthenticationPrincipal CustomOAuth2User principal
     ){
         Long hostId = principal.getId();
@@ -143,7 +146,7 @@ public class AccommodationController {
     @PatchMapping("/{accommodationId}")
     public ResponseEntity<AccommodationUpdateResponseDTO> updateAccommodation(
             @PathVariable Long accommodationId,
-            @RequestBody AccommodationUpdateRequestDTO request,
+            @RequestBody @Valid AccommodationUpdateRequestDTO request,
             @AuthenticationPrincipal CustomOAuth2User principal
 
     ){
@@ -159,7 +162,7 @@ public class AccommodationController {
     @PatchMapping("/{accommodationId}/details")
     public ResponseEntity<AccommodationDetailUpdateResponseDTO> updateAccommodationDetail(
             @PathVariable Long accommodationId,
-            @RequestBody AccommodationDetailUpdateRequestDTO request,
+            @RequestBody @Valid AccommodationDetailUpdateRequestDTO request,
             @AuthenticationPrincipal CustomOAuth2User principal
     ){
         Long hostId = principal.getId();
@@ -190,7 +193,7 @@ public class AccommodationController {
     @PostMapping("/{accommodationId}/image-categories")
     public ResponseEntity<AccommodationImageCategoryResponseDTO> createImageCategory(
             @PathVariable Long accommodationId,
-            @RequestBody AccommodationImageCategoryRequestDTO request,
+            @RequestBody @Valid AccommodationImageCategoryRequestDTO request,
             @AuthenticationPrincipal CustomOAuth2User principal
     ){
         Long hostId = principal.getId();

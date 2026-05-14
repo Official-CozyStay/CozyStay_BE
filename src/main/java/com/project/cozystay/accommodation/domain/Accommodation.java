@@ -149,9 +149,6 @@ public class Accommodation {
     //  if (this.images.isEmpty())
     //      throw new IllegalStateException("이미지가 없습니다.");
 
-        if (this.amenities.isEmpty())
-            throw new IllegalStateException("편의시설 정보가 없습니다.");
-
         this.status = AccommodationStatus.ACTIVE;
     }
 
@@ -192,8 +189,8 @@ public class Accommodation {
                 .pricePerNight(request.pricePerNight())
                 .cleaningFee(request.cleaningFee() != null ? request.cleaningFee() : BigDecimal.ZERO)
                 .instantBooking(request.instantBooking() != null ? request.instantBooking() : false)
-                .checkInTime(request.checkInTime())
-                .checkOutTime(request.checkOutTime())
+                .checkInTime(request.checkInTime() != null ? request.checkInTime() : LocalTime.of(15, 0))
+                .checkOutTime(request.checkOutTime() != null ? request.checkOutTime() : LocalTime.of(11, 0))
                 .status(AccommodationStatus.DRAFT)
                 .build();
     }

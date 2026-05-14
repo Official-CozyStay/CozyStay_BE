@@ -45,6 +45,17 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(msg));
     }
 
+    @ExceptionHandler(jakarta.validation.ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolation(jakarta.validation.ConstraintViolationException e) {
+        String msg = e.getConstraintViolations().stream()
+                .findFirst()
+                .map(jakarta.validation.ConstraintViolation::getMessage)
+                .orElse("요청 값이 올바르지 않습니다.");
+        log.warn("BadRequest [ConstraintViolation]: {}", msg);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(msg));
+    }
+
     /* ===================== 401 UNAUTHORIZED ===================== */
     @ExceptionHandler({AuthenticationRequiredException.class, BadCredentialsException.class})
     public ResponseEntity<ErrorResponse> handleUnauthorized(Exception e){

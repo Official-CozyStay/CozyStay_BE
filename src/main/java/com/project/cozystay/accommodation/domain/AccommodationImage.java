@@ -32,6 +32,7 @@ public class AccommodationImage {
     private String imageUrl;
 
     @Column(name = "is_primary")
+    @Builder.Default
     private boolean  primary = false;
 
     private Integer displayOrder;

@@ -55,15 +55,19 @@ public class AccommodationDetail {
     private int dryerCount;
 
     @Column(name = "wifi_available")
+    @Builder.Default
     private boolean wifiAvailable = false;
 
     @Column(name = "parking_available")
+    @Builder.Default
     private boolean parkingAvailable = false;
 
     @Column(name = "pet_available")
+    @Builder.Default
     private boolean petAvailable = false;
 
     @Column(name = "kitchen_available")
+    @Builder.Default
     private boolean kitchenAvailable = false;
 
     void assignAccommodation(Accommodation accommodation){
