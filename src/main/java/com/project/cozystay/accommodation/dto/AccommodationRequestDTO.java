@@ -1,6 +1,6 @@
 package com.project.cozystay.accommodation.dto;
 
-import com.project.cozystay.accommodation.domain.Accommodation;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.project.cozystay.accommodation.domain.AccommodationType;
 import jakarta.validation.constraints.*;
 
@@ -25,6 +25,7 @@ public record AccommodationRequestDTO(
     @NotBlank(message = "구/군은 필수입니다.")
     String district,
 
+    @NotBlank(message = "시/도는 필수입니다.")
     String state,
 
     @NotBlank(message = "국가는 필수입니다.")
@@ -55,32 +56,10 @@ public record AccommodationRequestDTO(
 
     Boolean instantBooking,
 
-    @com.fasterxml.jackson.annotation.JsonFormat(shape = com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
     LocalTime checkInTime,
 
-    @com.fasterxml.jackson.annotation.JsonFormat(shape = com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
     LocalTime checkOutTime
 ) {
-    public Accommodation toEntity(Long hostId) {
-        return Accommodation.builder()
-                .hostId(hostId)
-                .title(title)
-                .description(description)
-                .accommodationType(accommodationType)
-                .address(address)
-                .city(city)
-                .district(district)
-                .state(state)
-                .country(country)
-                .postalCode(postalCode)
-                .latitude(latitude)
-                .longitude(longitude)
-                .maxGuests(maxGuests)
-                .pricePerNight(pricePerNight)
-                .cleaningFee(cleaningFee != null ? cleaningFee : BigDecimal.ZERO)
-                .instantBooking(instantBooking != null ? instantBooking : false)
-                .checkInTime(checkInTime != null ? checkInTime : LocalTime.of(15, 0))
-                .checkOutTime(checkOutTime != null ? checkOutTime : LocalTime.of(11, 0))
-                .build();
-    }
 }

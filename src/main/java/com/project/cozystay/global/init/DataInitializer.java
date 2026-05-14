@@ -115,7 +115,7 @@ public class DataInitializer implements CommandLineRunner {
 
         for (int i = 1; i <= 50; i++) {
             User host = hosts.get(random.nextInt(hosts.size()));
-            String[] states = {"서울특별시", "경기도", "강원도", "부산광역시", "제주특별자치도", "전라남도", "경상북도"};
+            String[] states = {"서울", "경기", "강원", "부산", "제주", "전남", "경북"};
             String[] cities = {"강남구", "성남시", "강릉시", "해운대구", "제주시", "여수시", "경주시"};
             String[] districts = {"신사동", "분당구", "교동", "우동", "연동", "학동", "황남동"};
 
