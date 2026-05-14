@@ -78,7 +78,7 @@ public class AccommodationFullResponseDTO {
                 .hostNickname(hostNickname)
                 .hostProfileImageUrl(hostProfileImageUrl)
                 .reviewSummary(new ReviewSummaryDTO(
-                        entity.getAverageRating() == null? 0.0 : entity.getAverageRating(),
+                        entity.getAverageRating() == null ? 0.0 : entity.getAverageRating(),
                         entity.getReviewCount() == null ? 0L : entity.getReviewCount().longValue()
                 ))
                 .title(entity.getTitle())
