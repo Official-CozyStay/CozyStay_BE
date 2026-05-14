@@ -5,20 +5,15 @@ import com.project.cozystay.chat.dto.*;
 import com.project.cozystay.chat.service.ConversationFacade;
 import com.project.cozystay.chat.service.MessageService;
 import com.project.cozystay.chat.service.ConversationService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 
 @Tag(name = "Chat", description = "채팅(대화방 및 메시지) 관련 API")
@@ -35,7 +30,7 @@ public class ChatController {
     @PostMapping
     public ConversationCreateResponseDTO createOrGetConversation(
             @AuthenticationPrincipal CustomOAuth2User principal,
-            @RequestBody ConversationCreateRequestDTO request
+            @Valid @RequestBody ConversationCreateRequestDTO request
     ) {
         Long guestId = principal.getId();
         return conversationService.createOrGetConversation(request, guestId);
