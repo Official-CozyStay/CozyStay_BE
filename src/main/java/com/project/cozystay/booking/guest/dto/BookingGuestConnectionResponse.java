@@ -8,6 +8,6 @@ import lombok.Getter;
 public class BookingGuestConnectionResponse {
 
     private Long userId;
-    private String NickName;
+    private String nickName;
     private String profileImageUrl;
 }
