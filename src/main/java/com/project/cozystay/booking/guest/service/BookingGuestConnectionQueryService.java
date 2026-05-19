@@ -10,9 +10,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -24,51 +26,56 @@ public class BookingGuestConnectionQueryService {
     @Transactional(readOnly = true)
     public List<BookingGuestConnectionResponse> getConnections(Long userId){
 
-        // 같은 사람과 여러번 여행했어도 인연 목록에서는 한 번만 보여주기 위해 Map 사용
-        // LinkedHashMap을 사용하면 먼저 추가된 순서가 유지된다.
-        Map<Long, BookingGuestConnectionResponse> connections = new LinkedHashMap<>();
-
         // 내가 초대한 동반자 중, 초대를 수락한 사람들 조회
-        List<BookingGuest> invitedByMe = bookingGuestRepository.findGuestsInvitedByMe(userId, InvitationStatus.ACCEPTED);
+        List<BookingGuest> invitedByMe = bookingGuestRepository.findGuestsInvitedByMe(
+                userId, InvitationStatus.ACCEPTED
+        );
 
+        List<BookingGuest> invitedMe = bookingGuestRepository.findInvitationsForMe(
+                userId,
+                InvitationStatus.ACCEPTED
+        );
+
+        // 같은 사람과 여러 번 여행했어도 인연 목록에는 한번만 보여주기 위해 Set 사용
+        LinkedHashSet<Long> connectionUserIds = new LinkedHashSet<>();
+
+        // 내가 초대한 동반자 중 초대를 수락한 사람들의 회원 ID 수집
         for(BookingGuest bookingGuest : invitedByMe){
             Long connectionUserId = bookingGuest.getGuestUserId();
-            addConnection(connections, connectionUserId);
+
+            if(connectionUserId != null){
+                connectionUserIds.add(connectionUserId);
+            }
         }
 
-        // 내가 동반자로 초대받고 수락한 예약 조회
-        List<BookingGuest> invitedMe = bookingGuestRepository.findInvitationsForMe(userId, InvitationStatus.ACCEPTED);
-
+        // 내가 동반자로 초대받고 수락한 예약의 예약자 ID 수집
         for(BookingGuest bookingGuest : invitedMe){
             Long connectionUserId = bookingGuest.getBooking().getGuestId();
-            addConnection(connections, connectionUserId);
+
+            if(connectionUserId != null){
+                connectionUserIds.add(connectionUserId);
+            }
         }
 
-        return List.copyOf(connections.values());
-    }
-
-    private void addConnection(
-            Map<Long, BookingGuestConnectionResponse> connections,
-            Long connectionUserId
-    ){
-        // 비회원 초대 데이터가 남아있거나 이미 추가된 사용자라면 건너뛴다.
-        if(connectionUserId == null || connections.containsKey(connectionUserId)){
-            return;
+        if(connectionUserIds.isEmpty()){
+            return List.of();
         }
 
-        User user = userRepository.findById(connectionUserId).orElse(null);
+        // 사용자 정보를 ID 목록 기준으로 한 번에 조회해서 N+1 쿼리를 방지한다.
+        Map<Long, User> usersById = userRepository.findAllById(connectionUserIds)
+                .stream()
+                .collect(Collectors.toMap(User::getId, Function.identity()));
 
-        if(user == null){
-            return;
-        }
-
-        connections.put(
-                user.getId(),
-                new BookingGuestConnectionResponse(
+        return connectionUserIds.stream()
+                .map(usersById::get)
+                .filter(user -> user != null)
+                .map(user -> new BookingGuestConnectionResponse(
                         user.getId(),
                         user.getNickName(),
                         user.getProfileImageUrl()
-                )
-        );
+                ))
+                .toList();
     }
+
+
 }
