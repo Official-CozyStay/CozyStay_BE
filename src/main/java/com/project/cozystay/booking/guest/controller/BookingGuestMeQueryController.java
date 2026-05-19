@@ -1,6 +1,7 @@
 package com.project.cozystay.booking.guest.controller;
 
 import com.project.cozystay.auth.CustomOAuth2User;
+import com.project.cozystay.booking.dto.BookingResponse;
 import com.project.cozystay.booking.exception.AuthenticationRequiredException;
 import com.project.cozystay.booking.guest.domain.InvitationStatus;
 import com.project.cozystay.booking.guest.dto.BookingGuestConnectionResponse;
@@ -57,5 +58,20 @@ public class BookingGuestMeQueryController {
         }
 
         return bookingGuestConnectionQueryService.getConnections(user.getId());
+    }
+
+    @Operation(
+            summary = "내 동반자 예약 목록 조회",
+            description = "내가 동반자로 초대받고 수락한 예약 목록을 조회합니다."
+    )
+    @GetMapping("/me/bookings")
+    public List<BookingResponse> getMyCompanionBookings(
+            @AuthenticationPrincipal CustomOAuth2User user
+    ){
+        if(user == null){
+            throw new AuthenticationRequiredException();
+        }
+
+        return bookingGuestMeQueryService.getMyCompanionBookings(user.getId());
     }
 }
