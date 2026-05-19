@@ -43,7 +43,7 @@ public class BookingGuestMeQueryService {
 
     @Transactional(readOnly = true)
     public List<BookingResponse> getMyCompanionBookings(Long userId){
-        List<BookingGuest> bookingGuests = bookingGuestRepository.findInvitationsForMe(
+        List<BookingGuest> bookingGuests = bookingGuestRepository.findInvitationsForMeWithBookingAndAccommodation(
                 userId, InvitationStatus.ACCEPTED
         );
 

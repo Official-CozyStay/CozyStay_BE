@@ -91,7 +91,7 @@ and bg.invitationStatus = :status
             @Param("status") InvitationStatus status
     );
 
-    // 내가 동반자로 초대받은 예약 목록
+    // 인연 목록 용
     @Query("""
 select bg
 from BookingGuest bg
@@ -100,6 +100,20 @@ where bg.guestUserId = :userId
 and bg.invitationStatus = :status
 """)
     List<BookingGuest> findInvitationsForMe(
+            @Param("userId") Long userId,
+            @Param("status") InvitationStatus status
+    );
+
+    // 동반자 예약 용
+    @Query("""
+select bg
+from BookingGuest bg
+join fetch bg.booking b
+join fetch b.accommodation a
+where bg.guestUserId = :userId
+and bg.invitationStatus = :status
+""")
+    List<BookingGuest> findInvitationsForMeWithBookingAndAccommodation(
             @Param("userId") Long userId,
             @Param("status") InvitationStatus status
     );
