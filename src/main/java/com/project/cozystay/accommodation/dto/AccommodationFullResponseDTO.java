@@ -70,15 +70,17 @@ public class AccommodationFullResponseDTO {
     public static AccommodationFullResponseDTO fromEntity(
             Accommodation entity,
             String hostNickname,
-            String hostProfileImageUrl,
-            ReviewSummaryDTO reviewSummary
+            String hostProfileImageUrl
     ){
         return AccommodationFullResponseDTO.builder()
                 .accommodationId(entity.getId())
                 .hostId(entity.getHostId())
                 .hostNickname(hostNickname)
                 .hostProfileImageUrl(hostProfileImageUrl)
-                .reviewSummary(reviewSummary)
+                .reviewSummary(new ReviewSummaryDTO(
+                        entity.getAverageRating() == null ? 0.0 : entity.getAverageRating(),
+                        entity.getReviewCount() == null ? 0L : entity.getReviewCount().longValue()
+                ))
                 .title(entity.getTitle())
                 .description(entity.getDescription())
                 .accommodationType(entity.getAccommodationType().name())
