@@ -39,7 +39,7 @@ public class BookingGuest {
     @Column(name = "guest_email", nullable = false)
     private String guestEmail;
 
-    @Column(name = "guest_phone", nullable = false)
+    @Column(name = "guest_phone")
     private String guestPhone;
 
     @Enumerated(EnumType.STRING)

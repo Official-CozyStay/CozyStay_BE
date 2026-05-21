@@ -3,7 +3,6 @@ package com.project.cozystay.booking.guest.repository;
 import com.project.cozystay.booking.guest.domain.BookingGuest;
 import com.project.cozystay.booking.guest.domain.InvitationStatus;
 import jakarta.persistence.LockModeType;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
@@ -21,6 +20,9 @@ public interface BookingGuestRepository extends JpaRepository<BookingGuest, Long
 
     // 같은 예약에 같은 이메일 중복 초대 방지
     boolean existsByBooking_IdAndGuestEmail(Long bookingId, String guestEmail);
+
+    // 예약 중복 초대 방지 (회원 ID 기준)
+    boolean existsByBooking_IdAndGuestUserId(Long bookingId, Long guestUserId);
 
     // 게스트 조회
     List<BookingGuest> findAllByBooking_IdOrderByInvitedAtAsc(Long bookingId);
@@ -75,4 +77,45 @@ from BookingGuest bg
 where bg.invitationToken = :invitationToken
 """)
     Optional<BookingGuest> findByInvitationTokenForUpdate(@Param("invitationToken") String invitationToken);
+
+    // 내가 예약자로서 초대한 동반자 목록
+    @Query("""
+select bg
+from BookingGuest bg
+join fetch bg.booking b
+where b.guestId = :userId
+and bg.invitationStatus = :status
+""")
+    List<BookingGuest> findGuestsInvitedByMe(
+            @Param("userId") Long userId,
+            @Param("status") InvitationStatus status
+    );
+
+    // 인연 목록 용
+    @Query("""
+select bg
+from BookingGuest bg
+join fetch bg.booking b
+where bg.guestUserId = :userId
+and bg.invitationStatus = :status
+""")
+    List<BookingGuest> findInvitationsForMe(
+            @Param("userId") Long userId,
+            @Param("status") InvitationStatus status
+    );
+
+    // 동반자 예약 용
+    @Query("""
+select bg
+from BookingGuest bg
+join fetch bg.booking b
+join fetch b.accommodation a
+where bg.guestUserId = :userId
+and bg.invitationStatus = :status
+""")
+    List<BookingGuest> findInvitationsForMeWithBookingAndAccommodation(
+            @Param("userId") Long userId,
+            @Param("status") InvitationStatus status
+    );
+
 }
