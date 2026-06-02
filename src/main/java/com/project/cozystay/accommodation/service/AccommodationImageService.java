@@ -133,6 +133,33 @@ public class AccommodationImageService {
         return CategoryWithImagesDTO.fromAccommodation(accommodation);
     }
 
+    @Transactional
+    public AccommodationPrimaryImageResponseDTO updatePrimaryImage(Long accommodationId, Long hostId, Long imageId) {
+        Accommodation accommodation = accommodationRepository.findById(accommodationId)
+                .orElseThrow(() -> new IllegalArgumentException("ID에 해당하는 숙소가 없습니다."));
+
+        accommodationHostCheck(accommodation, hostId);
+
+        AccommodationImage targetImage = accommodationImageRepository.findByIdAndAccommodationId(imageId, accommodationId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 숙소의 이미지를 찾을 수 없습니다."));
+
+        Long beforePrimaryImageId = accommodation.getImages().stream()
+                .filter(AccommodationImage::isPrimary)
+                .map(AccommodationImage::getId)
+                .findFirst()
+                .orElse(null);
+
+        accommodation.getImages().forEach(AccommodationImage::unsetPrimary);
+        targetImage.onPrimary();
+
+        return new AccommodationPrimaryImageResponseDTO(
+                accommodationId,
+                beforePrimaryImageId,
+                targetImage.getId(),
+                "대표 이미지가 변경되었습니다."
+        );
+    }
+
     private void accommodationHostCheck(Accommodation accommodation, Long hostId) {
         if (!accommodation.getHostId().equals(hostId)) {
             throw new IllegalStateException("숙소의 소유자만 수정할 수 있습니다.");
