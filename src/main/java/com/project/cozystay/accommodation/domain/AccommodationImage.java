@@ -50,6 +50,14 @@ public class AccommodationImage {
 
     public void assignCategory(AccommodationImageCategory category) {this.category = category;}
 
+    public void onPrimary(){
+        this.primary = true;
+    }
+
+    public void unsetPrimary(){
+        this.primary = false;
+    }
+
     public static AccommodationImage create(
             String imageUrl,
             Integer displayOrder,
