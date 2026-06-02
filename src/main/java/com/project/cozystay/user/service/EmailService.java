@@ -32,7 +32,7 @@ public class EmailService {
     public void sendVerificationEmail(String email) {
 
         if (userRepository.existsByEmail(email)) {
-            throw UserEmailAlreadyExistsException.of(email);
+            throw new UserEmailAlreadyExistsException();
         }
 
         String code = createRandomCode();

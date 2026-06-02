@@ -42,10 +42,10 @@ public class UserReviewService {
         }
 
         User reviewerHost = userRepository.findById(hostId)
-                .orElseThrow(() -> new UserNotFoundException(hostId));
+                .orElseThrow(UserNotFoundException::new);
 
         User targetGuest = userRepository.findById(request.targetGuestId())
-                .orElseThrow(() -> new UserNotFoundException(request.targetGuestId()));
+                .orElseThrow(UserNotFoundException::new);
 
         Booking booking = bookingRepository.findById(request.bookingId())
                 .orElseThrow(() -> new BookingNotFoundException(request.bookingId()));
@@ -81,7 +81,7 @@ public class UserReviewService {
     public List<UserReviewResponse> getUserReviews(Long targetUserId){
 
         if (!userRepository.existsById(targetUserId)) {
-            throw new UserNotFoundException(targetUserId);
+            throw new UserNotFoundException();
         }
 
         List<UserReview> userReviewList = userReviewRepository.findByTargetGuestId(targetUserId);
