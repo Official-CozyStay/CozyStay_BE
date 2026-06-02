@@ -7,6 +7,6 @@ public class UserNameAlreadyExistsException extends RuntimeException {
     }
 
     public static UserNameAlreadyExistsException of(String username) {
-        return new UserNameAlreadyExistsException("이미 사용 중인 아이디입니다. id=" + username);
+        return new UserNameAlreadyExistsException("이미 사용 중인 아이디입니다.");
     }
 }

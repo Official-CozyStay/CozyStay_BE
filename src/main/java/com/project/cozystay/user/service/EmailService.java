@@ -1,4 +1,5 @@
 package com.project.cozystay.user.service;
+import com.project.cozystay.user.exception.UserEmailAlreadyExistsException;
 import com.project.cozystay.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -31,7 +32,7 @@ public class EmailService {
     public void sendVerificationEmail(String email) {
 
         if (userRepository.existsByEmail(email)) {
-            throw new IllegalArgumentException("이미 가입된 이메일입니다.");
+            throw UserEmailAlreadyExistsException.of(email);
         }
 
         String code = createRandomCode();

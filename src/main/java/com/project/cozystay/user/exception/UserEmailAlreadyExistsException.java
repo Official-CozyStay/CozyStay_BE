@@ -7,6 +7,6 @@ public class UserEmailAlreadyExistsException extends RuntimeException {
     }
 
     public static UserEmailAlreadyExistsException of(String email) {
-        return new UserEmailAlreadyExistsException("이미 존재하는 이메일입니다. email=" + email);
+        return new UserEmailAlreadyExistsException("이미 존재하는 이메일입니다.");
     }
 }
