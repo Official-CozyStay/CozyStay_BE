@@ -220,12 +220,12 @@ public class AccommodationController {
     @PatchMapping("/{accommodationId}/primary-image")
     public ResponseEntity<AccommodationPrimaryImageResponseDTO> updatePrimaryImage(
             @PathVariable Long accommodationId,
-            @RequestParam Long imageId,
+            @RequestBody @Valid AccommodationPrimaryImageRequestDTO request,
             @AuthenticationPrincipal CustomOAuth2User principal
     ){
         Long hostId = principal.getId();
         AccommodationPrimaryImageResponseDTO response =
-                accommodationImageService.updatePrimaryImage(accommodationId, hostId, imageId);
+                accommodationImageService.updatePrimaryImage(accommodationId, hostId, request.imageId());
 
         return ResponseEntity.ok(response);
     }
