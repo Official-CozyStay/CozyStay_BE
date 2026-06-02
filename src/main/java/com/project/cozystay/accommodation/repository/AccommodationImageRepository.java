@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface AccommodationImageRepository extends JpaRepository <AccommodationImage, Long> {
     @Query("""
@@ -16,4 +17,6 @@ public interface AccommodationImageRepository extends JpaRepository <Accommodati
     List<AccommodationImage> findAllByIdInAndAccommodationId(
             @Param("imageIds") List<Long> imageIds,
             @Param("accommodationId") Long accommodationId);
+
+    Optional<AccommodationImage> findByIdAndAccommodationId(Long imageId, Long accommodationId);
 }
