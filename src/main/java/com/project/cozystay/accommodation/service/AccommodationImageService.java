@@ -40,11 +40,55 @@ public class AccommodationImageService {
 
         accommodationHostCheck(accommodation, hostId);
 
+        long requestPrimaryCount = request.stream()
+                .filter(dto -> Boolean.TRUE.equals(dto.isPrimary()))
+                .count();
+
+        if (requestPrimaryCount > 1) {
+            throw new IllegalArgumentException("대표 이미지는 하나만 지정할 수 있습니다.");
+        }
+
+        boolean hasRequestPrimary = requestPrimaryCount == 1;
+
+        boolean hasExistingPrimary = accommodation.getImages().stream()
+                .anyMatch(AccommodationImage::isPrimary);
+
+        if (hasRequestPrimary) {
+            accommodation.getImages().forEach(AccommodationImage::unsetPrimary);
+        }
+
+        //대표 이미지가 없을 경우, 대표 이미지를 자동으로 선택
+        int fallbackPrimaryIndex = -1;
+
+        if (!hasRequestPrimary && !hasExistingPrimary) {
+            int minDisplayOrder = Integer.MAX_VALUE;
+
+            for (int i = 0; i < request.size(); i++) {
+                Integer displayOrder = request.get(i).displayOrder();
+
+                if (displayOrder < minDisplayOrder) {
+                    minDisplayOrder = displayOrder;
+                    fallbackPrimaryIndex = i;
+                }
+            }
+        }
+
         List<AccommodationImage> newImages = new ArrayList<>();
         for (int i = 0; i < files.size(); i++) {
             String url = s3Service.uploadFile(files.get(i));
             AccommodationImageRequestDTO dto = request.get(i);
-            AccommodationImage image = AccommodationImage.create(url, dto.displayOrder(), dto.isPrimary());
+
+            boolean isPrimary = Boolean.TRUE.equals(dto.isPrimary());
+
+            if (!hasRequestPrimary && !hasExistingPrimary) {
+                isPrimary = i == fallbackPrimaryIndex;
+            }
+
+            AccommodationImage image = AccommodationImage.create(
+                    url,
+                    dto.displayOrder(),
+                    isPrimary
+            );
 
             if (dto.categoryId() != null) {
                 AccommodationImageCategory category = accommodationImageCategoryRepository
