@@ -57,8 +57,8 @@ public class AccommodationImageService {
             accommodation.getImages().forEach(AccommodationImage::unsetPrimary);
         }
 
-        //대표 이미지가 없을 경우, 대표 이미지를 자동으로 선택
-        int fallbackPrimaryIndex = -1;
+        //대표 이미지가 없을 경우, 대표 이미지를 자동으로 선택 (기본값은 첫 번째 이미지)
+        int fallbackPrimaryIndex = 0;
 
         if (!hasRequestPrimary && !hasExistingPrimary) {
             int minDisplayOrder = Integer.MAX_VALUE;
@@ -66,7 +66,7 @@ public class AccommodationImageService {
             for (int i = 0; i < request.size(); i++) {
                 Integer displayOrder = request.get(i).displayOrder();
 
-                if (displayOrder < minDisplayOrder) {
+                if (displayOrder != null && displayOrder< minDisplayOrder) {
                     minDisplayOrder = displayOrder;
                     fallbackPrimaryIndex = i;
                 }
