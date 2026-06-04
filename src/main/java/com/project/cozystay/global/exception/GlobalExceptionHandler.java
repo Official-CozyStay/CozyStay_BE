@@ -108,6 +108,15 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse("서버 내부 오류가 발생했습니다."));
     }
 
+
+    //Todo : IllegalArgumentException 공통 처리 대신 커스텀 예외로 분리
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException e) {
+        log.warn("BadRequest [IllegalArgumentException]: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(e.getMessage()));
+    }
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleNotReadable(HttpMessageNotReadableException e) {
         log.warn("BadRequest [NotReadable]: {}", e.getMessage());

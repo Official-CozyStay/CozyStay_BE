@@ -213,5 +213,22 @@ public class AccommodationController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * 숙소 대표 이미지 변경
+     */
+    @Operation(summary = "숙소 대표 이미지 변경", description = "숙소의 대표 이미지를 변경합니다.")
+    @PatchMapping("/{accommodationId}/primary-image")
+    public ResponseEntity<AccommodationPrimaryImageResponseDTO> updatePrimaryImage(
+            @PathVariable Long accommodationId,
+            @RequestBody @Valid AccommodationPrimaryImageRequestDTO request,
+            @AuthenticationPrincipal CustomOAuth2User principal
+    ){
+        Long hostId = principal.getId();
+        AccommodationPrimaryImageResponseDTO response =
+                accommodationImageService.updatePrimaryImage(accommodationId, hostId, request.imageId());
+
+        return ResponseEntity.ok(response);
+    }
+
 }
 
