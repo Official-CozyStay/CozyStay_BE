@@ -49,7 +49,7 @@ public class AccommodationReviewService {
     @Transactional
     public AccommodationReviewResponse createAccommodationReview(Long guestId, AccommodationReviewCreateRequest request) {
         User guest = userRepository.findById(guestId)
-                .orElseThrow(() -> new UserNotFoundException(guestId));
+                .orElseThrow(UserNotFoundException::new);
 
         Booking booking = bookingRepository.findById(request.bookingId())
                 .orElseThrow(() -> new BookingNotFoundException(request.bookingId()));

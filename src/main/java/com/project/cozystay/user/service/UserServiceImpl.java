@@ -39,11 +39,11 @@ public class UserServiceImpl implements UserService{
     public void signUp(SignUpRequest signUpRequest) {
 
         if (userRepository.findByUsername(signUpRequest.username()).isPresent()) {
-            throw UserNameAlreadyExistsException.of(signUpRequest.username());
+            throw new UserNameAlreadyExistsException();
         }
 
         if (userRepository.existsByEmail(signUpRequest.email())) {
-            throw UserEmailAlreadyExistsException.of(signUpRequest.email());
+            throw new UserEmailAlreadyExistsException();
         }
 
         User user = User.builder()
@@ -95,7 +95,7 @@ public class UserServiceImpl implements UserService{
     public void existsByUsername(String userName){
 
         if (userRepository.findByUsername(userName).isPresent()) {
-            throw UserNameAlreadyExistsException.of(userName);
+            throw new UserNameAlreadyExistsException();
         }
 
     }
